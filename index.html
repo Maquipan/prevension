@@ -6,8 +6,6 @@
     <title>Capacitación y Registro - MAQUIPAN</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -18,7 +16,6 @@
             --primary-color: #005A9C;
             --secondary-color: #007BFF;
             --accent-color: #FFA500;
-            --success-color: #198754;
             --danger-color: #dc3545;
             --text-color: #333;
             --light-gray: #f4f7f6;
@@ -70,16 +67,11 @@
         h3 { font-size: 1.5em; margin-top: 30px; }
         h4 { font-size: 1.2em; }
         h5 { font-size: 1.1em; color: #555; }
-        ul, ol, pre {
+        ul, ol {
             padding-left: 25px;
         }
         li {
             margin-bottom: 10px;
-        }
-        pre {
-            white-space: pre-wrap;
-            font-family: 'Roboto', sans-serif;
-            font-size: 1em;
         }
         .video-grid {
             display: grid;
@@ -105,7 +97,7 @@
         }
         .video-responsive-wrapper {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
             height: 0;
             overflow: hidden;
             border-radius: 8px;
@@ -159,53 +151,118 @@
         .signature-controls button:hover { background-color: #5a6268; }
         .button-group {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-top: 20px;
         }
-        .action-button {
-            display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 15px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer;
+        .main-button, .clear-button {
+            display: block; width: 100%; padding: 15px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer;
             font-family: 'Montserrat', sans-serif; font-weight: 700; color: white;
-            transition: all 0.3s ease; text-align: center; box-sizing: border-box;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
-        .action-button:hover:not(:disabled) { transform: translateY(-3px); }
-        .action-button:disabled { background-color: #6c757d; cursor: not-allowed; }
-        .action-button .fas, .action-button .fa-solid, .loader { margin-right: 10px; }
-        #btn-email { background-color: var(--success-color); }
-        #btn-email:hover:not(:disabled) { background-color: #157347; }
-        #btn-download { background-color: var(--accent-color); }
-        #btn-download:hover { background-color: #e69500; }
-        #btn-clear { background-color: var(--danger-color); }
-        #btn-clear:hover { background-color: #b02a37; }
-        .loader {
-            width: 18px; height: 18px; border: 3px solid #FFF; border-bottom-color: transparent; border-radius: 50%;
-            display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+        .main-button { background-color: var(--accent-color); }
+        .main-button:hover { background-color: #e69500; transform: translateY(-3px); }
+        .clear-button { background-color: var(--danger-color); }
+        .clear-button:hover { background-color: #b02a37; transform: translateY(-3px); }
+
+        /* Estilos para Celular (Responsive) */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .main-title { font-size: 2em; }
-            .content-box { padding: 15px; }
-            h2 { font-size: 1.5em; }
-            h3 { font-size: 1.3em; }
-            .video-grid, .button-group { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
-            .form-grid > div { grid-column: auto !important; }
-            .header-table, .header-table tbody, .header-table tr, .header-table td { display: block; width: 100%; box-sizing: border-box; }
-            .header-table tr { margin-bottom: 10px; }
-            .header-table td { text-align: center !important; border: none; border-bottom: 1px solid #e0e0e0; padding: 10px 5px; }
-            .header-table tr:last-child td:last-child { border-bottom: none; }
-            .logo-cell { width: auto; padding-bottom: 15px; }
-            .logo-cell img { max-height: 50px; }
-            .participants-table thead { display: none; }
-            .participants-table, .participants-table tbody, .participants-table tr, .participants-table td { display: block; width: 100%; box-sizing: border-box; }
-            .participants-table tr { margin-bottom: 15px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-            .participants-table td { text-align: right !important; padding-left: 50%; position: relative; border: none; padding-bottom: 10px; min-height: 30px; }
-            .participants-table td:before { content: attr(data-label); position: absolute; left: 10px; width: calc(50% - 20px); padding-right: 10px; white-space: nowrap; text-align: left !important; font-weight: bold; font-family: 'Montserrat', sans-serif; }
-            .participants-table td input, .participants-table td .participant-signature-pad { width: 100% !important; }
-            .participants-table td:last-child { padding-bottom: 0; }
-            .signature-pad { width: 100%; height: 150px; }
+            body {
+                padding: 10px;
+            }
+            .main-title {
+                font-size: 2em;
+            }
+            .content-box {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid > div {
+                grid-column: auto !important;
+            }
+            .header-table, .header-table tbody, .header-table tr, .header-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .header-table tr {
+                margin-bottom: 10px;
+            }
+            .header-table td {
+                text-align: center !important;
+                border: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 10px 5px;
+            }
+            .header-table tr:last-child td:last-child {
+                border-bottom: none;
+            }
+            .logo-cell {
+                width: auto;
+                padding-bottom: 15px;
+            }
+            .logo-cell img {
+                max-height: 50px;
+            }
+            .participants-table thead {
+                display: none;
+            }
+            .participants-table, .participants-table tbody, .participants-table tr, .participants-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .participants-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .participants-table td {
+                text-align: right !important;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                padding-bottom: 10px;
+                min-height: 30px;
+            }
+            .participants-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left !important;
+                font-weight: bold;
+                font-family: 'Montserrat', sans-serif;
+            }
+            .participants-table td input,
+            .participants-table td .participant-signature-pad {
+                width: 100% !important;
+            }
+            .participants-table td:last-child {
+                padding-bottom: 0;
+            }
+            .signature-pad {
+                width: 100%;
+                height: 150px;
+            }
+            .button-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -261,7 +318,7 @@
             <h4>Tres pasos para empezar a autocuidarnos:</h4>
             <ol>
                 <li><strong>Toma conciencia de tus actos:</strong> Supongamos que todos los días después de salir de tu lugar de trabajo cruzas a mitad de la calle.  Lo convertiste en un hábito porque consideras que el semáforo está demasiado lejos y nunca has tenido un problema pero, ¿qué te hace creer que nunca te pasará algo?  Muchas veces, y en todos los escenarios de nuestra vida, nos exponemos a riesgos innecesarios sin darnos cuenta de que los accidentes ocurren por descuidos, por la automatización de nuestros actos o porque simplemente le quitamos importancia a los peligros, creyendo que a nosotros nunca nos pasará nada. </li>
-                <li><strong>Tu salud es tu responsabilidad:</strong> ¿Tienes problemas de colesterol pero no cuidas tu alimentación?  ¿Llevas meses sintiendo un dolor en el pecho y has dejado para "después" una visita al doctor?  Entonces no te estás haciendo cargo de aspectos básicos de tu salud que no solo pueden derivar en patologías graves, sino también en sentirte mal y fatigado en el día a día; y exponiéndote a algún accidente en cualquier lugar.  No atender a tiempo las señales que da el organismo sobre algo que no está bien o continuar con nuestros malos hábitos aun sabiendo que estamos enfermos, puede traernos consecuencias a largo plazo. </li>
+                <li><strong>Tu salud es tu responsabilidad:</strong> ¿Tienes problemas de colesterol pero no cuidas tu alimentación?  ¿Llevamos meses sintiendo un dolor en el pecho y has dejado para "después" una visita al doctor?  Entonces no te estás haciendo cargo de aspectos básicos de tu salud que no solo pueden derivar en patologías graves, sino también en sentirte mal y fatigado en el día a día; y exponiéndote a algún accidente en cualquier lugar.  No atender a tiempo las señales que da el organismo sobre algo que no está bien o continuar con nuestros malos hábitos aun sabiendo que estamos enfermos, puede traernos consecuencias a largo plazo. </li>
                 <li><strong>Aprende a pedir ayuda:</strong> Si estás en tu lugar de trabajo y debes usar una máquina pero no sabes cómo hacerlo, lo más prudente es que des aviso y pidas ayuda.  Lamentablemente, no siempre actuamos bajo esa lógica. Si bien es solo un ejemplo, esta actitud también aplica para otras áreas de nuestra vida: muchas veces decidimos exponernos a un riesgo o solucionar problemas solos y sin pedir ayuda.  Es importante entender que no sabemos, ni dominamos todo y que hay cosas de las que no podemos hacernos cargo.  Para sentirnos protegidos o estar mejor, tenemos que entender que acudir a otros por consejo y apoyo es más que necesario. </li>
             </ol>
         </div>
@@ -269,11 +326,36 @@
         <div class="menu-item">
             <h3><i class="fas fa-video" style="color: #6f42c1;"></i> Videoteca de Seguridad</h3>
             <div class="video-grid">
-                <div class="video-card"><p class="video-title">Video: Autocuidado Laboral</p><div class="video-responsive-wrapper"><iframe src="https://www.youtube.com/embed/fbqrC4S6VrU" title="Autocuidado en mi lugar de trabajo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
-                <div class="video-card"><p class="video-title">Video: ¿Por qué nos caímos?</p><div class="video-responsive-wrapper"><iframe src="https://www.youtube.com/embed/arhNl4LmIKE" title="Por que nos caemos y como prevenirlo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
-                <div class="video-card"><p class="video-title">Video: Comportamiento Seguro</p><div class="video-responsive-wrapper"><iframe src="https://www.youtube.com/embed/jgSqALG_NPo" title="2 Comportamiento Seguro" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
-                <div class="video-card"><p class="video-title">Video: Seguridad y Cuidado de las Manos</p><div class="video-responsive-wrapper"><iframe src="https://www.youtube.com/embed/MUjWrgg7AOc" title="Cuide sus manos siempre" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
-                <div class="video-card"><p class="video-title">Video: Prevención de Riesgos Mecánicos</p><div class="video-responsive-wrapper"><iframe src="https://www.youtube.com/embed/CCo9rHZTtcE" title="Cuáles son y cómo identificar los peligros mecánicos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></div>
+                <div class="video-card">
+                    <p class="video-title">Video: Autocuidado Laboral</p>
+                    <div class="video-responsive-wrapper">
+                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/fbqrC4S6VrU" title="Autocuidado en mi lugar de trabajo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <p class="video-title">Video: ¿Por qué nos caímos?</p>
+                     <div class="video-responsive-wrapper">
+                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/arhNl4LmIKE" title="Por que nos caemos y como prevenirlo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <p class="video-title">Video: Comportamiento Seguro</p>
+                    <div class="video-responsive-wrapper">
+                        <iframe width="1308" height="729" src="https://www.youtube.com/embed/jgSqALG_NPo" title="2 Comportamiento Seguro" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <p class="video-title">Video: Seguridad y Cuidado de las Manos</p>
+                    <div class="video-responsive-wrapper">
+                        <iframe width="1094" height="729" src="https://www.youtube.com/embed/MUjWrgg7AOc" title="Cuide sus manos siempre" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
+                 <div class="video-card">
+                    <p class="video-title">Video: Prevención de Riesgos Mecánicos</p>
+                    <div class="video-responsive-wrapper">
+                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/CCo9rHZTtcE" title="Cuáles son y cómo identificar los peligros mecánicos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -282,7 +364,7 @@
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
             <table class="header-table">
-                <tr>
+                 <tr>
                     <td rowspan="2" class="logo-cell"><img src="TU_LOGO_AQUI.png" alt="Logo de la Empresa"></td>
                     <td rowspan="2" class="title">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</td>
                     <td class="info">Tipo: Formato</td>
@@ -326,51 +408,34 @@
             </div>
         </div>
     </div>
-    
     <div class="button-group">
-        <button id="btn-clear" class="action-button" onclick="limpiarFormulario()"><i class="fas fa-trash"></i>Limpiar Formulario</button>
-        <button id="btn-download" class="action-button" onclick="descargarComoPng()"><i class="fas fa-download"></i>Descargar como PNG</button>
-        <button id="btn-email" class="action-button" onclick="enviarCorreoAutomatico()">
-            <span class="button-icon"><i class="fas fa-envelope"></i></span>
-            <span class="button-text">Enviar Registro por Correo</span>
-        </button>
+        <button type="button" class="clear-button" onclick="limpiarFormulario()">Limpiar Formulario y Firmas</button>
+        <button type="button" class="main-button" onclick="descargarComoPng()">Descargar Registro como PNG</button>
     </div>
 </div>
 
 <script>
-    // ------ CONFIGURACIÓN DE EMAILJS ------
-    // Pega aquí los 3 datos que obtuviste de tu panel de EmailJS
-    const EMAILJS_CONFIG = {
-        PUBLIC_KEY: "gOOGkOvycDa_wdBLz",      // <-- PEGA TU PUBLIC KEY AQUÍ
-        SERVICE_ID: "service_0jyvm8m",    // <-- PEGA TU SERVICE ID AQUÍ
-        TEMPLATE_ID: "template_tu52qy4"   // <-- PEGA TU TEMPLATE ID AQUÍ
-    };
-    // ------------------------------------
-
-    (function() {
-        if(EMAILJS_CONFIG.PUBLIC_KEY !== "TU_PUBLIC_KEY") {
-            emailjs.init({ publicKey: EMAILJS_CONFIG.PUBLIC_KEY });
-        }
-    })();
-    
     function initializeSignaturePad(canvasEl) {
         const ctx = canvasEl.getContext('2d');
         let drawing = false;
+
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             const rect = canvasEl.getBoundingClientRect();
             canvasEl.width = rect.width * ratio;
             canvasEl.height = rect.height * ratio;
-            ctx.scale(ratio, ratio);
-            loadSignature(canvasEl.id);
+            canvasEl.getContext('2d').scale(ratio, ratio);
+            loadSignature(canvasEl.id); // Recargar la firma después de redimensionar
         }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
+
         function getPos(event) {
             const rect = canvasEl.getBoundingClientRect();
             let clientX, clientY;
             if (event.touches) {
-                if (event.touches.length === 0) return { x: 0, y: 0 };
+                if (event.touches.length === 0) return;
                 clientX = event.touches[0].clientX;
                 clientY = event.touches[0].clientY;
             } else {
@@ -379,23 +444,48 @@
             }
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
-        function startDrawing(e) { e.preventDefault(); drawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
-        function stopDrawing(e) { if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath(); saveSignature(canvasEl.id, canvasEl.toDataURL()); }
-        function draw(e) { if (!drawing) return; e.preventDefault(); const pos = getPos(e); ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333'; ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function stopDrawing(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            drawing = false;
+            ctx.beginPath();
+            saveSignature(canvasEl.id, canvasEl.toDataURL());
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#333';
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
         canvasEl.addEventListener('mousedown', startDrawing);
         canvasEl.addEventListener('mouseup', stopDrawing);
         canvasEl.addEventListener('mousemove', draw);
         canvasEl.addEventListener('mouseout', stopDrawing);
-        ['touchstart', 'touchmove', 'touchend'].forEach(evt => {
-            canvasEl.addEventListener(evt, (e) => {
-                if (e.touches.length > 1) return;
-                const handler = { 'touchstart': startDrawing, 'touchmove': draw, 'touchend': stopDrawing }[e.type];
-                if (handler) handler(e);
-            }, { passive: false });
-        });
+        canvasEl.addEventListener('touchstart', startDrawing, { passive: false });
+        canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
+        canvasEl.addEventListener('touchmove', draw, { passive: false });
     }
 
-    function saveSignature(id, data) { localStorage.setItem(id, data); }
+    function saveSignature(id, data) {
+        localStorage.setItem(id, data);
+    }
 
     function loadSignature(id) {
         const dataURL = localStorage.getItem(id);
@@ -414,17 +504,16 @@
     function clearSignature(canvasId) {
         const canvas = document.getElementById(canvasId);
         const ctx = canvas.getContext('2d');
-        const ratio = Math.max(window.devicePixelRatio || 1, 1);
-        ctx.clearRect(0, 0, canvas.width * ratio, canvas.height * ratio);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         localStorage.removeItem(canvasId);
     }
     
     function limpiarFormulario() {
-        if (confirm('¿Estás seguro de que quieres borrar todos los datos guardados del formulario? Esta acción no se puede deshacer.')) {
+        if (confirm('¿Estás seguro de que quieres borrar todos los datos del formulario? Esta acción no se puede deshacer.')) {
             const keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key.startsWith('participant_') || key.includes('Signature') || ['fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
+                 if (key.startsWith('participant_') || key.includes('Signature') || ['fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
                     keysToRemove.push(key);
                 }
             }
@@ -434,25 +523,54 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Cristian Pimentel', 'temasTratados': `• Análisis de Accidente Grave (Alerta ACHS): Revisión de caso de amputación por intervención de equipo energizado.\n• Fomento del Autocuidado: Charla sobre la importancia del bienestar y los 3 pasos clave.\n• Reflexión sobre Comportamiento Seguro y Prevención de Riesgos en videos.`};
+        const defaultValues = {
+            'fecha': '2025-06-17',
+            'capacitacion': true,
+            'horaInicio': '08:00',
+            'horaTermino': '09:00',
+            'relatorEncargado': 'Cristian Pimentel',
+            'temasTratados': `• Análisis de Accidente Grave (Alerta ACHS): Revisión de caso de amputación por intervención de equipo energizado.\n• Fomento del Autocuidado: Charla sobre la importancia del bienestar y los 3 pasos clave.\n• Reflexión sobre Comportamiento Seguro y Prevención de Riesgos en videos.`
+        };
+
+        // Cargar datos guardados o establecer valores por defecto
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
             if (input.id) {
                 const savedValue = localStorage.getItem(input.id);
-                if (savedValue !== null) {
-                    if (input.type === 'checkbox') input.checked = savedValue === 'true'; else input.value = savedValue;
-                } else if (defaultValues[input.id] !== undefined) {
-                    if (input.type === 'checkbox') input.checked = defaultValues[input.id]; else input.value = defaultValues[input.id];
+                if (savedValue !== null) { // Si hay valor guardado, usarlo
+                    if (input.type === 'checkbox') {
+                        input.checked = savedValue === 'true';
+                    } else {
+                        input.value = savedValue;
+                    }
+                } else if (defaultValues[input.id] !== undefined) { // Si no, usar valor por defecto
+                     if (input.type === 'checkbox') {
+                        input.checked = defaultValues[input.id];
+                    } else {
+                        input.value = defaultValues[input.id];
+                    }
                 }
-                input.addEventListener('input', () => { const value = input.type === 'checkbox' ? input.checked : input.value; localStorage.setItem(input.id, value); });
+                // Guardar cambios en localStorage
+                input.addEventListener('input', () => {
+                    const value = input.type === 'checkbox' ? input.checked : input.value;
+                    localStorage.setItem(input.id, value);
+                });
             }
         });
+        
+        // Crear tabla de participantes y cargar datos
         const tableBody = document.getElementById('participantesTable').getElementsByTagName('tbody')[0];
         const numParticipants = 6;
         for (let i = 1; i <= numParticipants; i++) {
             const newRow = tableBody.insertRow();
-            newRow.innerHTML = `<td data-label="N°" style="text-align: center;">${i}</td><td data-label="RUT"><input type="text" id="participant_rut_${i}"></td><td data-label="NOMBRE Y APELLIDO"><input type="text" id="participant_name_${i}"></td><td data-label="CARGO"><input type="text" id="participant_cargo_${i}"></td><td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
-            ['rut', 'name', 'cargo'].forEach(type => {
+            newRow.innerHTML = `<td data-label="N°" style="text-align: center;">${i}</td>
+                                <td data-label="RUT"><input type="text" id="participant_rut_${i}"></td>
+                                <td data-label="NOMBRE Y APELLIDO"><input type="text" id="participant_name_${i}"></td>
+                                <td data-label="CARGO"><input type="text" id="participant_cargo_${i}"></td>
+                                <td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
+            
+            // Cargar y guardar datos de los inputs de participantes
+             ['rut', 'name', 'cargo'].forEach(type => {
                 const inputId = `participant_${type}_${i}`;
                 const inputEl = document.getElementById(inputId);
                 const savedValue = localStorage.getItem(inputId);
@@ -460,63 +578,48 @@
                 inputEl.addEventListener('input', () => localStorage.setItem(inputId, inputEl.value));
             });
         }
-        document.querySelectorAll('.signature-pad, .participant-signature-pad').forEach(canvas => { if (canvas) initializeSignaturePad(canvas); });
-    });
-
-    async function getFormAsCanvas() {
-        const formElement = document.getElementById('registroActividadForm');
-        return await html2canvas(formElement, { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
-    }
-
-    async function descargarComoPng() {
-        const canvas = await getFormAsCanvas();
-        const link = document.createElement('a');
-        link.download = 'Registro_Actividad_Maquipan.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    }
-    
-    async function enviarCorreoAutomatico() {
-        if (EMAILJS_CONFIG.PUBLIC_KEY === "TU_PUBLIC_KEY" || !EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID) {
-            alert("Error de Configuración: Debes pegar tus claves de EmailJS en la sección 'CONFIGURACIÓN DE EMAILJS' del código HTML para poder enviar correos.");
-            return;
-        }
-
-        const emailButton = document.getElementById('btn-email');
-        const buttonIcon = emailButton.querySelector('.button-icon');
-        const buttonText = emailButton.querySelector('.button-text');
         
-        emailButton.disabled = true;
-        buttonIcon.innerHTML = '<span class="loader"></span>';
-        buttonText.textContent = 'Enviando...';
+        // Inicializar todos los pads de firma después de que se hayan creado
+        const allCanvases = document.querySelectorAll('.signature-pad, .participant-signature-pad');
+        allCanvases.forEach(canvas => {
+            if (canvas) initializeSignaturePad(canvas);
+        });
 
-        try {
-            const canvas = await getFormAsCanvas();
-            const pngBase64 = canvas.toDataURL('image/png').split(',')[1];
+    });
+    
+    async function descargarComoPng() {
+        const formElement = document.getElementById('registroActividadForm');
+        const temasTextarea = document.getElementById('temasTratados');
+        const containerOfTextarea = temasTextarea.parentElement;
+        const replacementDiv = document.createElement('div');
+        const styles = window.getComputedStyle(temasTextarea);
+        ['width', 'padding', 'border', 'borderRadius', 'fontFamily', 'fontSize', 'lineHeight', 'color', 'boxSizing'].forEach(prop => {
+            replacementDiv.style[prop] = styles[prop];
+        });
+        replacementDiv.style.whiteSpace = 'pre-wrap';
+        replacementDiv.style.wordWrap = 'break-word';
+        replacementDiv.innerHTML = temasTextarea.value;
+        temasTextarea.style.display = 'none';
+        containerOfTextarea.appendChild(replacementDiv);
 
-            const templateParams = {
-                fecha: document.getElementById('fecha').value,
-                relator: document.getElementById('relatorEncargado').value,
-                temas: document.getElementById('temasTratados').value,
-                attachment: pngBase64,
-            };
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-            await emailjs.send(EMAILJS_CONFIG.SERVICE_ID, EMAILJS_CONFIG.TEMPLATE_ID, templateParams);
-            
-            alert('¡Correo enviado exitosamente!');
-            buttonText.textContent = 'Enviado con Éxito';
-
-        } catch (error) {
-            console.error('ERROR AL ENVIAR EL CORREO:', JSON.stringify(error, null, 2));
-            alert(`Error al enviar el correo.\n\nDetalles: ${error.text || JSON.stringify(error)}\n\nRevisa la consola del navegador (F12) para más información.`);
-            buttonText.textContent = 'Error al Enviar';
-        } finally {
-            setTimeout(() => {
-                emailButton.disabled = false;
-                buttonIcon.innerHTML = '<i class="fas fa-envelope"></i>';
-                buttonText.textContent = 'Enviar Registro por Correo';
-            }, 4000);
-        }
+        html2canvas(formElement, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Registro_Actividad_Maquipan.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            containerOfTextarea.removeChild(replacementDiv);
+            temasTextarea.style.display = 'block';
+        }).catch(err => {
+            console.error('Error al generar la imagen:', err);
+            containerOfTextarea.removeChild(replacementDiv);
+            temasTextarea.style.display = 'block';
+        });
     }
 </script>
 
