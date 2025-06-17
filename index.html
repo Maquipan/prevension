@@ -16,6 +16,7 @@
             --primary-color: #005A9C;
             --secondary-color: #007BFF;
             --accent-color: #FFA500;
+            --danger-color: #dc3545;
             --text-color: #333;
             --light-gray: #f4f7f6;
             --white: #ffffff;
@@ -148,12 +149,21 @@
             background-color: #6c757d; color: white; transition: background-color 0.3s ease;
         }
         .signature-controls button:hover { background-color: #5a6268; }
-        .main-button {
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .main-button, .clear-button {
             display: block; width: 100%; padding: 15px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; background-color: var(--accent-color); color: white;
+            font-family: 'Montserrat', sans-serif; font-weight: 700; color: white;
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
+        .main-button { background-color: var(--accent-color); }
         .main-button:hover { background-color: #e69500; transform: translateY(-3px); }
+        .clear-button { background-color: var(--danger-color); }
+        .clear-button:hover { background-color: #b02a37; transform: translateY(-3px); }
 
         /* Estilos para Celular (Responsive) */
         @media (max-width: 768px) {
@@ -181,8 +191,6 @@
             .form-grid > div {
                 grid-column: auto !important;
             }
-
-            /* Tabla de Encabezado Adaptable */
             .header-table, .header-table tbody, .header-table tr, .header-table td {
                 display: block;
                 width: 100%;
@@ -207,9 +215,6 @@
             .logo-cell img {
                 max-height: 50px;
             }
-
-
-            /* Tabla de Participantes Adaptable */
             .participants-table thead {
                 display: none;
             }
@@ -255,6 +260,9 @@
                 width: 100%;
                 height: 150px;
             }
+            .button-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -265,98 +273,13 @@
 
     <div class="content-box">
         <h2><i class="fa-solid fa-book-open"></i>Material de Capacitación - Junio</h2>
-        
-        <div class="menu-item">
-            <h3><i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Alerta ACHS: Accidente Grave</h3>
-            <img src="alerta.PNG" alt="Ilustración de trabajador operando maquinaria" class="alert-image">
-            <h4>Descripción del Accidente</h4>
-            <p>Trabajador de 20 años de edad, y 8 meses de experiencia en la empresa, se encontraba en su turno de mañana, realizando reproceso de madera para aprovechamiento, al pasar un block de madera esta se atasca en la protección fija, lo que le impide continuar con el reproceso. Por esto, el trabajador decide levantar la protección e introducir su mano izquierda en la zona de corte, y al hacerlo, acerca su cuerpo específicamente su rodilla derecha al accionador de la sierra, lo que produce la lesión traumática. </p>
-            <h4>Causas del Accidente</h4>
-            <ul>
-                <li>Falta de conocimiento y experiencia en la tarea a realizar. </li>
-                <li>Deshabilitación del dispositivo de seguridad de la máquina. </li>
-                <li>Realizar intervención de equipo energizado. </li>
-                <li>No realizar bloqueos equipo. </li>
-                <li>Deficiencia en la supervisión directa del trabajo. </li>
-            </ul>
-            <h4>Lecciones Aprendidas</h4>
-            <h5>TRABAJADORES</h5>
-            <ul>
-                <li>Realizar la tarea respetando las normas de seguridad, bloqueo de equipo. </li>
-                <li>Verificar la detención total del equipo antes de intervenirlo. </li>
-                <li>No ejecutar actividades en las que no ha sido capacitado o no se tenga las competencias necesarias. </li>
-                <li>Verificar la NO presencia de energía residual antes de intervenir. </li>
-                <li>Ante una actividad no rutinaria, identificar los peligros, evaluar los riesgos y solicitar a la jefatura la validación de las medidas de control. </li>
-            </ul>
-            <h5>EMPRESAS</h5>
-            <ul>
-                <li>Realizar y difundir procedimiento de trabajo para operar equipos con partes móviles. </li>
-                <li>Entregar información a todos los trabajadores sobre los riesgos de la utilización de equipos con partes móviles. </li>
-                <li>Utilizar elementos de bloqueo de energías. </li>
-                <li>Realizar anclaje de las bases de la pantalla de resguardo, de forma que no se pueda retirar la protección hasta que el equipo este sin energía. </li>
-                <li>Realizar control de los métodos de trabajo y de las medidas de seguridad en la empresa. </li>
-                <li>Tener en cuenta que los líderes son los llamados a modelar la cultura preventiva, por lo tanto sus acciones y omisiones influyen en el comportamiento de los trabajadores. </li>
-                <li>Coordinar con ACHS la realización de los siguientes cursos: Mejoramiento conductual en Prevención de Riesgos y Protección de máquinas. </li>
-            </ul>
-            <h4>Análisis del Comportamiento</h4>
-            <p>Culturalmente se aceptaba intervenir las sierras sin bloquearlas ni desenergizarlas, por lo que el trabajador vio poco probable recibir una sanción por su comportamiento.  En tanto, quiso cumplir de forma rápida su tarea para continuar la operación, no viendo probable la ocurrencia de la amputación. </p>
-            <p class="disclaimer">ESTE MATERIAL SE PRESENTA SOLAMENTE CON FINES INFORMATIVOS Y PERMITE DAR CUMPLIMIENTO A LO ESTABLECIDO POR LA SUSESO EN LA LETRA H, TITULO II, LIBRO IV DEL COMPENDIO DE NORMAS DEL SEGURO SOCIAL DE ACCIDENTES DEL TRABAJO Y ENFERMEDADES PROFESIONALES, LAS EMPRESAS ADHERIDAS DEBERÁN EVALUAR ESTA INFORMACIÓN PARA DETERMINAR SI SE PUEDE APLICAR A SUS SITUACIONES Y PRÁCTICAS ESPECÍFICAS </p>
         </div>
-
-        <div class="menu-item">
-            <h3><i class="fa-solid fa-heart-pulse" style="color: #198754;"></i> Autocuidado: La Clave del Bienestar</h3>
-            <p>Comúnmente asociamos este concepto al ámbito laboral, pero en realidad tiene que ver con mucho más que eso.  Tomar conciencia de la importancia de nuestro propio cuidado es la clave que nos hará alcanzar un bienestar tanto físico como mental.  Hoy llevamos un ritmo de vida tan acelerado, que muchas veces no nos damos cuenta de las cosas que hacemos.  De hecho, existen rutinas o hábitos que tenemos incorporados en nuestro día a día y que nos llevan a funcionar en lo que conocemos como "piloto automático".  Por eso es importante tomarse un tiempo para reflexionar con calma sobre la forma en que nos comportamos en nuestro hogar, trabajo e incluso en la vía pública, para tener una mirada sobre qué valor le damos a nuestro propio cuidado y por qué llegamos a desarrollar la costumbre de no poner atención en ello. </p>
-            <p>Si me cuido yo, ¿entonces quién? Esta es una de las preguntas básicas que surgen cuando hablamos de autocuidado.  Cobra mucho sentido si consideramos que nos rodean infinitas situaciones y elementos que pueden ser un riesgo en cualquier escenario y que no podemos controlar.  Es así incluso en nuestro hogar, el lugar que consideramos más seguro.  Entonces, si asumimos eso y comprendemos que hay un trabajo personal a realizar para que logremos y mantengamos nuestro bienestar, nos daremos cuenta de que cuidarnos a nosotros mismos es un acto que debemos incorporar y poner en práctica cada día. </p>
-            <h4>Tres pasos para empezar a autocuidarnos:</h4>
-            <ol>
-                <li><strong>Toma conciencia de tus actos:</strong> Supongamos que todos los días después de salir de tu lugar de trabajo cruzas a mitad de la calle.  Lo convertiste en un hábito porque consideras que el semáforo está demasiado lejos y nunca has tenido un problema pero, ¿qué te hace creer que nunca te pasará algo?  Muchas veces, y en todos los escenarios de nuestra vida, nos exponemos a riesgos innecesarios sin darnos cuenta de que los accidentes ocurren por descuidos, por la automatización de nuestros actos o porque simplemente le quitamos importancia a los peligros, creyendo que a nosotros nunca nos pasará nada. </li>
-                <li><strong>Tu salud es tu responsabilidad:</strong> ¿Tienes problemas de colesterol pero no cuidas tu alimentación?  ¿Llevas meses sintiendo un dolor en el pecho y has dejado para "después" una visita al doctor?  Entonces no te estás haciendo cargo de aspectos básicos de tu salud que no solo pueden derivar en patologías graves, sino también en sentirte mal y fatigado en el día a día; y exponiéndote a algún accidente en cualquier lugar.  No atender a tiempo las señales que da el organismo sobre algo que no está bien o continuar con nuestros malos hábitos aun sabiendo que estamos enfermos, puede traernos consecuencias a largo plazo. </li>
-                <li><strong>Aprende a pedir ayuda:</strong> Si estás en tu lugar de trabajo y debes usar una máquina pero no sabes cómo hacerlo, lo más prudente es que des aviso y pidas ayuda.  Lamentablemente, no siempre actuamos bajo esa lógica. Si bien es solo un ejemplo, esta actitud también aplica para otras áreas de nuestra vida: muchas veces decidimos exponernos a un riesgo o solucionar problemas solos y sin pedir ayuda.  Es importante entender que no sabemos, ni dominamos todo y que hay cosas de las que no podemos hacernos cargo.  Para sentirnos protegidos o estar mejor, tenemos que entender que acudir a otros por consejo y apoyo es más que necesario. </li>
-            </ol>
-        </div>
-
-        <div class="menu-item">
-            <h3><i class="fas fa-video" style="color: #6f42c1;"></i> Videoteca de Seguridad</h3>
-            <div class="video-grid">
-                <div class="video-card">
-                    <p class="video-title">Video: Autocuidado Laboral</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/fbqrC4S6VrU" title="Autocuidado en mi lugar de trabajo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: ¿Por qué nos caímos?</p>
-                     <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/arhNl4LmIKE" title="Por que nos caemos y como prevenirlo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: Comportamiento Seguro</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1308" height="729" src="https://www.youtube.com/embed/jgSqALG_NPo" title="2 Comportamiento Seguro" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: Seguridad y Cuidado de las Manos</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1094" height="729" src="https://www.youtube.com/embed/MUjWrgg7AOc" title="Cuide sus manos siempre" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                 <div class="video-card">
-                    <p class="video-title">Video: Prevención de Riesgos Mecánicos</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/CCo9rHZTtcE" title="Cuáles son y cómo identificar los peligros mecánicos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="content-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
             <table class="header-table">
-                <tr>
+                 <tr>
                     <td rowspan="2" class="logo-cell"><img src="TU_LOGO_AQUI.png" alt="Logo de la Empresa"></td>
                     <td rowspan="2" class="title">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</td>
                     <td class="info">Tipo: Formato</td>
@@ -395,61 +318,172 @@
                 <div class="signature-container">
                     <label>Firma Relator:</label>
                     <canvas id="relatorSignaturePad" class="signature-pad"></canvas>
-                    <div class="signature-controls"><button type="button" onclick="clearRelatorSignature()">Limpiar Firma</button></div>
+                    <div class="signature-controls"><button type="button" onclick="clearSignature('relatorSignaturePad')">Limpiar Firma</button></div>
                 </div>
             </div>
         </div>
     </div>
-    <button type="button" class="main-button" onclick="descargarComoPng()">Descargar Registro como PNG</button>
+    <div class="button-group">
+        <button type="button" class="clear-button" onclick="limpiarFormulario()">Limpiar Formulario y Firmas</button>
+        <button type="button" class="main-button" onclick="descargarComoPng()">Descargar Registro como PNG</button>
+    </div>
 </div>
 
 <script>
     function initializeSignaturePad(canvasEl) {
         const ctx = canvasEl.getContext('2d');
         let drawing = false;
-        function resizeCanvas() { const rect = canvasEl.getBoundingClientRect(); canvasEl.width = rect.width; canvasEl.height = rect.height; }
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const rect = canvasEl.getBoundingClientRect();
+            canvasEl.width = rect.width * ratio;
+            canvasEl.height = rect.height * ratio;
+            canvasEl.getContext('2d').scale(ratio, ratio);
+            loadSignature(canvasEl.id); // Recargar la firma después de redimensionar
+        }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
+
         function getPos(event) {
             const rect = canvasEl.getBoundingClientRect();
             let clientX, clientY;
-            if (event.touches) { clientX = event.touches[0].clientX; clientY = event.touches[0].clientY; } else { clientX = event.clientX; clientY = event.clientY; }
+            if (event.touches) {
+                if (event.touches.length === 0) return;
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
-        function startDrawing(e) { e.preventDefault(); drawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
-        function stopDrawing() { drawing = false; ctx.beginPath(); }
-        function draw(e) {
-            if (!drawing) return; e.preventDefault(); const pos = getPos(e);
-            ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333';
-            ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
         }
-        canvasEl.addEventListener('mousedown', startDrawing); canvasEl.addEventListener('mouseup', stopDrawing); canvasEl.addEventListener('mousemove', draw); canvasEl.addEventListener('mouseout', stopDrawing);
-        canvasEl.addEventListener('touchstart', startDrawing); canvasEl.addEventListener('touchend', stopDrawing); canvasEl.addEventListener('touchmove', draw); canvasEl.addEventListener('touchcancel', stopDrawing);
+
+        function stopDrawing(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            drawing = false;
+            ctx.beginPath();
+            saveSignature(canvasEl.id, canvasEl.toDataURL());
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#333';
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        canvasEl.addEventListener('mousedown', startDrawing);
+        canvasEl.addEventListener('mouseup', stopDrawing);
+        canvasEl.addEventListener('mousemove', draw);
+        canvasEl.addEventListener('mouseout', stopDrawing);
+        canvasEl.addEventListener('touchstart', startDrawing, { passive: false });
+        canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
+        canvasEl.addEventListener('touchmove', draw, { passive: false });
     }
-    function clearRelatorSignature() {
-        const canvas = document.getElementById('relatorSignaturePad'); const ctx = canvas.getContext('2d');
+
+    function saveSignature(id, data) {
+        localStorage.setItem(id, data);
+    }
+
+    function loadSignature(id) {
+        const dataURL = localStorage.getItem(id);
+        const canvas = document.getElementById(id);
+        if (dataURL && canvas) {
+            const img = new Image();
+            img.onload = function() {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height);
+            };
+            img.src = dataURL;
+        }
+    }
+    
+    function clearSignature(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        localStorage.removeItem(canvasId);
     }
+    
+    function limpiarFormulario() {
+        if (confirm('¿Estás seguro de que quieres borrar todos los datos del formulario? Esta acción no se puede deshacer.')) {
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                 if (key.startsWith('participant_') || key.includes('Signature') || ['fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
+                    keysToRemove.push(key);
+                }
+            }
+            keysToRemove.forEach(key => localStorage.removeItem(key));
+            window.location.reload();
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('fecha').value = '2025-06-17';
-        document.getElementById('capacitacion').checked = true;
-        document.getElementById('horaInicio').value = '08:00';
-        document.getElementById('horaTermino').value = '09:00';
-        document.getElementById('relatorEncargado').value = 'Cristian Pimentel';
-        const temasContent = `• Análisis de Accidente Grave (Alerta ACHS): Revisión de caso de amputación por intervención de equipo energizado.
-• Fomento del Autocuidado: Charla sobre la importancia del bienestar y los 3 pasos clave.
-• Reflexión sobre Comportamiento Seguro y Prevención de Riesgos en videos.`;
-        document.getElementById('temasTratados').value = temasContent;
-        const relatorCanvas = document.getElementById('relatorSignaturePad');
-        initializeSignaturePad(relatorCanvas);
+        // Cargar datos guardados de los inputs
+        const inputs = document.querySelectorAll('input, textarea');
+        inputs.forEach(input => {
+            if (input.id) {
+                const savedValue = localStorage.getItem(input.id);
+                if (savedValue !== null) {
+                    if (input.type === 'checkbox') {
+                        input.checked = savedValue === 'true';
+                    } else {
+                        input.value = savedValue;
+                    }
+                }
+                input.addEventListener('input', () => {
+                    const value = input.type === 'checkbox' ? input.checked : input.value;
+                    localStorage.setItem(input.id, value);
+                });
+            }
+        });
+        
+        // Crear tabla de participantes y cargar datos
         const tableBody = document.getElementById('participantesTable').getElementsByTagName('tbody')[0];
         const numParticipants = 6;
         for (let i = 1; i <= numParticipants; i++) {
             const newRow = tableBody.insertRow();
-            newRow.innerHTML = `<td data-label="N°" style="text-align: center;">${i}</td><td data-label="RUT"><input type="text"></td><td data-label="NOMBRE Y APELLIDO"><input type="text"></td><td data-label="CARGO"><input type="text"></td><td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
-            const participantCanvas = document.getElementById(`participantSignature${i}`);
-            if (participantCanvas) initializeSignaturePad(participantCanvas);
+            newRow.innerHTML = `<td data-label="N°" style="text-align: center;">${i}</td>
+                                <td data-label="RUT"><input type="text" id="participant_rut_${i}"></td>
+                                <td data-label="NOMBRE Y APELLIDO"><input type="text" id="participant_name_${i}"></td>
+                                <td data-label="CARGO"><input type="text" id="participant_cargo_${i}"></td>
+                                <td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
+            
+            // Cargar y guardar datos de los inputs de participantes
+             ['rut', 'name', 'cargo'].forEach(type => {
+                const inputId = `participant_${type}_${i}`;
+                const inputEl = document.getElementById(inputId);
+                const savedValue = localStorage.getItem(inputId);
+                if (savedValue) inputEl.value = savedValue;
+                inputEl.addEventListener('input', () => localStorage.setItem(inputId, inputEl.value));
+            });
         }
+        
+        // Inicializar todos los pads de firma después de que se hayan creado
+        const allCanvases = document.querySelectorAll('.signature-pad, .participant-signature-pad');
+        allCanvases.forEach(canvas => {
+            if (canvas) initializeSignaturePad(canvas);
+        });
+
     });
     
     async function descargarComoPng() {
@@ -461,13 +495,28 @@
         ['width', 'padding', 'border', 'borderRadius', 'fontFamily', 'fontSize', 'lineHeight', 'color', 'boxSizing'].forEach(prop => {
             replacementDiv.style[prop] = styles[prop];
         });
-        replacementDiv.innerHTML = temasTextarea.value.replace(/\n/g, '<br>');
+        replacementDiv.style.whiteSpace = 'pre-wrap';
+        replacementDiv.style.wordWrap = 'break-word';
+        replacementDiv.innerHTML = temasTextarea.value;
         temasTextarea.style.display = 'none';
         containerOfTextarea.appendChild(replacementDiv);
+
         await new Promise(resolve => setTimeout(resolve, 100));
+
         html2canvas(formElement, {
             scale: 2,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            onclone: (clonedDoc) => {
+                // Asegurarse que los canvas clonados tengan sus imágenes
+                 clonedDoc.querySelectorAll('canvas').forEach(canvas => {
+                    const originalCanvas = document.getElementById(canvas.id);
+                    if (originalCanvas) {
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(originalCanvas, 0, 0);
+                    }
+                });
+            }
         }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'Registro_Actividad_Maquipan.png';
