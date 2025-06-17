@@ -154,6 +154,108 @@
             transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .main-button:hover { background-color: #e69500; transform: translateY(-3px); }
+
+        /* Estilos para Celular (Responsive) */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .main-title {
+                font-size: 2em;
+            }
+            .content-box {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.5em;
+            }
+            h3 {
+                font-size: 1.3em;
+            }
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid > div {
+                grid-column: auto !important;
+            }
+
+            /* Tabla de Encabezado Adaptable */
+            .header-table, .header-table tbody, .header-table tr, .header-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .header-table tr {
+                margin-bottom: 10px;
+            }
+            .header-table td {
+                text-align: center !important;
+                border: none;
+                border-bottom: 1px solid #e0e0e0;
+                padding: 10px 5px;
+            }
+            .header-table tr:last-child td:last-child {
+                border-bottom: none;
+            }
+            .logo-cell {
+                width: auto;
+                padding-bottom: 15px;
+            }
+            .logo-cell img {
+                max-height: 50px;
+            }
+
+
+            /* Tabla de Participantes Adaptable */
+            .participants-table thead {
+                display: none;
+            }
+            .participants-table, .participants-table tbody, .participants-table tr, .participants-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .participants-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .participants-table td {
+                text-align: right !important;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                padding-bottom: 10px;
+                min-height: 30px;
+            }
+            .participants-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left !important;
+                font-weight: bold;
+                font-family: 'Montserrat', sans-serif;
+            }
+            .participants-table td input,
+            .participants-table td .participant-signature-pad {
+                width: 100% !important;
+            }
+            .participants-table td:last-child {
+                padding-bottom: 0;
+            }
+            .signature-pad {
+                width: 100%;
+                height: 150px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -344,7 +446,7 @@
         const numParticipants = 6;
         for (let i = 1; i <= numParticipants; i++) {
             const newRow = tableBody.insertRow();
-            newRow.innerHTML = `<td style="text-align: center;">${i}</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
+            newRow.innerHTML = `<td data-label="N°" style="text-align: center;">${i}</td><td data-label="RUT"><input type="text"></td><td data-label="NOMBRE Y APELLIDO"><input type="text"></td><td data-label="CARGO"><input type="text"></td><td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
             const participantCanvas = document.getElementById(`participantSignature${i}`);
             if (participantCanvas) initializeSignaturePad(participantCanvas);
         }
