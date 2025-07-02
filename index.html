@@ -270,6 +270,7 @@
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
 
         const formClone = formElement.cloneNode(true);
+
         formClone.querySelectorAll('input[type="text"]').forEach(input => {
             const valueSpan = document.createElement('span');
             valueSpan.innerHTML = `<strong>${input.value || '__________'}</strong>`;
@@ -294,7 +295,7 @@
         document.body.removeChild(fileDownload);
     }
     
-    // --- FUNCIÓN DE DESCARGA PNG ---
+    // --- FUNCIÓN DE DESCARGA PNG (PARA INFORME DE RIESGOS) ---
     async function descargarInformeRiesgos() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
@@ -307,8 +308,55 @@
         });
     }
 
-    // --- FUNCIONES DE FIRMA Y FORMULARIO ---
+    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD (CORREGIDA) ---
+    async function descargarComoPng() {
+        const formElement = document.getElementById('registroActividadForm');
+        const textarea = document.getElementById('temasTratados');
+        if (!formElement || !textarea) return alert("No se encontró el formulario de registro.");
+
+        const div = document.createElement('div');
+        const computedStyle = window.getComputedStyle(textarea);
+        
+        // Copiamos manualmente los estilos necesarios para evitar el error
+        div.style.width = computedStyle.width;
+        div.style.height = computedStyle.height;
+        div.style.padding = computedStyle.padding;
+        div.style.border = computedStyle.border;
+        div.style.fontFamily = computedStyle.fontFamily;
+        div.style.fontSize = computedStyle.fontSize;
+        div.style.lineHeight = computedStyle.lineHeight;
+        div.style.color = computedStyle.color;
+        div.style.backgroundColor = computedStyle.backgroundColor;
+        div.style.boxSizing = 'border-box';
+        div.style.whiteSpace = 'pre-wrap';
+        div.style.wordWrap = 'break-word';
+        div.innerHTML = textarea.value.replace(/\n/g, '<br>');
+
+        // Reemplazamos temporalmente el textarea con el div
+        textarea.style.display = 'none';
+        textarea.parentElement.appendChild(div);
+
+        await new Promise(r => setTimeout(r, 100)); // Pequeña pausa para asegurar la renderización
+
+        try {
+            const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
+            const link = document.createElement('a');
+            link.download = 'Registro_Actividad.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        } catch (error) {
+            console.error("Error al generar el PNG:", error);
+            alert("Ocurrió un error al generar la imagen.");
+        } finally {
+            // Nos aseguramos de restaurar el textarea original, incluso si hay un error
+            textarea.parentElement.removeChild(div);
+            textarea.style.display = 'block';
+        }
+    }
+
+    // --- FUNCIONES DE FIRMA Y FORMULARIO (SIN CAMBIOS) ---
     function initializeSignaturePad(canvasEl) {
+        if (!canvasEl) return;
         const ctx = canvasEl.getContext('2d');
         let drawing = false;
         function resizeCanvas() {
@@ -358,13 +406,7 @@
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
-        const defaultValues = { 
-            'fecha': new Date().toISOString().split('T')[0], 
-            'capacitacion': true, 
-            'horaInicio': '09:00', 
-            'horaTermino': '10:00', 
-            'relatorEncargado': 'Oscar Cayuqueo / Encargado HSE' // Encargado HSE
-        };
+        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
         document.querySelectorAll('input, textarea').forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem(input.id);
@@ -393,29 +435,6 @@
         const firstTab = document.querySelector('.tab-button');
         if (firstTab) firstTab.click();
     });
-    async function descargarComoPng() {
-        const form = document.getElementById('registroActividadForm');
-        const ta = document.getElementById('temasTratados');
-        const div = document.createElement('div');
-        Object.assign(div.style, { ...window.getComputedStyle(ta), whiteSpace: 'pre-wrap', wordWrap: 'break-word', minHeight: '100px' });
-        div.innerHTML = ta.value.replace(/\n/g, '<br>');
-        ta.style.display = 'none';
-        ta.parentElement.appendChild(div);
-        
-        // Ocultar la firma del canvas del relator y mostrar la imagen para la descarga
-        const signatureSection = form.querySelector('.signature-container');
-        const relatorSignatureImg = signatureSection.querySelector('img');
-        
-        await new Promise(r => setTimeout(r, 100));
-        html2canvas(form, { scale: 2, backgroundColor: '#fff', useCORS: true }).then(c => {
-            const link = document.createElement('a');
-            link.download = 'Registro_Actividad.png';
-            link.href = c.toDataURL(); link.click();
-            ta.parentElement.removeChild(div); ta.style.display = 'block';
-        }).catch(err => {
-            console.error(err); ta.parentElement.removeChild(div); ta.style.display = 'block';
-        });
-    }
 </script>
 
 </body>
