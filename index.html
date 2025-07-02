@@ -120,6 +120,39 @@
             font-size: 0.85em; font-style: italic; color: #777; margin-top: 20px;
             border-top: 1px solid #e0e0e0; padding-top: 15px;
         }
+        
+        /* --- ESTILOS PARA LAS PESTAÑAS DE CAPACITACIÓN --- */
+        .tab-container {
+            display: flex;
+            border-bottom: 2px solid var(--secondary-color);
+            margin-bottom: 25px;
+            flex-wrap: wrap; 
+        }
+        .tab-button {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1em;
+            color: var(--secondary-color);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            margin-bottom: -2px;
+        }
+        .tab-button:hover {
+            background-color: var(--light-gray);
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--accent-color);
+            font-weight: 700;
+        }
+        #tab-content-area {
+            min-height: 200px; /* Evita que el contenedor colapse mientras carga el contenido */
+        }
+        /* --- FIN DE ESTILOS PARA PESTAÑAS --- */
+
         #registroActividadForm { border: none; box-shadow: none; padding: 0; }
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .header-table td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; font-size: 11px; }
@@ -167,102 +200,41 @@
 
         /* Estilos para Celular (Responsive) */
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            .main-title {
-                font-size: 2em;
-            }
-            .content-box {
-                padding: 15px;
-            }
-            h2 {
-                font-size: 1.5em;
-            }
-            h3 {
-                font-size: 1.3em;
-            }
-            .video-grid {
-                grid-template-columns: 1fr;
-            }
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            .form-grid > div {
-                grid-column: auto !important;
-            }
+            body { padding: 10px; }
+            .main-title { font-size: 2em; }
+            .content-box { padding: 15px; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.3em; }
+            .video-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid > div { grid-column: auto !important; }
             .header-table, .header-table tbody, .header-table tr, .header-table td {
-                display: block;
-                width: 100%;
-                box-sizing: border-box;
+                display: block; width: 100%; box-sizing: border-box;
             }
-            .header-table tr {
-                margin-bottom: 10px;
-            }
-            .header-table td {
-                text-align: center !important;
-                border: none;
-                border-bottom: 1px solid #e0e0e0;
-                padding: 10px 5px;
-            }
-            .header-table tr:last-child td:last-child {
-                border-bottom: none;
-            }
-            .logo-cell {
-                width: auto;
-                padding-bottom: 15px;
-            }
-            .logo-cell img {
-                max-height: 50px;
-            }
-            .participants-table thead {
-                display: none;
-            }
+            .header-table tr { margin-bottom: 10px; }
+            .header-table td { text-align: center !important; border: none; border-bottom: 1px solid #e0e0e0; padding: 10px 5px; }
+            .header-table tr:last-child td:last-child { border-bottom: none; }
+            .logo-cell { width: auto; padding-bottom: 15px; }
+            .logo-cell img { max-height: 50px; }
+            .participants-table thead { display: none; }
             .participants-table, .participants-table tbody, .participants-table tr, .participants-table td {
-                display: block;
-                width: 100%;
-                box-sizing: border-box;
+                display: block; width: 100%; box-sizing: border-box;
             }
             .participants-table tr {
-                margin-bottom: 15px;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                padding: 10px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                margin-bottom: 15px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             }
             .participants-table td {
-                text-align: right !important;
-                padding-left: 50%;
-                position: relative;
-                border: none;
-                padding-bottom: 10px;
-                min-height: 30px;
+                text-align: right !important; padding-left: 50%; position: relative; border: none; padding-bottom: 10px; min-height: 30px;
             }
             .participants-table td:before {
-                content: attr(data-label);
-                position: absolute;
-                left: 10px;
-                width: calc(50% - 20px);
-                padding-right: 10px;
-                white-space: nowrap;
-                text-align: left !important;
-                font-weight: bold;
-                font-family: 'Montserrat', sans-serif;
+                content: attr(data-label); position: absolute; left: 10px; width: calc(50% - 20px); padding-right: 10px; white-space: nowrap;
+                text-align: left !important; font-weight: bold; font-family: 'Montserrat', sans-serif;
             }
             .participants-table td input,
-            .participants-table td .participant-signature-pad {
-                width: 100% !important;
-            }
-            .participants-table td:last-child {
-                padding-bottom: 0;
-            }
-            .signature-pad {
-                width: 100%;
-                height: 150px;
-            }
-            .button-group {
-                grid-template-columns: 1fr;
-            }
+            .participants-table td .participant-signature-pad { width: 100% !important; }
+            .participants-table td:last-child { padding-bottom: 0; }
+            .signature-pad { width: 100%; height: 150px; }
+            .button-group { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -272,93 +244,14 @@
     <h1 class="main-title">Portal de Prevención MAQUIPAN</h1>
 
     <div class="content-box">
-        <h2><i class="fa-solid fa-book-open"></i>Material de Capacitación - Junio</h2>
-        
-        <div class="menu-item">
-            <h3><i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Alerta ACHS: Accidente Grave</h3>
-            <img src="alerta.PNG" alt="Ilustración de trabajador operando maquinaria" class="alert-image">
-            <h4>Descripción del Accidente</h4>
-            <p>Trabajador de 20 años de edad, y 8 meses de experiencia en la empresa, se encontraba en su turno de mañana, realizando reproceso de madera para aprovechamiento, al pasar un block de madera esta se atasca en la protección fija, lo que le impide continuar con el reproceso. Por esto, el trabajador decide levantar la protección e introducir su mano izquierda en la zona de corte, y al hacerlo, acerca su cuerpo específicamente su rodilla derecha al accionador de la sierra, lo que produce la lesión traumática. </p>
-            <h4>Causas del Accidente</h4>
-            <ul>
-                <li>Falta de conocimiento y experiencia en la tarea a realizar. </li>
-                <li>Deshabilitación del dispositivo de seguridad de la máquina. </li>
-                <li>Realizar intervención de equipo energizado. </li>
-                <li>No realizar bloqueos equipo. </li>
-                <li>Deficiencia en la supervisión directa del trabajo. </li>
-            </ul>
-            <h4>Lecciones Aprendidas</h4>
-            <h5>TRABAJADORES</h5>
-            <ul>
-                <li>Realizar la tarea respetando las normas de seguridad, bloqueo de equipo. </li>
-                <li>Verificar la detención total del equipo antes de intervenirlo. </li>
-                <li>No ejecutar actividades en las que no ha sido capacitado o no se tenga las competencias necesarias. </li>
-                <li>Verificar la NO presencia de energía residual antes de intervenir. </li>
-                <li>Ante una actividad no rutinaria, identificar los peligros, evaluar los riesgos y solicitar a la jefatura la validación de las medidas de control. </li>
-            </ul>
-            <h5>EMPRESAS</h5>
-            <ul>
-                <li>Realizar y difundir procedimiento de trabajo para operar equipos con partes móviles. </li>
-                <li>Entregar información a todos los trabajadores sobre los riesgos de la utilización de equipos con partes móviles. </li>
-                <li>Utilizar elementos de bloqueo de energías. </li>
-                <li>Realizar anclaje de las bases de la pantalla de resguardo, de forma que no se pueda retirar la protección hasta que el equipo este sin energía. </li>
-                <li>Realizar control de los métodos de trabajo y de las medidas de seguridad en la empresa. </li>
-                <li>Tener en cuenta que los líderes son los llamados a modelar la cultura preventiva, por lo tanto sus acciones y omisiones influyen en el comportamiento de los trabajadores. </li>
-                <li>Coordinar con ACHS la realización de los siguientes cursos: Mejoramiento conductual en Prevención de Riesgos y Protección de máquinas. </li>
-            </ul>
-            <h4>Análisis del Comportamiento</h4>
-            <p>Culturalmente se aceptaba intervenir las sierras sin bloquearlas ni desenergizarlas, por lo que el trabajador vio poco probable recibir una sanción por su comportamiento.  En tanto, quiso cumplir de forma rápida su tarea para continuar la operación, no viendo probable la ocurrencia de la amputación. </p>
-            <p class="disclaimer">ESTE MATERIAL SE PRESENTA SOLAMENTE CON FINES INFORMATIVOS Y PERMITE DAR CUMPLIMIENTO A LO ESTABLECIDO POR LA SUSESO EN LA LETRA H, TITULO II, LIBRO IV DEL COMPENDIO DE NORMAS DEL SEGURO SOCIAL DE ACCIDENTES DEL TRABAJO Y ENFERMEDADES PROFESIONALES, LAS EMPRESAS ADHERIDAS DEBERÁN EVALUAR ESTA INFORMACIÓN PARA DETERMINAR SI SE PUEDE APLICAR A SUS SITUACIONES Y PRÁCTICAS ESPECÍFICAS </p>
-        </div>
-
-        <div class="menu-item">
-            <h3><i class="fa-solid fa-heart-pulse" style="color: #198754;"></i> Autocuidado: La Clave del Bienestar</h3>
-            <p>Comúnmente asociamos este concepto al ámbito laboral, pero en realidad tiene que ver con mucho más que eso.  Tomar conciencia de la importancia de nuestro propio cuidado es la clave que nos hará alcanzar un bienestar tanto físico como mental.  Hoy llevamos un ritmo de vida tan acelerado, que muchas veces no nos damos cuenta de las cosas que hacemos.  De hecho, existen rutinas o hábitos que tenemos incorporados en nuestro día a día y que nos llevan a funcionar en lo que conocemos como "piloto automático".  Por eso es importante tomarse un tiempo para reflexionar con calma sobre la forma en que nos comportamos en nuestro hogar, trabajo e incluso en la vía pública, para tener una mirada sobre qué valor le damos a nuestro propio cuidado y por qué llegamos a desarrollar la costumbre de no poner atención en ello. </p>
-            <p>Si me cuido yo, ¿entonces quién? Esta es una de las preguntas básicas que surgen cuando hablamos de autocuidado.  Cobra mucho sentido si consideramos que nos rodean infinitas situaciones y elementos que pueden ser un riesgo en cualquier escenario y que no podemos controlar.  Es así incluso en nuestro hogar, el lugar que consideramos más seguro.  Entonces, si asumimos eso y comprendemos que hay un trabajo personal a realizar para que logremos y mantengamos nuestro bienestar, nos daremos cuenta de que cuidarnos a nosotros mismos es un acto que debemos incorporar y poner en práctica cada día. </p>
-            <h4>Tres pasos para empezar a autocuidarnos:</h4>
-            <ol>
-                <li><strong>Toma conciencia de tus actos:</strong> Supongamos que todos los días después de salir de tu lugar de trabajo cruzas a mitad de la calle.  Lo convertiste en un hábito porque consideras que el semáforo está demasiado lejos y nunca has tenido un problema pero, ¿qué te hace creer que nunca te pasará algo?  Muchas veces, y en todos los escenarios de nuestra vida, nos exponemos a riesgos innecesarios sin darnos cuenta de que los accidentes ocurren por descuidos, por la automatización de nuestros actos o porque simplemente le quitamos importancia a los peligros, creyendo que a nosotros nunca nos pasará nada. </li>
-                <li><strong>Tu salud es tu responsabilidad:</strong> ¿Tienes problemas de colesterol pero no cuidas tu alimentación?  ¿Llevamos meses sintiendo un dolor en el pecho y has dejado para "después" una visita al doctor?  Entonces no te estás haciendo cargo de aspectos básicos de tu salud que no solo pueden derivar en patologías graves, sino también en sentirte mal y fatigado en el día a día; y exponiéndote a algún accidente en cualquier lugar.  No atender a tiempo las señales que da el organismo sobre algo que no está bien o continuar con nuestros malos hábitos aun sabiendo que estamos enfermos, puede traernos consecuencias a largo plazo. </li>
-                <li><strong>Aprende a pedir ayuda:</strong> Si estás en tu lugar de trabajo y debes usar una máquina pero no sabes cómo hacerlo, lo más prudente es que des aviso y pidas ayuda.  Lamentablemente, no siempre actuamos bajo esa lógica. Si bien es solo un ejemplo, esta actitud también aplica para otras áreas de nuestra vida: muchas veces decidimos exponernos a un riesgo o solucionar problemas solos y sin pedir ayuda.  Es importante entender que no sabemos, ni dominamos todo y que hay cosas de las que no podemos hacernos cargo.  Para sentirnos protegidos o estar mejor, tenemos que entender que acudir a otros por consejo y apoyo es más que necesario. </li>
-            </ol>
-        </div>
-
-        <div class="menu-item">
-            <h3><i class="fas fa-video" style="color: #6f42c1;"></i> Videoteca de Seguridad</h3>
-            <div class="video-grid">
-                <div class="video-card">
-                    <p class="video-title">Video: Autocuidado Laboral</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/fbqrC4S6VrU" title="Autocuidado en mi lugar de trabajo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: ¿Por qué nos caímos?</p>
-                     <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/arhNl4LmIKE" title="Por que nos caemos y como prevenirlo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: Comportamiento Seguro</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1308" height="729" src="https://www.youtube.com/embed/jgSqALG_NPo" title="2 Comportamiento Seguro" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                <div class="video-card">
-                    <p class="video-title">Video: Seguridad y Cuidado de las Manos</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1094" height="729" src="https://www.youtube.com/embed/MUjWrgg7AOc" title="Cuide sus manos siempre" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
-                 <div class="video-card">
-                    <p class="video-title">Video: Prevención de Riesgos Mecánicos</p>
-                    <div class="video-responsive-wrapper">
-                        <iframe width="1296" height="729" src="https://www.youtube.com/embed/CCo9rHZTtcE" title="Cuáles son y cómo identificar los peligros mecánicos" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    </div>
-                </div>
+        <h2><i class="fa-solid fa-book-open"></i>Material de Capacitación</h2>
+        <div class="tab-container">
+            <button class="tab-button active" onclick="loadTabContent(this, 'junio')">Capacitación Junio</button>
             </div>
-        </div>
+        
+        <div id="tab-content-area"></div>
     </div>
+
 
     <div class="content-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
@@ -415,6 +308,31 @@
 </div>
 
 <script>
+    // --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS DESDE ARCHIVOS EXTERNOS ---
+    async function loadTabContent(btn, tabName) {
+        // Marcar el botón presionado como activo
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => button.classList.remove('active'));
+        btn.classList.add('active');
+
+        const contentArea = document.getElementById('tab-content-area');
+        contentArea.innerHTML = '<p>Cargando contenido...</p>'; // Mensaje de carga
+
+        try {
+            // Cargar el archivo HTML correspondiente desde la carpeta /capacitaciones
+            const response = await fetch(`capacitaciones/${tabName}.html`);
+            if (!response.ok) {
+                throw new Error(`No se pudo cargar la capacitación: ${response.statusText}`);
+            }
+            const htmlContent = await response.text();
+            contentArea.innerHTML = htmlContent;
+        } catch (error) {
+            console.error('Error al cargar la pestaña:', error);
+            contentArea.innerHTML = `<p style="color: red;">Error: No se encontró el material de la capacitación '${tabName}'.</p>`;
+        }
+    }
+
+
     function initializeSignaturePad(canvasEl) {
         const ctx = canvasEl.getContext('2d');
         let drawing = false;
@@ -425,7 +343,7 @@
             canvasEl.width = rect.width * ratio;
             canvasEl.height = rect.height * ratio;
             canvasEl.getContext('2d').scale(ratio, ratio);
-            loadSignature(canvasEl.id); // Recargar la firma después de redimensionar
+            loadSignature(canvasEl.id);
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -483,9 +401,7 @@
         canvasEl.addEventListener('touchmove', draw, { passive: false });
     }
 
-    function saveSignature(id, data) {
-        localStorage.setItem(id, data);
-    }
+    function saveSignature(id, data) { localStorage.setItem(id, data); }
 
     function loadSignature(id) {
         const dataURL = localStorage.getItem(id);
@@ -532,25 +448,17 @@
             'temasTratados': `• Análisis de Accidente Grave (Alerta ACHS): Revisión de caso de amputación por intervención de equipo energizado.\n• Fomento del Autocuidado: Charla sobre la importancia del bienestar y los 3 pasos clave.\n• Reflexión sobre Comportamiento Seguro y Prevención de Riesgos en videos.`
         };
 
-        // Cargar datos guardados o establecer valores por defecto
         const inputs = document.querySelectorAll('input, textarea');
         inputs.forEach(input => {
             if (input.id) {
                 const savedValue = localStorage.getItem(input.id);
-                if (savedValue !== null) { // Si hay valor guardado, usarlo
-                    if (input.type === 'checkbox') {
-                        input.checked = savedValue === 'true';
-                    } else {
-                        input.value = savedValue;
-                    }
-                } else if (defaultValues[input.id] !== undefined) { // Si no, usar valor por defecto
-                     if (input.type === 'checkbox') {
-                        input.checked = defaultValues[input.id];
-                    } else {
-                        input.value = defaultValues[input.id];
-                    }
+                if (savedValue !== null) { 
+                    if (input.type === 'checkbox') input.checked = savedValue === 'true';
+                    else input.value = savedValue;
+                } else if (defaultValues[input.id] !== undefined) {
+                     if (input.type === 'checkbox') input.checked = defaultValues[input.id];
+                     else input.value = defaultValues[input.id];
                 }
-                // Guardar cambios en localStorage
                 input.addEventListener('input', () => {
                     const value = input.type === 'checkbox' ? input.checked : input.value;
                     localStorage.setItem(input.id, value);
@@ -558,7 +466,6 @@
             }
         });
         
-        // Crear tabla de participantes y cargar datos
         const tableBody = document.getElementById('participantesTable').getElementsByTagName('tbody')[0];
         const numParticipants = 6;
         for (let i = 1; i <= numParticipants; i++) {
@@ -569,7 +476,6 @@
                                 <td data-label="CARGO"><input type="text" id="participant_cargo_${i}"></td>
                                 <td data-label="FIRMA"><canvas id="participantSignature${i}" class="participant-signature-pad"></canvas></td>`;
             
-            // Cargar y guardar datos de los inputs de participantes
              ['rut', 'name', 'cargo'].forEach(type => {
                 const inputId = `participant_${type}_${i}`;
                 const inputEl = document.getElementById(inputId);
@@ -579,12 +485,16 @@
             });
         }
         
-        // Inicializar todos los pads de firma después de que se hayan creado
         const allCanvases = document.querySelectorAll('.signature-pad, .participant-signature-pad');
         allCanvases.forEach(canvas => {
             if (canvas) initializeSignaturePad(canvas);
         });
 
+        // Cargar la primera pestaña por defecto al iniciar la página
+        const firstTab = document.querySelector('.tab-button');
+        if (firstTab) {
+            firstTab.click();
+        }
     });
     
     async function descargarComoPng() {
