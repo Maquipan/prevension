@@ -6,8 +6,6 @@
     <title>Capacitación y Registro - MAQUIPAN</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/html-to-docx@1.8.0/dist/html-to-docx.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,8 +80,10 @@
         .form-irl-signature-pad { width: 100%; height: 80px; border: 1px solid #ccc; background-color: #fdfdfd; cursor: crosshair; }
         .download-button-irl {
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; color: white; transition: background-color 0.3s ease; margin-top: 10px;
+            font-family: 'Montserrat', sans-serif; font-weight: 700; color: white; transition: background-color 0.3s ease;
         }
+        .download-buttons-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+        
         
         /* ESTILOS REGISTRO ACTIVIDAD */
         #registroActividadForm { border: none; box-shadow: none; padding: 0; }
@@ -122,12 +122,21 @@
             .content-box { padding: 15px; }
             .video-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
+            .download-buttons-container { grid-template-columns: 1fr; }
             .participants-table thead { display: none; }
             .participants-table, .participants-table tbody, .participants-table tr, .participants-table td { display: block; width: 100%; }
             .participants-table tr { margin-bottom: 15px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; }
             .participants-table td { text-align: right !important; padding-left: 50%; position: relative; border: none; }
             .participants-table td:before { content: attr(data-label); position: absolute; left: 10px; width: calc(50% - 20px); text-align: left !important; font-weight: bold; }
             .button-group { grid-template-columns: 1fr; }
+        }
+        
+        /* ESTILOS PARA IMPRESIÓN Y PDF */
+        @media print {
+            body * { visibility: hidden; }
+            #form-irl-container, #form-irl-container * { visibility: visible; }
+            #form-irl-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; border: none; }
+            .download-buttons-container { display: none; }
         }
     </style>
 </head>
@@ -149,7 +158,7 @@
         <div id="tab-content-area"></div>
     </div>
 
-    <div class="content-box">
+    <div class="content-box" id="registro-actividad-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
             <table class="header-table">
@@ -215,15 +224,20 @@
         tabButtons.forEach(button => button.classList.remove('active'));
         btn.classList.add('active');
         const contentArea = document.getElementById('tab-content-area');
+        const registroBox = document.getElementById('registro-actividad-box');
         contentArea.innerHTML = '<p>Cargando contenido...</p>';
         try {
             const response = await fetch(`capacitaciones/${tabName}.html`);
             if (!response.ok) throw new Error(`Error al cargar`);
             contentArea.innerHTML = await response.text();
+            
+            // Oculta/muestra el "Registro de Actividad" según la pestaña
             if (tabName === 'informe-riesgos') {
+                registroBox.style.display = 'none'; // Oculta el registro
                 const firmaCanvas = document.getElementById('firma_trabajador_irl');
                 if (firmaCanvas) initializeSignaturePad(firmaCanvas);
             } else {
+                registroBox.style.display = 'block'; // Muestra el registro
                 const temasTextarea = document.getElementById('temasTratados');
                 const temasSource = contentArea.querySelector('.temas-para-registro');
                 if (temasSource && temasTextarea) {
@@ -240,7 +254,56 @@
         }
     }
 
-    // --- FUNCIONES DE DESCARGA PARA INFORME DE RIESGOS ---
+    // --- FUNCIÓN DE DESCARGA PDF (MÉTODO DE IMPRESIÓN - 100% FIABLE) ---
+    function descargarInformeComoPdf() {
+        alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
+        window.print();
+    }
+
+    // --- FUNCIÓN DE DESCARGA WORD (MÉTODO DIRECTO - MÁXIMA COMPATIBILIDAD) ---
+    function descargarInformeComoWord() {
+        const formElement = document.getElementById('form-irl-container');
+        if (!formElement) return alert('Contenedor del formulario no encontrado.');
+
+        const formClone = formElement.cloneNode(true);
+
+        formClone.querySelectorAll('input[type="text"]').forEach(input => {
+            const valueSpan = document.createElement('span');
+            valueSpan.innerHTML = `<strong>${input.value || '__________'}</strong>`;
+            input.parentNode.replaceChild(valueSpan, input);
+        });
+
+        const canvas = document.getElementById('firma_trabajador_irl');
+        const canvasClone = formClone.querySelector('#firma_trabajador_irl');
+        if (canvas && canvasClone) {
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/png');
+            img.style.width = '250px';
+            canvasClone.parentNode.replaceChild(img, canvasClone);
+        }
+
+        formClone.querySelectorAll('.download-buttons-container').forEach(b => b.remove());
+        
+        const htmlContent = `
+            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+            body { font-family: Arial, sans-serif; font-size: 11px; }
+            table { border-collapse: collapse; width: 100%; page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            td, th { border: 1px solid black; padding: 5px; }
+            .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; font-size: 12px; }
+            .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; }
+            </style></head><body>${formClone.innerHTML}</body></html>`;
+
+        const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(htmlContent);
+        const fileDownload = document.createElement("a");
+        document.body.appendChild(fileDownload);
+        fileDownload.href = source;
+        fileDownload.download = 'Informe_Riesgos_Editable.doc';
+        fileDownload.click();
+        document.body.removeChild(fileDownload);
+    }
+    
+    // --- FUNCIÓN DE DESCARGA PNG (SIN CAMBIOS) ---
     async function descargarInformeRiesgos() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
@@ -252,84 +315,6 @@
             link.click();
         });
     }
-
-    async function descargarInformeComoWord() {
-        const formElement = document.getElementById('form-irl-container');
-        if (!formElement) return alert('Contenedor del formulario no encontrado.');
-        
-        const formClone = formElement.cloneNode(true);
-        formClone.querySelectorAll('input[type="text"]').forEach(input => {
-            const valueSpan = document.createElement('span');
-            valueSpan.textContent = input.value || '__________';
-            valueSpan.style.textDecoration = 'underline';
-            input.parentNode.replaceChild(valueSpan, input);
-        });
-        const canvas = document.getElementById('firma_trabajador_irl');
-        const canvasClone = formClone.querySelector('#firma_trabajador_irl');
-        if (canvas && canvasClone) {
-            const img = document.createElement('img');
-            img.src = canvas.toDataURL('image/png');
-            img.style.width = '250px';
-            canvasClone.parentNode.replaceChild(img, canvasClone);
-        }
-        formClone.querySelectorAll('button').forEach(b => b.remove());
-        const fileBuffer = await htmlToDocx.generateHTML(formClone.outerHTML);
-        const blob = new Blob([fileBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'Informe_Riesgos_Editable.docx';
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
-    // --- FUNCIÓN DE DESCARGA PDF (CORREGIDA Y MEJORADA) ---
-    async function descargarInformeComoPdf() {
-        const formElement = document.getElementById('form-irl-container');
-        if (!formElement) return alert('Contenedor del formulario no encontrado.');
-
-        alert('Preparando descarga PDF. Esto puede tardar un momento...');
-
-        // 1. Clonamos el elemento para modificarlo de forma segura.
-        const formClone = formElement.cloneNode(true);
-
-        // 2. Reemplazamos los campos de texto con su valor.
-        formClone.querySelectorAll('input[type="text"]').forEach(input => {
-            const valueSpan = document.createElement('span');
-            valueSpan.textContent = input.value || '__________';
-            valueSpan.style.textDecoration = 'underline';
-            valueSpan.style.fontSize = '11px';
-            input.parentNode.replaceChild(valueSpan, input);
-        });
-
-        // 3. Reemplazamos el canvas de la firma con una imagen (CRÍTICO para la renderización).
-        const canvas = document.getElementById('firma_trabajador_irl');
-        const canvasClone = formClone.querySelector('#firma_trabajador_irl');
-        if (canvas && canvasClone) {
-            const imgData = canvas.toDataURL('image/png');
-            const signatureImage = document.createElement('img');
-            signatureImage.src = imgData;
-            signatureImage.style.width = '250px';
-            signatureImage.style.border = '1px solid #000';
-            canvasClone.parentNode.replaceChild(signatureImage, canvasClone);
-        }
-
-        // 4. Ocultamos los botones en la copia que se va a imprimir.
-        formClone.querySelectorAll('button').forEach(button => button.remove());
-
-        // 5. Configuramos las opciones de html2pdf.
-        const opt = {
-            margin:       [0.5, 0.5, 0.5, 0.5], // Margen en pulgadas [arriba, izq, abajo, der]
-            filename:     'Informe_Riesgos_Laborales.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, // 'useCORS: true' es clave para las imágenes externas.
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-
-        // 6. Generamos el PDF desde el CLON modificado.
-        html2pdf().from(formClone).set(opt).save();
-    }
-
 
     // --- FUNCIONES DE FIRMA Y FORMULARIO (SIN CAMBIOS) ---
     function initializeSignaturePad(canvasEl) {
@@ -370,11 +355,14 @@
     }
     function limpiarFormulario() {
         if (confirm('¿Estás seguro? Esta acción no se puede deshacer.')) {
-            const k = [];
+            let keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
-                if (localStorage.key(i).startsWith('participant_') || localStorage.key(i).includes('Signature')) k.push(localStorage.key(i));
+                const key = localStorage.key(i);
+                if (key.startsWith('participant_') || key.includes('Signature') || ['fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
+                    keysToRemove.push(key);
+                }
             }
-            k.forEach(key => localStorage.removeItem(key));
+            keysToRemove.forEach(key => localStorage.removeItem(key));
             window.location.reload();
         }
     }
@@ -415,7 +403,7 @@
         ta.style.display = 'none';
         ta.parentElement.appendChild(div);
         await new Promise(r => setTimeout(r, 100));
-        html2canvas(form, { scale: 2, backgroundColor: '#fff' }).then(c => {
+        html2canvas(form, { scale: 2, backgroundColor: '#fff', useCORS: true }).then(c => {
             const link = document.createElement('a');
             link.download = 'Registro_Actividad.png';
             link.href = c.toDataURL(); link.click();
@@ -425,5 +413,6 @@
         });
     }
 </script>
+
 </body>
 </html>
