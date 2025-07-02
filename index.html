@@ -256,10 +256,12 @@
     async function descargarInformeComoWord() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
+        
         const formClone = formElement.cloneNode(true);
         formClone.querySelectorAll('input[type="text"]').forEach(input => {
             const valueSpan = document.createElement('span');
             valueSpan.textContent = input.value || '__________';
+            valueSpan.style.textDecoration = 'underline';
             input.parentNode.replaceChild(valueSpan, input);
         });
         const canvas = document.getElementById('firma_trabajador_irl');
@@ -281,18 +283,51 @@
         URL.revokeObjectURL(url);
     }
 
+    // --- FUNCIÓN DE DESCARGA PDF (CORREGIDA Y MEJORADA) ---
     async function descargarInformeComoPdf() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
-        alert('Preparando descarga PDF...');
+
+        alert('Preparando descarga PDF. Esto puede tardar un momento...');
+
+        // 1. Clonamos el elemento para modificarlo de forma segura.
+        const formClone = formElement.cloneNode(true);
+
+        // 2. Reemplazamos los campos de texto con su valor.
+        formClone.querySelectorAll('input[type="text"]').forEach(input => {
+            const valueSpan = document.createElement('span');
+            valueSpan.textContent = input.value || '__________';
+            valueSpan.style.textDecoration = 'underline';
+            valueSpan.style.fontSize = '11px';
+            input.parentNode.replaceChild(valueSpan, input);
+        });
+
+        // 3. Reemplazamos el canvas de la firma con una imagen (CRÍTICO para la renderización).
+        const canvas = document.getElementById('firma_trabajador_irl');
+        const canvasClone = formClone.querySelector('#firma_trabajador_irl');
+        if (canvas && canvasClone) {
+            const imgData = canvas.toDataURL('image/png');
+            const signatureImage = document.createElement('img');
+            signatureImage.src = imgData;
+            signatureImage.style.width = '250px';
+            signatureImage.style.border = '1px solid #000';
+            canvasClone.parentNode.replaceChild(signatureImage, canvasClone);
+        }
+
+        // 4. Ocultamos los botones en la copia que se va a imprimir.
+        formClone.querySelectorAll('button').forEach(button => button.remove());
+
+        // 5. Configuramos las opciones de html2pdf.
         const opt = {
-            margin: 0.5,
-            filename: 'Informe_Riesgos_Laborales.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            margin:       [0.5, 0.5, 0.5, 0.5], // Margen en pulgadas [arriba, izq, abajo, der]
+            filename:     'Informe_Riesgos_Laborales.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true }, // 'useCORS: true' es clave para las imágenes externas.
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-        html2pdf().from(formElement).set(opt).save();
+
+        // 6. Generamos el PDF desde el CLON modificado.
+        html2pdf().from(formClone).set(opt).save();
     }
 
 
@@ -331,7 +366,7 @@
         }
     }
     function clearSignature(id) {
-        const c = document.getElementById(id); c.getContext('2d').clearRect(0, 0, c.width, c.height); localStorage.removeItem(id);
+        const c = document.getElementById(id); if(c) { c.getContext('2d').clearRect(0, 0, c.width, c.height); localStorage.removeItem(id); }
     }
     function limpiarFormulario() {
         if (confirm('¿Estás seguro? Esta acción no se puede deshacer.')) {
