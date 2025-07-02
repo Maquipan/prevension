@@ -74,6 +74,7 @@
         .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .participants-table th, .participants-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
         .participant-signature-pad { width: 100%; height: 50px; border: 1px solid #e0e0e0; cursor: crosshair; }
+        .signature-container { display: flex; flex-direction: column; align-items: flex-start; }
         .button-group-registro { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
         .main-button, .clear-button { padding: 15px; font-size: 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Montserrat', sans-serif; color: white; }
         .main-button { background-color: var(--accent-color); }
@@ -81,10 +82,24 @@
 
         /* ESTILOS PARA IMPRESIÓN (PDF) */
         @media print {
-            body > * { display: none; }
-            .printable-area, .printable-area * { display: block !important; visibility: visible !important; }
-            .printable-area { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; padding: 20px; }
-            .no-print { display: none !important; }
+            body > .container > * { display: none; }
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+            .printable-area {
+                display: block !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .no-print-in-form {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -121,17 +136,26 @@
                     <td class="info"><strong>Gerencia:</strong> Servicio</td>
                     <td class="info" colspan="2"><strong>Area:</strong> Servicio</td>
                 </tr>
-                <tr><td colspan="3" style="height: 10px;"></td></tr>
                 <tr>
-                    <td colspan="3"><strong>RELATOR/ENCARGADO:</strong> Oscar Cayuqueo</td>
+                    <td class="info">Emitido por: Gerencia de Finanzas</td>
+                    <td class="info">Disposición: Uso Interno</td>
+                    <td class="info">Pág.: 1 de 1</td>
                 </tr>
                 <tr>
-                    <td colspan="3">
-                        <p><strong>Firma Relator:</strong></p>
-                        <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-width: 200px; margin-top: 5px;">
-                    </td>
+                    <td class="info">Aprobado por: Gerente de Finanzas</td>
+                    <td></td>
+                    <td>Fecha: 02-07-2025</td>
                 </tr>
             </table>
+            
+            <div class="section">
+                <label for="relatorEncargado">RELATOR/ENCARGADO</label>
+                <input type="text" id="relatorEncargado" readonly>
+                 <div style="margin-top: 10px;">
+                    <label>Firma Relator:</label><br>
+                    <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-width: 200px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+                </div>
+            </div>
 
             <div class="section">
                 <label for="temasTratados">TEMAS TRATADOS</label>
@@ -140,7 +164,7 @@
             
             <div class="section">
                 <label>PARTICIPANTE</label>
-                <table class="participants-table">
+                <table class="participants-table" id="participantesTable">
                     <thead><tr><th>RUT</th><th>NOMBRE Y APELLIDO</th><th>CARGO</th><th>FIRMA</th></tr></thead>
                     <tbody>
                         <tr>
@@ -153,7 +177,7 @@
                 </table>
             </div>
             
-            <div class="button-group-registro no-print">
+            <div class="button-group-registro no-print-in-form">
                 <button type="button" class="clear-button" onclick="limpiarFormulario()">Limpiar</button>
                 <button type="button" class="main-button" onclick="descargarComoPng()">Descargar PNG</button>
                 <button type="button" class="main-button" style="background-color: var(--danger-color);" onclick="descargarRegistroComoPdf()">Descargar PDF</button>
@@ -163,16 +187,20 @@
 </div>
 
 <script>
-    // --- FUNCIÓN PARA PREPARAR LA IMPRESIÓN DE UN ÁREA ESPECÍFICA ---
     function prepareForPrinting(elementId) {
         document.querySelectorAll('.printable-area').forEach(el => el.classList.remove('printable-area'));
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.classList.add('printable-area');
+        const elementToPrint = document.getElementById(elementId);
+        if (elementToPrint) {
+            // Buscamos el ancestro .content-box para hacerlo imprimible
+            const parentBox = elementToPrint.closest('.content-box');
+            if (parentBox) {
+                parentBox.classList.add('printable-area');
+            } else {
+                elementToPrint.classList.add('printable-area');
+            }
         }
     }
 
-    // --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS ---
     async function loadTabContent(btn, tabName) {
         document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -201,28 +229,15 @@
         }
     }
 
-    // --- FUNCIONES DE DESCARGA PARA 'INFORME DE RIESGOS LABORALES' ---
-    function descargarInformeComoPdf() {
-        prepareForPrinting('form-irl-container');
+    function descargarRegistroComoPdf() {
+        prepareForPrinting('registroActividadForm');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
     
-    function descargarInformeRiesgos() {
+    function descargarInformeComoPdf() {
+        // Esta función es para el otro formulario y usa la misma técnica
         prepareForPrinting('form-irl-container');
-        const formElement = document.getElementById('form-irl-container');
-        if (!formElement) return alert('Contenedor no encontrado.');
-        html2canvas(formElement, { scale: 2, useCORS: true }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'Informacion_Riesgos_Laborales.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        });
-    }
-
-    // --- FUNCIONES DE DESCARGA PARA 'REGISTRO DE ACTIVIDAD' ---
-    function descargarRegistroComoPdf() {
-        prepareForPrinting('registroActividadForm');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
@@ -239,7 +254,6 @@
         });
     }
 
-    // --- FUNCIONES DE FIRMA Y FORMULARIO ---
     function initializeSignaturePad(canvasEl) {
         if (!canvasEl) return;
         const ctx = canvasEl.getContext('2d');
@@ -284,6 +298,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('relatorEncargado').value = "Oscar Cayuqueo";
+        
         // Inicializar firma del único participante
         const firmaParticipante = document.getElementById('p_sig_1');
         if (firmaParticipante) {
@@ -295,6 +311,10 @@
             firstTab.click();
         }
     });
+
+    // Dummy functions for the other form to prevent errors if called
+    function descargarInformeRiesgos() { alert('Función no aplicable en esta vista.'); }
+    function descargarInformeComoWord() { alert('Función no aplicable en esta vista.'); }
 </script>
 
 </body>
