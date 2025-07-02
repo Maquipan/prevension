@@ -161,30 +161,28 @@
     <div class="content-box" id="registro-actividad-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
-<table class="header-table">
-     <tr>
-        <td rowspan="2" class="logo-cell"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo de la Empresa"></td>
-        <td rowspan="2" class="title">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</td>
-        <td class="info">Tipo: Formato</td>
-    </tr>
-    <tr><td class="info">Rev.: 001</td></tr>
-    
-    <tr>
-        <td class="info"><strong>Gerencia:</strong> Servicio</td>
-        <td class="info" colspan="2"><strong>Area:</strong> Servicio</td>
-    </tr>
-
-    <tr>
-        <td class="info">Emitido por: Gerencia de Finanzas</td>
-        <td class="info">Disposición: Uso Interno</td>
-        <td class="info">Pág.: 1 de 1</td>
-    </tr>
-    <tr>
-        <td class="info">Aprobado por: Gerente de Finanzas</td>
-        <td class="info"></td>
-        <td class="info">Fecha: 02-07-2025</td>
-    </tr>
-</table>
+            <table class="header-table">
+                 <tr>
+                    <td rowspan="2" class="logo-cell"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo de la Empresa"></td>
+                    <td rowspan="2" class="title">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</td>
+                    <td>Tipo: Formato</td>
+                </tr>
+                <tr><td>Rev.: 001</td></tr>
+                <tr>
+                    <td class="info"><strong>Gerencia:</strong> Servicio</td>
+                    <td class="info" colspan="2"><strong>Area:</strong> Servicio</td>
+                </tr>
+                <tr>
+                    <td class="info">Emitido por: Gerencia de Finanzas</td>
+                    <td class="info">Disposición: Uso Interno</td>
+                    <td class="info">Pág.: 1 de 1</td>
+                </tr>
+                <tr>
+                    <td class="info">Aprobado por: Gerente de Finanzas</td>
+                    <td></td>
+                    <td>Fecha: 02-07-2025</td>
+                </tr>
+            </table>
             <div class="section">
                 <div class="checkbox-group">
                     <div class="checkbox-item"><input type="checkbox" id="charla" name="tipoActividad"><label for="charla">Charla</label></div>
@@ -201,19 +199,20 @@
                 <div style="grid-column: span 4;"><label for="horaTermino">Hora de Término:</label><input type="time" id="horaTermino"></div>
             </div>
             <div class="section"><label for="temasTratados">TEMAS TRATADOS</label><textarea id="temasTratados" rows="8"></textarea></div>
+            
             <div class="section"><label for="relatorEncargado">RELATOR/ENCARGADO</label><input type="text" id="relatorEncargado"></div>
+            <div class="section">
+                <div class="signature-container">
+                    <label>Firma Relator:</label>
+                    <img src="https://raw.githubusercontent.com/Maquipan/prevension/refs/heads/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; border: 1px solid #ccc; margin-top: 5px;">
+                </div>
+            </div>
+            
             <div class="section"><label>PARTICIPANTES</label>
                 <table class="participants-table" id="participantesTable">
                     <thead><tr><th>N°</th><th>RUT</th><th>NOMBRE Y APELLIDO</th><th>CARGO</th><th>FIRMA</th></tr></thead>
                     <tbody></tbody>
                 </table>
-            </div>
-            <div class="section">
-                <div class="signature-container">
-                    <label>Firma Relator:</label>
-                    <canvas id="relatorSignaturePad" class="signature-pad"></canvas>
-                    <div class="signature-controls"><button type="button" onclick="clearSignature('relatorSignaturePad')">Limpiar Firma</button></div>
-                </div>
             </div>
         </div>
         <div class="button-group">
@@ -237,13 +236,12 @@
             if (!response.ok) throw new Error(`Error al cargar`);
             contentArea.innerHTML = await response.text();
             
-            // Oculta/muestra el "Registro de Actividad" según la pestaña
             if (tabName === 'informe-riesgos') {
-                registroBox.style.display = 'none'; // Oculta el registro
+                registroBox.style.display = 'none';
                 const firmaCanvas = document.getElementById('firma_trabajador_irl');
                 if (firmaCanvas) initializeSignaturePad(firmaCanvas);
             } else {
-                registroBox.style.display = 'block'; // Muestra el registro
+                registroBox.style.display = 'block';
                 const temasTextarea = document.getElementById('temasTratados');
                 const temasSource = contentArea.querySelector('.temas-para-registro');
                 if (temasSource && temasTextarea) {
@@ -260,25 +258,23 @@
         }
     }
 
-    // --- FUNCIÓN DE DESCARGA PDF (MÉTODO DE IMPRESIÓN - 100% FIABLE) ---
+    // --- FUNCIÓN DE DESCARGA PDF (MÉTODO DE IMPRESIÓN) ---
     function descargarInformeComoPdf() {
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
 
-    // --- FUNCIÓN DE DESCARGA WORD (MÉTODO DIRECTO - MÁXIMA COMPATIBILIDAD) ---
+    // --- FUNCIÓN DE DESCARGA WORD (MÉTODO DIRECTO) ---
     function descargarInformeComoWord() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
 
         const formClone = formElement.cloneNode(true);
-
         formClone.querySelectorAll('input[type="text"]').forEach(input => {
             const valueSpan = document.createElement('span');
             valueSpan.innerHTML = `<strong>${input.value || '__________'}</strong>`;
             input.parentNode.replaceChild(valueSpan, input);
         });
-
         const canvas = document.getElementById('firma_trabajador_irl');
         const canvasClone = formClone.querySelector('#firma_trabajador_irl');
         if (canvas && canvasClone) {
@@ -287,19 +283,8 @@
             img.style.width = '250px';
             canvasClone.parentNode.replaceChild(img, canvasClone);
         }
-
         formClone.querySelectorAll('.download-buttons-container').forEach(b => b.remove());
-        
-        const htmlContent = `
-            <!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-            body { font-family: Arial, sans-serif; font-size: 11px; }
-            table { border-collapse: collapse; width: 100%; page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
-            td, th { border: 1px solid black; padding: 5px; }
-            .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; font-size: 12px; }
-            .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; }
-            </style></head><body>${formClone.innerHTML}</body></html>`;
-
+        const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body { font-family: Arial, sans-serif; font-size: 11px; } table { border-collapse: collapse; width: 100%; page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } td, th { border: 1px solid black; padding: 5px; } .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; font-size: 12px; } .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; }</style></head><body>${formClone.innerHTML}</body></html>`;
         const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(htmlContent);
         const fileDownload = document.createElement("a");
         document.body.appendChild(fileDownload);
@@ -309,7 +294,7 @@
         document.body.removeChild(fileDownload);
     }
     
-    // --- FUNCIÓN DE DESCARGA PNG (SIN CAMBIOS) ---
+    // --- FUNCIÓN DE DESCARGA PNG ---
     async function descargarInformeRiesgos() {
         const formElement = document.getElementById('form-irl-container');
         if (!formElement) return alert('Contenedor del formulario no encontrado.');
@@ -322,7 +307,7 @@
         });
     }
 
-    // --- FUNCIONES DE FIRMA Y FORMULARIO (SIN CAMBIOS) ---
+    // --- FUNCIONES DE FIRMA Y FORMULARIO ---
     function initializeSignaturePad(canvasEl) {
         const ctx = canvasEl.getContext('2d');
         let drawing = false;
@@ -364,7 +349,7 @@
             let keysToRemove = [];
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
-                if (key.startsWith('participant_') || key.includes('Signature') || ['fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
+                if (key.startsWith('p_') || ['relatorSignaturePad', 'fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
                     keysToRemove.push(key);
                 }
             }
@@ -373,7 +358,13 @@
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
-        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
+        const defaultValues = { 
+            'fecha': new Date().toISOString().split('T')[0], 
+            'capacitacion': true, 
+            'horaInicio': '09:00', 
+            'horaTermino': '10:00', 
+            'relatorEncargado': 'Oscar Cayuqueo' // VALOR POR DEFECTO PARA EL RELATOR
+        };
         document.querySelectorAll('input, textarea').forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem(input.id);
@@ -396,7 +387,9 @@
                 });
             }
         }
-        document.querySelectorAll('.signature-pad, .participant-signature-pad').forEach(c => { if(c) initializeSignaturePad(c); });
+        document.querySelectorAll('.participant-signature-pad').forEach(c => { 
+            if(c) initializeSignaturePad(c); 
+        });
         const firstTab = document.querySelector('.tab-button');
         if (firstTab) firstTab.click();
     });
@@ -408,6 +401,11 @@
         div.innerHTML = ta.value.replace(/\n/g, '<br>');
         ta.style.display = 'none';
         ta.parentElement.appendChild(div);
+        
+        // Ocultar la firma del canvas del relator y mostrar la imagen para la descarga
+        const signatureSection = form.querySelector('.signature-container');
+        const relatorSignatureImg = signatureSection.querySelector('img');
+        
         await new Promise(r => setTimeout(r, 100));
         html2canvas(form, { scale: 2, backgroundColor: '#fff', useCORS: true }).then(c => {
             const link = document.createElement('a');
