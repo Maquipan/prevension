@@ -104,7 +104,7 @@
     </div>
 
     <div class="content-box" id="registro-actividad-box">
-        <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
+        <h2 id="registro-actividad-title"><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
             <table class="header-table" id="pdf-header-table" style="display: none;">
                 <thead>
@@ -192,288 +192,355 @@
 </div>
 
 <script>
-// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS (CORREGIDA) ---
+// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS (CORREGIDA Y MODIFICADA) ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
     btn.classList.add('active');
+    
     const contentArea = document.getElementById('tab-content-area');
-    const registroBox = document.getElementById('registro-actividad-box');
+    const registroForm = document.getElementById('registroActividadForm');
+    const registroTitle = document.getElementById('registro-actividad-title');
+    const pngButton = document.querySelector('.download-button-png');
+    const pdfButton = document.querySelector('.download-button-pdf');
+    const clearButton = document.querySelector('.clear-button');
+
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
 
     // --- MODIFICACIÓN ---
-    // Oculta o muestra el formulario de registro según la pestaña seleccionada
     if (tabName === 'informe-riesgos') {
-        registroBox.style.display = 'none';
+        registroForm.style.display = 'none'; // Oculta solo el formulario
+        registroTitle.style.display = 'none'; // Oculta el título "Registro de Actividad"
+        clearButton.style.display = 'none'; // Oculta el botón de limpiar
+        
+        // Cambia la acción de los botones para descargar el contenido de la pestaña
+        pngButton.setAttribute('onclick', 'descargarTabComoPng()');
+        pdfButton.setAttribute('onclick', 'descargarTabComoPdf()');
     } else {
-        registroBox.style.display = 'block';
+        registroForm.style.display = 'block'; // Muestra el formulario
+        registroTitle.style.display = 'block'; // Muestra el título
+        clearButton.style.display = 'block'; // Muestra el botón de limpiar
+
+        // Restaura la acción original de los botones
+        pngButton.setAttribute('onclick', 'descargarComoPng()');
+        pdfButton.setAttribute('onclick', 'descargarComoPdfNativo()');
     }
     // --- FIN DE LA MODIFICACIÓN ---
 
     try {
-        // Esta línea busca el archivo .html correspondiente en la carpeta 'capacitaciones'
         const response = await fetch(`capacitaciones/${tabName}.html`);
-        
         if (!response.ok) {
             throw new Error(`Error al cargar el archivo: ${response.statusText}`);
         }
-        
         contentArea.innerHTML = await response.text();
-        
-        // Lógica para auto-llenar el textarea de temas
         const temasTextarea = document.getElementById('temasTratados');
         const temasSource = contentArea.querySelector('.temas-para-registro');
         if (temasSource && temasTextarea) {
             temasTextarea.value = temasSource.textContent.trim();
             localStorage.setItem('temasTratados', temasTextarea.value);
         }
-
     } catch (error) {
         console.error('Error al cargar la pestaña:', error);
         contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b><br>Asegúrate de que el archivo 'capacitaciones/${tabName}.html' exista.</p>`;
     }
 }
-    // --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
-    async function descargarComoPdfNativo() {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-        const margin = 15;
-        const docWidth = pdf.internal.pageSize.getWidth();
-        let y = 15; // Posición Y inicial
+// --- NUEVAS FUNCIONES DE DESCARGA PARA EL CONTENIDO DE LA PESTAÑA ---
+async function descargarTabComoPng() {
+    const contentArea = document.getElementById('tab-content-area');
+    alert("Generando PNG del informe... por favor espere.");
+    try {
+        const canvas = await html2canvas(contentArea, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = `Informe_Riesgos_Laborales.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch(e) {
+        console.error("Error al generar PNG del informe:", e);
+        alert("Hubo un problema al generar la imagen PNG del informe.");
+    }
+}
 
-        // --- 1. CABECERA ---
-        pdf.autoTable({
-            html: '#pdf-header-table',
-            startY: y,
-            theme: 'grid',
-            styles: {
-                fontSize: 8,
-                cellPadding: 1.5,
-                halign: 'center',
-                valign: 'middle'
-            },
-            headStyles: {
-                fillColor: [220, 220, 220],
-                textColor: [0, 0, 0],
-                fontStyle: 'bold'
-            },
-            didParseCell: function(data) {
-                if (data.row.section === 'head' && data.column.index === 0) {
-                    data.cell.styles.halign = 'center';
-                    data.cell.styles.valign = 'middle';
-                    const img = document.getElementById('logo-for-pdf');
-                    data.cell.text = ''; 
-                    try {
-                        pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
-                    } catch(e) {
-                        console.error("Error al añadir el logo al PDF:", e);
-                    }
+async function descargarTabComoPdf() {
+    const { jsPDF } = window.jspdf;
+    const contentArea = document.getElementById('tab-content-area');
+    alert("Generando PDF del informe... por favor espere.");
+
+    try {
+        const canvas = await html2canvas(contentArea, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        let heightLeft = pdfHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+
+        while (heightLeft >= 0) {
+          position = heightLeft - pdfHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+          heightLeft -= pdf.internal.pageSize.getHeight();
+        }
+        
+        pdf.save('Informe_Riesgos_Laborales.pdf');
+
+    } catch (e) {
+        console.error("Error al generar PDF del informe:", e);
+        alert("Hubo un problema al generar el PDF del informe.");
+    }
+}
+
+// --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
+async function descargarComoPdfNativo() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+    const margin = 15;
+    const docWidth = pdf.internal.pageSize.getWidth();
+    let y = 15; // Posición Y inicial
+
+    // --- 1. CABECERA ---
+    pdf.autoTable({
+        html: '#pdf-header-table',
+        startY: y,
+        theme: 'grid',
+        styles: {
+            fontSize: 8,
+            cellPadding: 1.5,
+            halign: 'center',
+            valign: 'middle'
+        },
+        headStyles: {
+            fillColor: [220, 220, 220],
+            textColor: [0, 0, 0],
+            fontStyle: 'bold'
+        },
+        didParseCell: function(data) {
+            if (data.row.section === 'head' && data.column.index === 0) {
+                data.cell.styles.halign = 'center';
+                data.cell.styles.valign = 'middle';
+                const img = document.getElementById('logo-for-pdf');
+                data.cell.text = ''; 
+                try {
+                    pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
+                } catch(e) {
+                    console.error("Error al añadir el logo al PDF:", e);
                 }
             }
-        });
-        y = pdf.lastAutoTable.finalY + 10;
-
-        // --- 2. TIPO DE ACTIVIDAD Y FECHAS ---
-        pdf.setFontSize(10);
-        const selectedActivities = [];
-        document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => {
-            selectedActivities.push(cb.dataset.label);
-        });
-
-        pdf.setFont(undefined, 'bold');
-        pdf.text('TIPO DE ACTIVIDAD:', margin, y);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
-        y += 7;
-
-        pdf.setFont(undefined, 'bold');
-        pdf.text('FECHA:', margin, y);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(document.getElementById('fecha').value, margin + 18, y);
-
-        pdf.setFont(undefined, 'bold');
-        pdf.text('HORA INICIO:', margin + 70, y);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
-
-        pdf.setFont(undefined, 'bold');
-        pdf.text('HORA TÉRMINO:', margin + 125, y);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
-        y += 10;
-        
-        // --- 3. TEMAS TRATADOS ---
-        pdf.setFont(undefined, 'bold');
-        pdf.text('TEMAS TRATADOS', margin, y);
-        y += 5;
-        const temasText = document.getElementById('temasTratados').value;
-        const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
-        pdf.setDrawColor(0);
-        pdf.rect(margin, y, docWidth - margin * 2, 40); // Caja contenedora
-        pdf.setFont(undefined, 'normal');
-        pdf.text(textLines, margin + 2, y + 5);
-        y += 45;
-
-        // --- 4. RELATOR Y FIRMA ---
-        pdf.setFont(undefined, 'bold');
-        pdf.text('RELATOR/ENCARGADO:', margin, y);
-        pdf.setFont(undefined, 'normal');
-        pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
-
-        const relatorSigImg = document.getElementById('relator-signature-img');
-        try {
-            pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
-        } catch(e) {
-            console.error("Error al añadir firma del relator:", e);
-        }
-        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
-        pdf.setFontSize(8);
-        pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
-        y += 20;
-
-        // --- 5. TABLA DE PARTICIPANTES ---
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('PARTICIPANTES', margin, y);
-        y += 5;
-
-        const participantCanvas = document.getElementById('p_sig_1');
-        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
-
-        pdf.autoTable({
-            startY: y,
-            head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
-            body: [[
-                document.getElementById('p_rut_1').value,
-                document.getElementById('p_name_1').value,
-                document.getElementById('p_cargo_1').value,
-                ''
-            ]],
-            theme: 'grid',
-            styles: { fontSize: 10, valign: 'middle' },
-            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-            didDrawCell: (data) => {
-                if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                     const sigImgData = participantCanvas.toDataURL('image/png');
-                     try {
-                        pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
-                     } catch(e) {
-                        console.error("Error al añadir firma de participante:", e);
-                     }
-                }
-            },
-            columnStyles: {
-                3: { minCellHeight: 15 }
-            }
-        });
-
-        // --- GUARDAR EL PDF ---
-        pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
-    }
-    
-    // --- FUNCIÓN DE DESCARGA PNG (Calidad Media) ---
-    async function descargarComoPng() {
-        // Esta función ahora usa html2canvas en una versión simplificada
-        const formElement = document.getElementById('registroActividadForm');
-        alert("Generando PNG... por favor espere.");
-        try {
-            const canvas = await html2canvas(formElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-            const link = document.createElement('a');
-            link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } catch(e) {
-            console.error("Error al generar PNG:", e);
-            alert("Hubo un problema al generar la imagen PNG.");
-        }
-    }
-
-    // --- FUNCIONES DE FIRMA Y FORMULARIO ---
-    function initializeSignaturePad(canvasEl) {
-        if (!canvasEl) return;
-        const ctx = canvasEl.getContext('2d');
-        let drawing = false;
-        function resizeCanvas() {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            const rect = canvasEl.getBoundingClientRect();
-            canvasEl.width = rect.width * ratio; canvasEl.height = rect.height * ratio;
-            canvasEl.getContext('2d').scale(ratio, ratio);
-            loadSignature(canvasEl.id);
-        }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas();
-        function getPos(e) {
-            const r = canvasEl.getBoundingClientRect();
-            const cX = e.touches ? e.touches[0].clientX : e.clientX;
-            const cY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: cX - r.left, y: cY - r.top };
-        }
-        function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-        function end(e) { if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath(); saveSignature(canvasEl.id, canvasEl.toDataURL()); }
-        function draw(e) { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333'; ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-        canvasEl.addEventListener('mousedown', start); canvasEl.addEventListener('mouseup', end); canvasEl.addEventListener('mousemove', draw);
-        canvasEl.addEventListener('touchstart', start, { passive: false }); canvasEl.addEventListener('touchend', end, { passive: false }); canvasEl.addEventListener('touchmove', draw, { passive: false });
-    }
-    function saveSignature(id, data) { localStorage.setItem(id, data); }
-    function loadSignature(id) {
-        const data = localStorage.getItem(id);
-        const canvas = document.getElementById(id);
-        if (data && canvas) {
-            const img = new Image();
-            img.onload = () => { canvas.getContext('2d').drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height); };
-            img.src = data;
-        }
-    }
-    function limpiarFormulario() {
-        if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
-            ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) { el.value = ''; localStorage.removeItem(id); }
-            });
-            document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
-                cb.checked = false;
-                localStorage.removeItem(cb.id);
-            });
-            const canvas = document.getElementById('p_sig_1');
-            if (canvas) {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                localStorage.removeItem('p_sig_1');
-            }
-        }
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
-        document.querySelectorAll('input, textarea').forEach(input => {
-            if (input.id) {
-                const saved = localStorage.getItem(input.id);
-                if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
-                else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
-                input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
-            }
-        });
-
-        const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
-        participantInputs.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) {
-                const val = localStorage.getItem(id);
-                if(val) el.value = val;
-                el.addEventListener('input', () => localStorage.setItem(id, el.value));
-            }
-        });
-        
-        const signatureCanvas = document.getElementById('p_sig_1');
-        if(signatureCanvas) {
-            initializeSignaturePad(signatureCanvas);
-        }
-        
-        // Carga la primera pestaña por defecto
-        const firstTab = document.querySelector('.tab-button');
-        if (firstTab) {
-            firstTab.click();
         }
     });
+    y = pdf.lastAutoTable.finalY + 10;
+
+    // --- 2. TIPO DE ACTIVIDAD Y FECHAS ---
+    pdf.setFontSize(10);
+    const selectedActivities = [];
+    document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => {
+        selectedActivities.push(cb.dataset.label);
+    });
+
+    pdf.setFont(undefined, 'bold');
+    pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+    y += 7;
+
+    pdf.setFont(undefined, 'bold');
+    pdf.text('FECHA:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('fecha').value, margin + 18, y);
+
+    pdf.setFont(undefined, 'bold');
+    pdf.text('HORA INICIO:', margin + 70, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+
+    pdf.setFont(undefined, 'bold');
+    pdf.text('HORA TÉRMINO:', margin + 125, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+    y += 10;
+    
+    // --- 3. TEMAS TRATADOS ---
+    pdf.setFont(undefined, 'bold');
+    pdf.text('TEMAS TRATADOS', margin, y);
+    y += 5;
+    const temasText = document.getElementById('temasTratados').value;
+    const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
+    pdf.setDrawColor(0);
+    pdf.rect(margin, y, docWidth - margin * 2, 40); // Caja contenedora
+    pdf.setFont(undefined, 'normal');
+    pdf.text(textLines, margin + 2, y + 5);
+    y += 45;
+
+    // --- 4. RELATOR Y FIRMA ---
+    pdf.setFont(undefined, 'bold');
+    pdf.text('RELATOR/ENCARGADO:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+
+    const relatorSigImg = document.getElementById('relator-signature-img');
+    try {
+        pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
+    } catch(e) {
+        console.error("Error al añadir firma del relator:", e);
+    }
+    pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
+    pdf.setFontSize(8);
+    pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+    y += 20;
+
+    // --- 5. TABLA DE PARTICIPANTES ---
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('PARTICIPANTES', margin, y);
+    y += 5;
+
+    const participantCanvas = document.getElementById('p_sig_1');
+    const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
+
+    pdf.autoTable({
+        startY: y,
+        head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
+        body: [[
+            document.getElementById('p_rut_1').value,
+            document.getElementById('p_name_1').value,
+            document.getElementById('p_cargo_1').value,
+            ''
+        ]],
+        theme: 'grid',
+        styles: { fontSize: 10, valign: 'middle' },
+        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+        didDrawCell: (data) => {
+            if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                 const sigImgData = participantCanvas.toDataURL('image/png');
+                 try {
+                    pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                 } catch(e) {
+                    console.error("Error al añadir firma de participante:", e);
+                 }
+            }
+        },
+        columnStyles: {
+            3: { minCellHeight: 15 }
+        }
+    });
+
+    // --- GUARDAR EL PDF ---
+    pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
+}
+
+// --- FUNCIÓN DE DESCARGA PNG (Calidad Media) ---
+async function descargarComoPng() {
+    // Esta función ahora usa html2canvas en una versión simplificada
+    const formElement = document.getElementById('registroActividadForm');
+    alert("Generando PNG... por favor espere.");
+    try {
+        const canvas = await html2canvas(formElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const link = document.createElement('a');
+        link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    } catch(e) {
+        console.error("Error al generar PNG:", e);
+        alert("Hubo un problema al generar la imagen PNG.");
+    }
+}
+
+// --- FUNCIONES DE FIRMA Y FORMULARIO ---
+function initializeSignaturePad(canvasEl) {
+    if (!canvasEl) return;
+    const ctx = canvasEl.getContext('2d');
+    let drawing = false;
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const rect = canvasEl.getBoundingClientRect();
+        canvasEl.width = rect.width * ratio; canvasEl.height = rect.height * ratio;
+        canvasEl.getContext('2d').scale(ratio, ratio);
+        loadSignature(canvasEl.id);
+    }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
+    function getPos(e) {
+        const r = canvasEl.getBoundingClientRect();
+        const cX = e.touches ? e.touches[0].clientX : e.clientX;
+        const cY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cX - r.left, y: cY - r.top };
+    }
+    function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    function end(e) { if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath(); saveSignature(canvasEl.id, canvasEl.toDataURL()); }
+    function draw(e) { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333'; ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    canvasEl.addEventListener('mousedown', start); canvasEl.addEventListener('mouseup', end); canvasEl.addEventListener('mousemove', draw);
+    canvasEl.addEventListener('touchstart', start, { passive: false }); canvasEl.addEventListener('touchend', end, { passive: false }); canvasEl.addEventListener('touchmove', draw, { passive: false });
+}
+function saveSignature(id, data) { localStorage.setItem(id, data); }
+function loadSignature(id) {
+    const data = localStorage.getItem(id);
+    const canvas = document.getElementById(id);
+    if (data && canvas) {
+        const img = new Image();
+        img.onload = () => { canvas.getContext('2d').drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height); };
+        img.src = data;
+    }
+}
+function limpiarFormulario() {
+    if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
+        ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.value = ''; localStorage.removeItem(id); }
+        });
+        document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
+            cb.checked = false;
+            localStorage.removeItem(cb.id);
+        });
+        const canvas = document.getElementById('p_sig_1');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            localStorage.removeItem('p_sig_1');
+        }
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
+    document.querySelectorAll('input, textarea').forEach(input => {
+        if (input.id) {
+            const saved = localStorage.getItem(input.id);
+            if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
+            else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
+            input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
+        }
+    });
+
+    const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
+    participantInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            const val = localStorage.getItem(id);
+            if(val) el.value = val;
+            el.addEventListener('input', () => localStorage.setItem(id, el.value));
+        }
+    });
+    
+    const signatureCanvas = document.getElementById('p_sig_1');
+    if(signatureCanvas) {
+        initializeSignaturePad(signatureCanvas);
+    }
+    
+    // Carga la primera pestaña por defecto
+    const firstTab = document.querySelector('.tab-button');
+    if (firstTab) {
+        firstTab.click();
+    }
+});
 </script>
 
 </body>
