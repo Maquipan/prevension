@@ -48,7 +48,7 @@
         }
         .tab-button:hover { background-color: var(--light-gray); }
         .tab-button.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 700; }
-        #tab-content-area { min-height: 50px; }
+        #tab-content-area, #informe-riesgos-box { min-height: 50px; }
         .action-button { 
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; 
             font-family: 'Montserrat', sans-serif; font-weight: 700; color: white; transition: background-color 0.3s ease, transform 0.3s ease; text-align: center;
@@ -60,43 +60,28 @@
         #registro-actividad-box .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; align-items: center; }
         #registro-actividad-box label { font-weight: bold; font-family: 'Montserrat', sans-serif; font-size: 13px; color: #333; }
         #registro-actividad-box input, #registro-actividad-box textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 13px; font-family: 'Roboto', sans-serif; }
-        #registro-actividad-box .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        #registro-actividad-box .header-table td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; font-size: 11px; }
-        #registro-actividad-box .logo-cell img { max-width: 100%; max-height: 60px; display: block; margin: auto; }
-        #registro-actividad-box .header-table .title { font-size: 15px; font-weight: bold; color: var(--primary-color); }
-        #registro-actividad-box .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-        #registro-actividad-box .checkbox-item { display: flex; align-items: center; gap: 5px; }
-        #registro-actividad-box .checkbox-item label { font-weight: normal; }
         #registro-actividad-box .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         #registro-actividad-box .participants-table th, #registro-actividad-box .participants-table td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; vertical-align: middle; }
         #registro-actividad-box .participant-signature-pad { width: 100%; height: 50px; background-color: #fdfdfd; border: 1px solid #e0e0e0; cursor: crosshair; border-radius: 5px; }
         #registro-actividad-box .button-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         #registro-actividad-box .clear-button { background-color: var(--danger-color); }
-        #registro-actividad-box .clear-button:hover { background-color: #b02a37; }
         #registro-actividad-box .download-button-png { background-color: var(--secondary-color); }
-        #registro-actividad-box .download-button-png:hover { background-color: #0056b3; }
         #registro-actividad-box .download-button-pdf { background-color: var(--success-color); }
-        #registro-actividad-box .download-button-pdf:hover { background-color: #13653f; }
-
 
         /* --- ESTILOS PARA INFORME DE RIESGOS (IRL) --- */
-        .form-irl-container { border: 1px solid #ccc; padding: 20px; font-family: Arial, sans-serif; color: #000; }
-        .form-irl-header { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .form-irl-header td { border: 1px solid #000; padding: 5px 8px; font-size: 11px; vertical-align: middle; }
-        .form-irl-header .logo-cell-irl { width: 150px; text-align: center; }
-        .form-irl-header .logo-cell-irl img { max-width: 120px; }
-        .form-irl-header .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; }
-        .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; text-align: left; font-size: 12px; margin: 20px 0 10px 0; }
-        .intro-text-irl { font-size: 11px; text-align: justify; margin-bottom: 15px; }
-        .form-irl-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .form-irl-table td, .form-irl-table th { border: 1px solid #999; padding: 6px; font-size: 11px; }
-        .form-irl-table th { background-color: #f2f2f2; }
-        .form-irl-input { width: 95%; border: none; border-bottom: 1px dotted #000; background: transparent; font-size: 11px; }
-        .form-irl-signature-pad { width: 100%; height: 80px; border: 1px solid #ccc; background-color: #fdfdfd; cursor: crosshair; }
-        .download-buttons-container-irl { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
+        #informe-riesgos-box .form-irl-header { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        #informe-riesgos-box .form-irl-header td { border: 1px solid #000; padding: 5px 8px; font-size: 11px; vertical-align: middle; }
+        #informe-riesgos-box .logo-cell-irl img { max-width: 120px; }
+        #informe-riesgos-box .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; }
+        #informe-riesgos-box .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; text-align: left; font-size: 12px; margin: 20px 0 10px 0; }
+        #informe-riesgos-box .form-irl-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        #informe-riesgos-box .form-irl-table td, .form-irl-table th { border: 1px solid #999; padding: 6px; font-size: 11px; }
+        #informe-riesgos-box .form-irl-input { width: 95%; border: none; border-bottom: 1px dotted #000; background: transparent; font-size: 11px; }
+        #informe-riesgos-box .form-irl-signature-pad { width: 100%; height: 80px; border: 1px solid #ccc; background-color: #fdfdfd; cursor: crosshair; }
+        #informe-riesgos-box .download-buttons-container-irl { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
         
         @media (max-width: 768px) {
-            #registro-actividad-box .form-grid, #registro-actividad-box .button-group, .download-buttons-container-irl { grid-template-columns: 1fr; }
+            #registro-actividad-box .form-grid, #registro-actividad-box .button-group { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -111,8 +96,6 @@
             <button class="tab-button active" onclick="loadTabContent(this, 'junio')">Capacitación Junio</button>
             <button class="tab-button" onclick="loadTabContent(this, 'extintores')">Uso y Manejo de Extintores</button>
             <button class="tab-button" onclick="loadTabContent(this, 'protocolos-minsal')">Protocolos MINSAL</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'matriz-riesgo')">Matriz de Riesgos (IPER)</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'proteccion-personal')">Protección Personal (EPP)</button>
             <button class="tab-button" onclick="loadTabContent(this, 'informe-riesgos')">Informe Riesgos Laborales</button>
         </div>
         <div id="tab-content-area"></div>
@@ -122,15 +105,13 @@
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
              <table class="header-table" id="pdf-header-table-registro" style="display:none;">
-                <thead>
-                  <tr>
-                      <th rowspan="2"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo" style="width: 60px;"/></th>
-                      <th rowspan="2">REGISTRO DE ACTIVIDAD<br/>SEGURIDAD Y SALUD OCUPACIONAL</th>
-                      <th>Tipo: Formato</th>
-                  </tr>
-                  <tr><th>Rev.: 001</th></tr>
-                </thead>
                 <tbody>
+                  <tr>
+                      <td rowspan="2"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo" style="max-height: 50px;"/></td>
+                      <td rowspan="2" style="font-weight: bold; font-size: 14px;">REGISTRO DE ACTIVIDAD<br/>SEGURIDAD Y SALUD OCUPACIONAL</td>
+                      <td>Tipo: Formato</td>
+                  </tr>
+                  <tr><td>Rev.: 001</td></tr>
                   <tr><td><strong>Gerencia:</strong> Servicio</td><td colspan="2"><strong>Area:</strong> Servicio</td></tr>
                   <tr><td>Emitido por: Gerencia de Finanzas</td><td>Disposición: Uso Interno</td><td>Pág.: 1 de 1</td></tr>
                   <tr><td>Aprobado por: Gerente de Finanzas</td><td></td><td>Fecha: 02-07-2025</td></tr>
@@ -151,7 +132,7 @@
                 <div style="grid-column: span 4;"><label for="horaInicio">Hora de Inicio:</label><input type="time" id="horaInicio"></div>
                 <div style="grid-column: span 4;"><label for="horaTermino">Hora de Término:</label><input type="time" id="horaTermino"></div>
             </div>
-            <div class="section"><label for="temasTratados">TEMAS TRATADOS</label><textarea id="temasTratados" rows="8"></textarea></div>
+            <div class="section"><label for="temasTratados">TEMAS TRATADOS</label><textarea id="temasTratados" rows="6"></textarea></div>
             <div class="section" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; border: none; padding: 0;">
                 <div style="flex: 1 1 300px;">
                     <label for="relatorEncargado">RELATOR/ENCARGADO</label>
@@ -166,12 +147,7 @@
                 <label>PARTICIPANTE</label>
                 <table class="participants-table" id="participantesTable-registro">
                     <thead>
-                        <tr>
-                            <th>RUT</th>
-                            <th>NOMBRE Y APELLIDO</th>
-                            <th>CARGO</th>
-                            <th>FIRMA</th>
-                        </tr>
+                        <tr><th>RUT</th><th>NOMBRE Y APELLIDO</th><th>CARGO</th><th>FIRMA</th></tr>
                     </thead>
                     <tbody>
                         <tr>
@@ -190,6 +166,52 @@
             <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdfNativoRegistro()">Descargar PDF</button>
         </div>
     </div>
+
+    <div class="content-box" id="informe-riesgos-box" style="display: none;">
+        <h2><i class="fa-solid fa-file-signature"></i>Informe de Riesgos Laborales (IRL)</h2>
+        <div id="form-irl-container-capture">
+             <table class="form-irl-header" id="irl_header_table">
+                <tbody>
+                    <tr>
+                        <td rowspan="2" style="width: 150px; text-align: center;"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo MAQUIPAN" style="max-width: 120px;"></td>
+                        <td rowspan="2" class="title-cell-irl">INFORMACIÓN DE RIESGOS LABORALES</td>
+                        <td>AD&PE-HSE-FO-001</td>
+                    </tr>
+                    <tr><td>Rev.: 001</td></tr>
+                </tbody>
+            </table>
+            <div class="form-irl-section-title">1.- INFORMACIÓN DE LA ACTIVIDAD</div>
+            <table class="form-irl-table" id="irl_activity_table">
+                <tbody>
+                    <tr><td><strong>Nombre:</strong></td><td colspan="3"><input type="text" class="form-irl-input" value="Información de los Riesgos Laborales"></td></tr>
+                    <tr><td><strong>Fecha:</strong></td><td><input type="text" class="form-irl-input" value="03-07-2025"></td><td><strong>N° de horas:</strong></td><td><input type="text" class="form-irl-input" value="8 HRS"></td></tr>
+                </tbody>
+            </table>
+            <div class="form-irl-section-title">3.- INFORMACIÓN DE LOS RIESGOS</div>
+            <table class="form-irl-table" id="irl_risk_table">
+                <thead><tr><th>Riesgos</th><th>Consecuencias</th><th>Medidas Preventivas</th></tr></thead>
+                <tbody>
+                    <tr><td>Caídas a distinto nivel.</td><td>Esguinces, Fracturas, Contusiones.</td><td>Usar pasamanos. No transitar por áreas desordenadas. Usar protección sobre 1,8 mt.</td></tr>
+                    <tr><td>Contacto con energía eléctrica.</td><td>Asfixia, Quemaduras, Muerte.</td><td>Bloquear equipo antes de intervenir. Aplicar Procedimiento de Bloqueo.</td></tr>
+                </tbody>
+            </table>
+            <div class="form-irl-section-title">5.- INFORMACIÓN DEL PARTICIPANTE</div>
+            <table class="form-irl-table" id="irl_participant_table">
+                <tbody>
+                    <tr><td><strong>Nombre:</strong></td><td colspan="2"><input type="text" class="form-irl-input" id="irl_worker_name"></td></tr>
+                    <tr><td><strong>RUT:</strong></td><td colspan="2"><input type="text" class="form-irl-input" id="irl_worker_rut"></td></tr>
+                    <tr><td><strong>Cargo:</strong></td><td colspan="2"><input type="text" class="form-irl-input" id="irl_worker_position" value="Técnico de Servicios"></td></tr>
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>Firma:</strong></td>
+                        <td colspan="2"><canvas id="firma_trabajador_irl" class="form-irl-signature-pad" style="width: 100%; height: 60px;"></canvas></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="download-buttons-container-irl">
+                <button type="button" class="action-button" style="background-color: var(--success-color);" onclick="descargarInformeRiesgosNativo()">Descargar PDF</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -200,35 +222,25 @@
         
         const contentArea = document.getElementById('tab-content-area');
         const registroBox = document.getElementById('registro-actividad-box');
-        contentArea.innerHTML = '<p>Cargando...</p>';
+        const informeBox = document.getElementById('informe-riesgos-box');
 
+        contentArea.style.display = 'none';
         registroBox.style.display = 'none';
-        contentArea.style.display = 'block';
+        informeBox.style.display = 'none';
 
         if (tabName === 'informe-riesgos') {
-            try {
-                const response = await fetch(`capacitaciones/${tabName}.html`);
-                if (!response.ok) throw new Error('No se encontró el archivo del informe.');
-                contentArea.innerHTML = await response.text();
-                const firmaCanvasIRL = document.getElementById('firma_trabajador_irl');
-                if (firmaCanvasIRL) initializeSignaturePad(firmaCanvasIRL);
-            } catch (error) {
-                contentArea.innerHTML = `<p style="color: red;"><b>Error:</b> ${error.message}</p>`;
+            informeBox.style.display = 'block';
+            const firmaCanvasIRL = document.getElementById('firma_trabajador_irl');
+            if (firmaCanvasIRL && !firmaCanvasIRL.dataset.initialized) {
+                initializeSignaturePad(firmaCanvasIRL);
+                firmaCanvasIRL.dataset.initialized = 'true';
             }
         } else {
+            contentArea.style.display = 'block';
             registroBox.style.display = 'block';
-             try {
-                const response = await fetch(`capacitaciones/${tabName}.html`);
-                if (!response.ok) throw new Error(`No se encontró el archivo de capacitación.`);
-                contentArea.innerHTML = await response.text();
-                const temasTextarea = document.getElementById('temasTratados');
-                const temasSource = contentArea.querySelector('.temas-para-registro');
-                if (temasSource && temasTextarea) {
-                    temasTextarea.value = temasSource.textContent.trim();
-                }
-            } catch (error) {
-                 contentArea.innerHTML = `<p style="color: red;"><b>Error:</b> ${error.message}</p>`;
-            }
+            contentArea.innerHTML = `<p>Contenido para <strong>${btn.textContent}</strong>. A continuación, complete el registro de actividad.</p>`;
+            const temasTextarea = document.getElementById('temasTratados');
+            if(temasTextarea) temasTextarea.value = `Temas relacionados con: ${btn.textContent}`;
         }
     }
 
@@ -239,68 +251,57 @@
         const margin = 10;
         let y = 15;
 
-        // Función para añadir tablas con manejo de errores
-        const addTable = (elementId, startY, options = {}) => {
-            try {
-                pdf.autoTable({ ...options, html: elementId, startY: startY, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, ...options.styles }, headStyles: { fillColor: [220, 220, 220], textColor: 40, ...options.headStyles }});
-                return pdf.lastAutoTable.finalY;
-            } catch (e) {
-                console.error(`Error al generar tabla para ${elementId}:`, e);
-                return startY;
-            }
-        };
+        alert("Generando PDF de alta calidad, por favor espere...");
 
-        y = addTable('#irl_header_table', y);
-        
-        pdf.setFontSize(8);
-        const introText = document.querySelector('.intro-text-irl')?.textContent || '';
-        const introLines = pdf.splitTextToSize(introText, pdf.internal.pageSize.getWidth() - margin * 2);
-        pdf.text(introLines, margin, y + 5);
-        y = pdf.lastAutoTable.finalY + introLines.length * 3 + 10;
-        
-        y = addTable('#irl_activity_table', y);
-        y = addTable('#irl_risk_table', y + 5);
-        
-        const participantCanvas = document.getElementById('firma_trabajador_irl');
-        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
-        
-        pdf.autoTable({
-            html: '#irl_participant_table',
-            startY: y + 5,
-            theme: 'grid',
-            styles: { fontSize: 8, cellPadding: 1.5, valign: 'middle' },
-            didParseCell: (data) => {
+        try {
+            const parseCell = (data) => {
                 const input = data.cell.element.querySelector('input');
-                if (input) {
-                    data.cell.text = input.value;
-                }
-            },
-            didDrawCell: (data) => {
-                if (data.row.index === 0 && data.column.index === 2 && !isSignatureEmpty) {
-                    const sigImgData = participantCanvas.toDataURL('image/png');
-                    pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 40, 15);
-                }
-            }
-        });
+                if (input) data.cell.text = input.value || ' ';
+            };
 
-        pdf.save('Informe_Riesgos_Laborales_Nativo.pdf');
+            pdf.autoTable({ html: '#irl_header_table', startY: y, theme: 'grid' });
+            y = pdf.lastAutoTable.finalY;
+            
+            pdf.autoTable({ html: '#irl_activity_table', startY: y + 5, theme: 'grid', didParseCell: parseCell });
+            y = pdf.lastAutoTable.finalY;
+
+            pdf.autoTable({ html: '#irl_risk_table', startY: y + 5, theme: 'grid' });
+            y = pdf.lastAutoTable.finalY;
+
+            const participantCanvas = document.getElementById('firma_trabajador_irl');
+            const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
+            
+            pdf.autoTable({
+                html: '#irl_participant_table',
+                startY: y + 5,
+                theme: 'grid',
+                styles: { valign: 'middle' },
+                didParseCell: parseCell,
+                didDrawCell: (data) => {
+                    if (data.row.index === 3 && data.column.index === 1 && !isSignatureEmpty) {
+                        const sigImgData = participantCanvas.toDataURL('image/png');
+                        pdf.addImage(sigImgData, 'PNG', data.cell.x + 20, data.cell.y + 2, 60, 20);
+                    }
+                },
+                columnStyles: { 1: { minCellHeight: 25 } }
+            });
+
+            pdf.save('Informe_Riesgos_Laborales.pdf');
+        } catch(e) {
+            console.error("Error al generar el PDF del informe:", e);
+            alert("Hubo un error al crear el PDF. Revise la consola para más detalles.");
+        }
     }
-
-    // --- FUNCIONES DE DESCARGA PARA REGISTRO DE ACTIVIDAD (RESTAURADAS) ---
+    
+    // --- FUNCIONES COMPLETAS PARA REGISTRO DE ACTIVIDAD ---
     async function descargarComoPdfNativoRegistro() {
         const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        const pdf = new jsPDF('p', 'mm', 'a4');
         const margin = 15, docWidth = pdf.internal.pageSize.getWidth();
         let y = 15;
 
-        pdf.autoTable({ html: '#pdf-header-table-registro', startY: y, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, halign: 'center', valign: 'middle' },
-            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: 'bold' },
-            didParseCell: (data) => {
-                if (data.row.section === 'head' && data.column.index === 0) {
-                    const img = data.row.cells[0].element.querySelector('img');
-                    if (img) { data.cell.text = ''; pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
-                }
-            }
+        pdf.autoTable({
+            html: '#pdf-header-table-registro', startY: y, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, halign: 'center', valign: 'middle' }
         });
         y = pdf.lastAutoTable.finalY + 10;
 
@@ -396,7 +397,7 @@
     }
 
 
-    // --- FUNCIONES DE FIRMA Y DE INICIALIZACIÓN ---
+    // --- FUNCIÓN GENERAL DE FIRMA ---
     function initializeSignaturePad(canvasEl) {
         if (!canvasEl) return;
         const ctx = canvasEl.getContext('2d');
@@ -419,8 +420,7 @@
         const start = (e) => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
         const end = () => { drawing = false; ctx.beginPath(); };
         const draw = (e) => {
-            if (!drawing) return;
-            e.preventDefault();
+            if (!drawing) return; e.preventDefault();
             const p = getPos(e);
             ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333';
             ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
@@ -433,6 +433,7 @@
         canvasEl.addEventListener('touchmove', draw, { passive: false });
     }
 
+    // --- Carga Inicial ---
     document.addEventListener('DOMContentLoaded', function() {
         const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
         document.querySelectorAll('#registro-actividad-box input, #registro-actividad-box textarea').forEach(input => {
@@ -444,8 +445,11 @@
             }
         });
         
-        const signatureCanvas = document.getElementById('p_sig_1');
-        if(signatureCanvas) initializeSignaturePad(signatureCanvas);
+        const signatureCanvasRegistro = document.getElementById('p_sig_1');
+        if(signatureCanvasRegistro && !signatureCanvasRegistro.dataset.initialized) {
+            initializeSignaturePad(signatureCanvasRegistro);
+            signatureCanvasRegistro.dataset.initialized = 'true';
+        }
         
         const firstTab = document.querySelector('.tab-button');
         if (firstTab) firstTab.click();
