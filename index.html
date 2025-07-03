@@ -252,32 +252,18 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- NUEVA FUNCIÓN OPTIMIZADA PARA DESCARGAR EL IRL COMO PDF ---
+// --- FUNCIONES DE DESCARGA PARA EL INFORME DE RIESGOS (IRL) ---
 function descargarIrlComoPdfOptimizado() {
     alert("Generando PDF optimizado... por favor espere.");
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     const margin = 15;
     const docWidth = pdf.internal.pageSize.getWidth();
-    let y = 15; // Posición Y inicial
-
-    // 1. Encabezado del documento
+    let y = 15;
     pdf.autoTable({
         html: '#form-irl-container .form-irl-header',
-        startY: y,
-        theme: 'grid',
-        styles: {
-            fontSize: 8,
-            cellPadding: 1.5,
-            lineColor: [0, 0, 0],
-            lineWidth: 0.1
-        },
-        didParseCell: function(data) {
-            if (data.cell.raw.querySelector('img')) {
-                data.cell.styles.halign = 'center';
-                data.cell.styles.valign = 'middle';
-            }
-        },
+        startY: y, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1 },
+        didParseCell: function(data) { if (data.cell.raw.querySelector('img')) { data.cell.styles.halign = 'center'; data.cell.styles.valign = 'middle'; } },
         didDrawCell: function(data) {
             if (data.cell.raw.querySelector('img')) {
                 const img = data.cell.raw.querySelector('img');
@@ -289,75 +275,52 @@ function descargarIrlComoPdfOptimizado() {
         }
     });
     y = pdf.lastAutoTable.finalY;
-
-    // 2. Título de la sección y párrafo de información
     y += 10;
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('1.- INFORMACIÓN DE LA ACTIVIDAD', margin, y);
+    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('1.- INFORMACIÓN DE LA ACTIVIDAD', margin, y);
     y += 7;
-    pdf.setFontSize(9);
-    pdf.setFont(undefined, 'normal');
+    pdf.setFontSize(9); pdf.setFont(undefined, 'normal');
     const introText = document.querySelector('#form-irl-container p').textContent.trim();
     const textLines = pdf.splitTextToSize(introText, docWidth - margin * 2);
     pdf.text(textLines, margin, y);
     y += (textLines.length * 4) + 5;
-
-    // 3. Tabla de información de la actividad y del relator
     pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(1)', startY: y, theme: 'grid' });
     y = pdf.lastAutoTable.finalY + 5;
     pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(2)', startY: y, theme: 'grid' });
     y = pdf.lastAutoTable.finalY;
-
-    // 4. Tabla de riesgos
     y += 10;
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('3.- INFORMACIÓN DE LOS RIESGOS', margin, y);
+    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('3.- INFORMACIÓN DE LOS RIESGOS', margin, y);
     y += 7;
     pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(3)', startY: y, theme: 'grid' });
     y = pdf.lastAutoTable.finalY;
-
-    // 5. Tabla de información del participante (con firma)
     y += 10;
-    pdf.setFontSize(12);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('5.- INFORMACIÓN DEL PARTICIPANTE', margin, y);
+    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('5.- INFORMACIÓN DEL PARTICIPANTE', margin, y);
     y += 7;
     const nombre = document.getElementById('nombre_trabajador_irl').value;
     const rut = document.getElementById('rut_trabajador_irl').value;
-
     pdf.autoTable({
-        startY: y,
-        theme: 'grid',
+        startY: y, theme: 'grid',
         body: [
             [{ content: `Nombre del trabajador:\n${nombre}`, styles: { halign: 'left' } }, { content: `RUT:\n${rut}`, styles: { halign: 'left' } }],
             [{ content: 'Cargo:\nTécnico de Servicios', styles: { halign: 'left' } }, { content: 'Tipo:\n☑ Actualización', styles: { halign: 'left' } }],
             [{ content: 'Firma:', colSpan: 2, styles: { minCellHeight: 30 } }],
         ],
         didDrawCell: function(data) {
-            if (data.row.index === 2) { // Celda de la firma
+            if (data.row.index === 2) {
                 const firmaCanvas = document.getElementById('firma_trabajador_irl');
                 const isSignatureEmpty = !firmaCanvas.getContext('2d').getImageData(0, 0, firmaCanvas.width, firmaCanvas.height).data.some(channel => channel !== 0);
                 if (!isSignatureEmpty) {
-                    const imgData = firmaCanvas.toDataURL('image/png');
-                    pdf.addImage(imgData, 'PNG', data.cell.x + 2, data.cell.y + 2, 60, 20);
+                    const imgData = firmaCanvas.toDataURL('image/jpeg', 0.7); // Comprimir firma
+                    pdf.addImage(imgData, 'JPEG', data.cell.x + 2, data.cell.y + 2, 60, 20);
                 }
             }
         }
     });
-
     pdf.save('Informe_Riesgos_Laborales_Optimizado.pdf');
 }
 
-
-// --- FUNCIÓN DE DESCARGA PNG (sin cambios) ---
 function descargarIrlComoPng() {
     const irlElement = document.getElementById('form-irl-container');
-    if (!irlElement) {
-        alert('Error: No se encontró el contenido del informe.');
-        return;
-    }
+    if (!irlElement) { alert('Error: No se encontró el contenido del informe.'); return; }
     alert(`Generando PNG... por favor espere.`);
     html2canvas(irlElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
         const link = document.createElement('a');
@@ -367,8 +330,7 @@ function descargarIrlComoPng() {
     });
 }
 
-
-// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (MODIFICADA) ---
+// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
@@ -376,32 +338,24 @@ async function loadTabContent(btn, tabName) {
     const contentArea = document.getElementById('tab-content-area');
     const registroBox = document.getElementById('registro-actividad-box');
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
-
     if (tabName === 'informe-riesgos') {
         registroBox.style.display = 'none';
     } else {
         registroBox.style.display = 'block';
     }
-
     try {
         const response = await fetch(`capacitaciones/${tabName}.html`);
         if (!response.ok) throw new Error(`Error al cargar: ${response.statusText}`);
-        
         contentArea.innerHTML = await response.text();
-        
         if (tabName === 'informe-riesgos') {
             const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
             if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
-
             const pngBtn = document.getElementById('descargarPngIrlBtn');
             if(pngBtn) pngBtn.onclick = descargarIrlComoPng;
-
             const pdfBtn = document.getElementById('descargarPdfIrlBtn');
-            if(pdfBtn) pdfBtn.onclick = descargarIrlComoPdfOptimizado; // <--- Llamando a la nueva función optimizada
-            
+            if(pdfBtn) pdfBtn.onclick = descargarIrlComoPdfOptimizado;
             const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
             if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
-
         } else {
             const temasTextarea = document.getElementById('temasTratados');
             const temasSource = contentArea.querySelector('.temas-para-registro');
@@ -416,8 +370,7 @@ async function loadTabContent(btn, tabName) {
     }
 }
 
-
-// --- FUNCIONES ORIGINALES DEL FORMULARIO DE REGISTRO (COMPLETAS) ---
+// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIÓN DE PESO) ---
 async function descargarComoPdfNativo() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -431,8 +384,7 @@ async function descargarComoPdfNativo() {
         didParseCell: function(data) {
             if (data.row.section === 'head' && data.column.index === 0) {
                 const img = document.getElementById('logo-for-pdf');
-                data.cell.text = ''; 
-                try { pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
+                try { pdf.addImage(img, 'JPEG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
                 catch(e) { console.error("Error al añadir el logo al PDF:", e); }
             }
         }
@@ -441,48 +393,32 @@ async function descargarComoPdfNativo() {
     pdf.setFontSize(10);
     const selectedActivities = [];
     document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => selectedActivities.push(cb.dataset.label));
-    pdf.setFont(undefined, 'bold');
-    pdf.text('TIPO DE ACTIVIDAD:', margin, y);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+    pdf.setFont(undefined, 'normal'); pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
     y += 7;
-    pdf.setFont(undefined, 'bold');
-    pdf.text('FECHA:', margin, y);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(document.getElementById('fecha').value, margin + 18, y);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('HORA INICIO:', margin + 70, y);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('HORA TÉRMINO:', margin + 125, y);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('FECHA:', margin, y);
+    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('fecha').value, margin + 18, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('HORA INICIO:', margin + 70, y);
+    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('HORA TÉRMINO:', margin + 125, y);
+    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
     y += 10;
-    pdf.setFont(undefined, 'bold');
-    pdf.text('TEMAS TRATADOS', margin, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('TEMAS TRATADOS', margin, y);
     y += 5;
     const temasText = document.getElementById('temasTratados').value;
     const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
-    pdf.setDrawColor(0);
-    pdf.rect(margin, y, docWidth - margin * 2, 40);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(textLines, margin + 2, y + 5);
+    pdf.setDrawColor(0); pdf.rect(margin, y, docWidth - margin * 2, 40);
+    pdf.setFont(undefined, 'normal'); pdf.text(textLines, margin + 2, y + 5);
     y += 45;
-    pdf.setFont(undefined, 'bold');
-    pdf.text('RELATOR/ENCARGADO:', margin, y);
-    pdf.setFont(undefined, 'normal');
-    pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+    pdf.setFont(undefined, 'bold'); pdf.text('RELATOR/ENCARGADO:', margin, y);
+    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
     const relatorSigImg = document.getElementById('relator-signature-img');
-    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); }
+    try { pdf.addImage(relatorSigImg, 'JPEG', docWidth - margin - 60, y - 5, 50, 15); }
     catch(e) { console.error("Error al añadir firma del relator:", e); }
     pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
-    pdf.setFontSize(8);
-    pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+    pdf.setFontSize(8); pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
     y += 20;
-    pdf.setFontSize(10);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('PARTICIPANTES', margin, y);
+    pdf.setFontSize(10); pdf.setFont(undefined, 'bold'); pdf.text('PARTICIPANTES', margin, y);
     y += 5;
     const participantCanvas = document.getElementById('p_sig_1');
     const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
@@ -494,8 +430,9 @@ async function descargarComoPdfNativo() {
         headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
         didDrawCell: (data) => {
             if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                 const sigImgData = participantCanvas.toDataURL('image/png');
-                 try { pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12); }
+                 // --- CAMBIO CLAVE: Comprimir firma a JPEG ---
+                 const sigImgData = participantCanvas.toDataURL('image/jpeg', 0.7);
+                 try { pdf.addImage(sigImgData, 'JPEG', data.cell.x + 5, data.cell.y + 2, 35, 12); }
                  catch(e) { console.error("Error al añadir firma de participante:", e); }
             }
         },
@@ -578,5 +515,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstTab) firstTab.click();
 });
 </script>
+
 </body>
 </html>
