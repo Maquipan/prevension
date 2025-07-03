@@ -274,8 +274,10 @@
 </div>
 
 <script>
-    (function() {
-        // Esta función encapsula todo para evitar conflictos con otras variables
+    // Se utiliza un setTimeout para asegurar que el script se ejecute después
+    // de que el contenido HTML haya sido completamente cargado en la página principal.
+    setTimeout(function() {
+        
         function initializeSignaturePad(canvasEl) {
             if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
@@ -289,7 +291,6 @@
                 canvasEl.getContext('2d').scale(ratio, ratio);
             }
 
-            // Ajustar el tamaño al cargar y si cambia el tamaño de la ventana
             window.addEventListener('resize', resizeCanvas);
             resizeCanvas();
 
@@ -315,38 +316,36 @@
                 if (!drawing) return;
                 e.preventDefault();
                 drawing = false;
-                ctx.beginPath(); // Finaliza la línea actual
+                ctx.beginPath();
             }
 
             function draw(e) {
                 if (!drawing) return;
                 e.preventDefault();
                 const pos = getPos(e);
-                ctx.lineWidth = 2.5;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2.0; // Grosor de la línea
+                ctx.lineCap = 'round'; // Terminación de la línea redondeada
+                ctx.strokeStyle = '#000000'; // Color de la línea
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
             }
 
-            // Eventos para el mouse
             canvasEl.addEventListener('mousedown', startDrawing);
             canvasEl.addEventListener('mouseup', stopDrawing);
-            canvasEl.addEventListener('mouseleave', stopDrawing); // Detiene el dibujo si el mouse sale del cuadro
+            canvasEl.addEventListener('mouseleave', stopDrawing);
             canvasEl.addEventListener('mousemove', draw);
 
-            // Eventos para pantallas táctiles
             canvasEl.addEventListener('touchstart', startDrawing, { passive: false });
             canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
             canvasEl.addEventListener('touchmove', draw, { passive: false });
         }
 
-        // Activar el pad de firma en el canvas correcto
         const signatureCanvas = document.getElementById('firma_trabajador_irl');
         if (signatureCanvas) {
             initializeSignaturePad(signatureCanvas);
         }
-    })();
+
+    }, 100); // 100ms de retardo para asegurar la carga
 </script>
