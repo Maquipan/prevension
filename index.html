@@ -201,6 +201,15 @@ async function loadTabContent(btn, tabName) {
     const registroBox = document.getElementById('registro-actividad-box');
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
 
+    // --- MODIFICACIÓN ---
+    // Oculta o muestra el formulario de registro según la pestaña seleccionada
+    if (tabName === 'informe-riesgos') {
+        registroBox.style.display = 'none';
+    } else {
+        registroBox.style.display = 'block';
+    }
+    // --- FIN DE LA MODIFICACIÓN ---
+
     try {
         // Esta línea busca el archivo .html correspondiente en la carpeta 'capacitaciones'
         const response = await fetch(`capacitaciones/${tabName}.html`);
