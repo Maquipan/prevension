@@ -397,7 +397,7 @@ function limpiarFormulario() {
 
 // --- CÓDIGO QUE SE EJECUTA AL CARGAR LA PÁGINA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', function() {
-    const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
+    const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo / Encargado HSE' };
     document.querySelectorAll('input, textarea').forEach(input => {
         if (input.id) {
             const saved = localStorage.getItem(input.id);
