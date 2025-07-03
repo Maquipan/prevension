@@ -193,7 +193,6 @@
 
 <script>
 // --- FUNCIÓN UNIVERSAL PARA INICIALIZAR PADS DE FIRMA ---
-// Esta función ahora activará CUALQUIER cuadro de firma que se le pase.
 function initializeSignaturePad(canvasEl) {
     if (!canvasEl) return;
     const ctx = canvasEl.getContext('2d');
@@ -205,7 +204,6 @@ function initializeSignaturePad(canvasEl) {
         canvasEl.width = rect.width * ratio;
         canvasEl.height = rect.height * ratio;
         canvasEl.getContext('2d').scale(ratio, ratio);
-        // Si hay una firma guardada para este canvas, la carga
         if (typeof loadSignature === "function") {
             loadSignature(canvasEl.id);
         }
@@ -222,11 +220,7 @@ function initializeSignaturePad(canvasEl) {
 
     function startDrawing(e) { e.preventDefault(); drawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
     function stopDrawing(e) {
-        if (!drawing) return;
-        e.preventDefault();
-        drawing = false;
-        ctx.beginPath();
-        // Si existe una función para guardar, la usa
+        if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath();
         if (typeof saveSignature === "function") {
             saveSignature(canvasEl.id, canvasEl.toDataURL());
         }
@@ -247,13 +241,13 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
-    // --- NUEVA FUNCIÓN PARA LIMPIAR LA FIRMA DEL INFORME DE RIESGOS ---
+
+// --- FUNCIÓN PARA LIMPIAR LA FIRMA DEL INFORME DE RIESGOS ---
 function limpiarFirmaIrl() {
     const canvas = document.getElementById('firma_trabajador_irl');
     if (canvas) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // También la elimina del almacenamiento local para que no reaparezca
         localStorage.removeItem('firma_trabajador_irl');
     }
 }
@@ -296,7 +290,6 @@ function descargarIrlComo(format) {
     });
 }
 
-
 // --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (MODIFICADA) ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -306,7 +299,6 @@ async function loadTabContent(btn, tabName) {
     const registroBox = document.getElementById('registro-actividad-box');
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
 
-    // Lógica para mostrar/ocultar el formulario de registro general
     if (tabName === 'informe-riesgos') {
         registroBox.style.display = 'none';
     } else {
@@ -315,27 +307,24 @@ async function loadTabContent(btn, tabName) {
 
     try {
         const response = await fetch(`capacitaciones/${tabName}.html`);
-        if (!response.ok) {
-            throw new Error(`Error al cargar el archivo: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Error al cargar: ${response.statusText}`);
+        
         contentArea.innerHTML = await response.text();
-
-        // --- LÓGICA DE ACTIVACIÓN POST-CARGA ---
-        // Se ejecuta DESPUÉS de que el contenido es cargado en la página
+        
         if (tabName === 'informe-riesgos') {
-            // Activa la firma del informe de riesgos
             const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
-            if (irlSignatureCanvas) {
-                initializeSignaturePad(irlSignatureCanvas);
-            }
-            // Activa los botones de descarga del informe de riesgos
+            if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
+
             const pngBtn = document.getElementById('descargarPngIrlBtn');
-            if (pngBtn) pngBtn.onclick = () => descargarIrlComo('png');
+            if(pngBtn) pngBtn.onclick = () => descargarIrlComo('png');
 
             const pdfBtn = document.getElementById('descargarPdfIrlBtn');
-            if (pdfBtn) pdfBtn.onclick = () => descargarIrlComo('pdf');
+            if(pdfBtn) pdfBtn.onclick = () => descargarIrlComo('pdf');
+            
+            const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
+            if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
+
         } else {
-            // Lógica para las otras pestañas (autocompletar temas)
             const temasTextarea = document.getElementById('temasTratados');
             const temasSource = contentArea.querySelector('.temas-para-registro');
             if (temasSource && temasTextarea) {
@@ -345,12 +334,11 @@ async function loadTabContent(btn, tabName) {
         }
     } catch (error) {
         console.error('Error al cargar la pestaña:', error);
-        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b><br>Asegúrate de que el archivo 'capacitaciones/${tabName}.html' exista.</p>`;
+        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b></p>`;
     }
 }
 
-
-// --- FUNCIONES ORIGINALES DEL FORMULARIO DE REGISTRO ---
+// --- FUNCIONES ORIGINALES DEL FORMULARIO DE REGISTRO (COMPLETAS) ---
 async function descargarComoPdfNativo() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -371,8 +359,72 @@ async function descargarComoPdfNativo() {
         }
     });
     y = pdf.lastAutoTable.finalY + 10;
-    // (El resto del código de esta función permanece igual)
+    pdf.setFontSize(10);
+    const selectedActivities = [];
+    document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => selectedActivities.push(cb.dataset.label));
+    pdf.setFont(undefined, 'bold');
+    pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+    y += 7;
+    pdf.setFont(undefined, 'bold');
+    pdf.text('FECHA:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('fecha').value, margin + 18, y);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('HORA INICIO:', margin + 70, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('HORA TÉRMINO:', margin + 125, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+    y += 10;
+    pdf.setFont(undefined, 'bold');
+    pdf.text('TEMAS TRATADOS', margin, y);
+    y += 5;
+    const temasText = document.getElementById('temasTratados').value;
+    const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
+    pdf.setDrawColor(0);
+    pdf.rect(margin, y, docWidth - margin * 2, 40);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(textLines, margin + 2, y + 5);
+    y += 45;
+    pdf.setFont(undefined, 'bold');
+    pdf.text('RELATOR/ENCARGADO:', margin, y);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+    const relatorSigImg = document.getElementById('relator-signature-img');
+    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); }
+    catch(e) { console.error("Error al añadir firma del relator:", e); }
+    pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
+    pdf.setFontSize(8);
+    pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+    y += 20;
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('PARTICIPANTES', margin, y);
+    y += 5;
+    const participantCanvas = document.getElementById('p_sig_1');
+    const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
+    pdf.autoTable({
+        startY: y,
+        head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
+        body: [[ document.getElementById('p_rut_1').value, document.getElementById('p_name_1').value, document.getElementById('p_cargo_1').value, '' ]],
+        theme: 'grid', styles: { fontSize: 10, valign: 'middle' },
+        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+        didDrawCell: (data) => {
+            if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                 const sigImgData = participantCanvas.toDataURL('image/png');
+                 try { pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12); }
+                 catch(e) { console.error("Error al añadir firma de participante:", e); }
+            }
+        },
+        columnStyles: { 3: { minCellHeight: 15 } }
+    });
+    pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
 }
+
 async function descargarComoPng() {
     const formElement = document.getElementById('registroActividadForm');
     alert("Generando PNG... por favor espere.");
@@ -387,6 +439,7 @@ async function descargarComoPng() {
         alert("Hubo un problema al generar la imagen PNG.");
     }
 }
+
 function saveSignature(id, data) { localStorage.setItem(id, data); }
 function loadSignature(id) {
     const data = localStorage.getItem(id);
@@ -397,6 +450,7 @@ function loadSignature(id) {
         img.src = data;
     }
 }
+
 function limpiarFormulario() {
     if (confirm('¿Estás seguro de que quieres borrar todos los datos del formulario?')) {
         ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
@@ -427,7 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
             input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
         }
     });
-
+    
     const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
     participantInputs.forEach(id => {
         const el = document.getElementById(id);
@@ -438,17 +492,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Activa la firma del formulario de registro principal
     const signatureCanvas = document.getElementById('p_sig_1');
-    if(signatureCanvas) {
-        initializeSignaturePad(signatureCanvas);
-    }
+    if(signatureCanvas) initializeSignaturePad(signatureCanvas);
     
-    // Carga la primera pestaña por defecto
     const firstTab = document.querySelector('.tab-button');
-    if (firstTab) {
-        firstTab.click();
-    }
+    if (firstTab) firstTab.click();
 });
 </script>
 </body>
