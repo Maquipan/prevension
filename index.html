@@ -50,6 +50,11 @@
         .tab-button:hover { background-color: var(--light-gray); }
         .tab-button.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 700; }
         #tab-content-area { min-height: 200px; }
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .header-table td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; font-size: 11px; }
+        .logo-cell img { max-width: 100%; max-height: 60px; display: block; margin: auto; }
+        .header-table .title { font-size: 15px; font-weight: bold; color: var(--primary-color); }
+        .section { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; align-items: center; }
         label { font-weight: bold; font-family: 'Montserrat', sans-serif; font-size: 13px; color: #333; }
         input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 13px; font-family: 'Roboto', sans-serif; }
@@ -57,7 +62,10 @@
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
         .checkbox-item { display: flex; align-items: center; gap: 5px; }
         .checkbox-item label { font-weight: normal; }
-        
+        .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .participants-table th, .participants-table td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; vertical-align: middle; }
+        .participants-table th { text-align: center; font-weight: bold; background-color: var(--light-gray); }
+        .participant-signature-pad { width: 100%; height: 50px; background-color: #fdfdfd; border: 1px solid #e0e0e0; cursor: crosshair; border-radius: 5px; }
         .button-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .action-button { 
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; 
@@ -70,19 +78,6 @@
         .download-button-png:hover { background-color: #0056b3; }
         .download-button-pdf { background-color: var(--success-color); }
         .download-button-pdf:hover { background-color: #13653f; }
-
-        /* Estilos para el nuevo formulario de Riesgos Laborales */
-        #registroActividadForm { border: 1px solid #ccc; padding: 20px; border-radius: 8px; }
-        .report-header-table, .risk-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .report-header-table td, .risk-table th, .risk-table td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: middle; font-size: 11px; }
-        .risk-table th { background-color: var(--light-gray); font-weight: bold; text-align: center; }
-        .risk-table td:first-child { text-align: center; }
-        .logo-cell img { max-width: 150px; display: block; margin: auto; }
-        .report-header-table .title { font-size: 16px; font-weight: bold; color: var(--primary-color); text-align: center; vertical-align: middle; }
-        .section { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
-        .section-title { font-family: 'Montserrat', sans-serif; font-size: 1.2em; color: var(--primary-color); margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .participant-signature-pad { width: 100%; height: 50px; background-color: #fdfdfd; border: 1px solid #e0e0e0; cursor: crosshair; border-radius: 5px; }
-
 
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
@@ -109,98 +104,85 @@
     </div>
 
     <div class="content-box" id="registro-actividad-box">
-        <h2><i class="fa-solid fa-clipboard-check"></i>Informe de Riesgos Laborales</h2>
-        
+        <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
-            <table class="report-header-table" id="form-header">
-                <tr>
-                    <td rowspan="2" class="logo-cell" style="width: 25%;"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo MAQUIPAN"></td>
-                    <td rowspan="2" class="title" style="width: 50%;">INFORMACION DE RIESGOS LABORALES</td>
-                    <td style="width: 25%;">AD&PE-HSE-FO-001</td>
-                </tr>
-                <tr>
-                    <td>Rev.: 001</td>
-                </tr>
-                <tr>
-                    <td><strong>Tipo:</strong> Documento</td>
-                    <td><strong>Disposición:</strong> Uso Publico</td>
-                    <td><label for="form_date"><strong>Fecha:</strong></label> <input type="date" id="form_date"></td>
-                </tr>
-                <tr>
-                    <td><strong>Emitido por:</strong> Gerencia de administración y personas</td>
-                    <td colspan="2"><strong>Aprobado por:</strong> Gerente de compliance y auditoria</td>
-                </tr>
+            <table class="header-table" id="pdf-header-table" style="display: none;">
+                <thead>
+                  <tr>
+                      <th rowspan="2"><img id="logo-for-pdf" src="https://i.imgur.com/qL3x0xG.png" alt="Logo" style="width: 60px;"></th>
+                      <th rowspan="2">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</th>
+                      <th>Tipo: Formato</th>
+                  </tr>
+                  <tr><th>Rev.: 001</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                      <td><strong>Gerencia:</strong> Servicio</td>
+                      <td colspan="2"><strong>Area:</strong> Servicio</td>
+                  </tr>
+                  <tr>
+                      <td>Emitido por: Gerencia de Finanzas</td>
+                      <td>Disposición: Uso Interno</td>
+                      <td>Pág.: 1 de 1</td>
+                  </tr>
+                  <tr>
+                      <td>Aprobado por: Gerente de Finanzas</td>
+                      <td></td>
+                      <td>Fecha: 02-07-2025</td>
+                  </tr>
+                </tbody>
             </table>
-
+            
             <div class="section">
-                <h3 class="section-title">1.- INFORMACIÓN DE LA ACTIVIDAD</h3>
-                <p style="font-size:11px;">De acuerdo con lo establecido en el D.S. N° 44, que aprueba el nuevo reglamento sobre gestión preventiva de los riesgos laborales para un entorno de trabajo seguro y saludable en su Título II, Párrafo 4, Art. 15, referido a "Información de los riesgos laborales", MAQUIPAN, en el momento de incorporarse la persona trabajadora individualizada emite el presente documento, con el objeto de cumplir en forma oportuna y adecuada la obligación de informar de los riesgos que entrañan sus labores, las consecuencias, las medidas preventivas y los métodos o procedimientos de trabajo correctos, determinados conforme a la matriz de riesgos y el programa de trabajo preventivo.</p>
-                 <div class="form-grid">
-                    <div style="grid-column: span 6;"><label for="activity_name">Nombre de la actividad:</label><input type="text" id="activity_name" value="Información de los Riesgos Laborales"></div>
-                    <div style="grid-column: span 3;"><label for="activity_start_date">Fecha inicio:</label><input type="date" id="activity_start_date"></div>
-                    <div style="grid-column: span 3;"><label for="activity_end_date">Fecha fin:</label><input type="date" id="activity_end_date"></div>
-                    <div style="grid-column: span 3;"><label for="activity_hours">N° de horas:</label><input type="text" id="activity_hours" value="8 HRS"></div>
-                    <div style="grid-column: span 3;"><label>Modalidad:</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" id="modalidad_presencial" checked><label for="modalidad_presencial">Presencial</label></div><div class="checkbox-item"><input type="checkbox" id="modalidad_elearning"><label for="modalidad_elearning">E-learning</label></div></div></div>
-                    <div style="grid-column: span 3;"><label>Tipo de actividad:</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" id="tipo_interna" checked><label for="tipo_interna">Interna</label></div><div class="checkbox-item"><input type="checkbox" id="tipo_externa"><label for="tipo_externa">Externa</label></div></div></div>
-                    <div style="grid-column: span 6;"><label for="relator_name">Nombre del relator:</label><input type="text" id="relator_name" value="Oscar Ignacio Cayuqueo Jara"></div>
-                    <div style="grid-column: span 6;"><label for="relator_cargo">Cargo del relator:</label><input type="text" id="relator_cargo" value="Encargado HSE"></div>
+                <div class="checkbox-group" id="activity-type-group">
+                    <div class="checkbox-item"><input type="checkbox" id="charla" name="tipoActividad" data-label="Charla"><label for="charla">Charla</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="reunion" name="tipoActividad" data-label="Reunión"><label for="reunion">Reunión</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="inspeccion" name="tipoActividad" data-label="Inspección"><label for="inspeccion">Inspección</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="induccion" name="tipoActividad" data-label="Inducción"><label for="induccion">Inducción</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="capacitacion" name="tipoActividad" data-label="Capacitación"><label for="capacitacion">Capacitación</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="auditoria" name="tipoActividad" data-label="Auditoría"><label for="auditoria">Auditoría</label></div>
                 </div>
             </div>
-
-            <div class="section">
-                <h3 class="section-title">3.- INFORMACIÓN DE LOS RIESGOS</h3>
-                <p style="font-size:11px;">Los riesgos a informar a las personas trabajadoras tienen directa relación con su puesto de trabajo considerando los riesgos que entrañan sus labores (generales y específicos), las medidas de prevención y los métodos de trabajo correcto.</p>
-                <table class="risk-table" id="risk-table">
-                    <thead>
-                        <tr>
-                            <th style="width:5%">Aplica</th>
-                            <th style="width:20%">Riesgos existentes</th>
-                            <th style="width:20%">Consecuencias</th>
-                            <th style="width:55%">Medidas Preventivas Generales</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
+            <div class="form-grid">
+                <div style="grid-column: span 4;"><label for="fecha">Fecha:</label><input type="date" id="fecha"></div>
+                <div style="grid-column: span 4;"><label for="horaInicio">Hora de Inicio:</label><input type="time" id="horaInicio"></div>
+                <div style="grid-column: span 4;"><label for="horaTermino">Hora de Término:</label><input type="time" id="horaTermino"></div>
             </div>
-
-            <div class="section">
-                <h3 class="section-title">4.- MATERIAL DE COMPLEMENTO</h3>
-                <div class="form-grid">
-                    <div style="grid-column: span 2;">
-                        <label>¿Se adjunta material?</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item"><input type="radio" id="mat_si" name="adj_material" checked><label for="mat_si">Si</label></div>
-                            <div class="checkbox-item"><input type="radio" id="mat_no" name="adj_material"><label for="mat_no">No</label></div>
-                        </div>
-                    </div>
-                    <div style="grid-column: span 5;"><label for="mat_nombre">Nombre del material adjunto:</label><input type="text" id="mat_nombre" value="Presentación POWER POINT, Videos de seguridad"></div>
-                    <div style="grid-column: span 5;"><label for="mat_ubicacion">Ubicación del material:</label><input type="text" id="mat_ubicacion" value="DISCO HSE MAQUIPAN"></div>
+            <div class="section"><label for="temasTratados">TEMAS TRATADOS</label><textarea id="temasTratados" rows="8"></textarea></div>
+            
+            <div class="section" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; border: none; padding: 0;">
+                <div style="flex: 1 1 300px;">
+                    <label for="relatorEncargado">RELATOR/ENCARGADO</label>
+                    <input type="text" id="relatorEncargado">
+                </div>
+                <div style="flex: 0 1 250px; text-align: center;">
+                    <img id="relator-signature-img" src="https://raw.githubusercontent.com/Maquipan/prevension/refs/heads/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; display: block; margin: 0 auto 5px auto;">
+                    <label style="display: block; border-top: 1px solid #333; padding-top: 5px; width: 100%; font-weight:normal;">Firma Relator</label>
                 </div>
             </div>
             
             <div class="section">
-                <h3 class="section-title">5.- INFORMACIÓN DEL PARTICIPANTE</h3>
-                <div class="form-grid">
-                    <div style="grid-column: span 6;"><label for="p_name_1">Nombre del trabajador:</label><input type="text" id="p_name_1"></div>
-                    <div style="grid-column: span 6;"><label for="p_rut_1">RUT:</label><input type="text" id="p_rut_1"></div>
-                    <div style="grid-column: span 6;"><label for="p_cargo_1">Cargo:</label><input type="text" id="p_cargo_1" value="Técnico de Servicios"></div>
-                    <div style="grid-column: span 6;">
-                        <label>Tipo:</label>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item"><input type="radio" id="tipo_trabajador_nuevo" name="tipo_trabajador" checked><label for="tipo_trabajador_nuevo">Trabajador nuevo</label></div>
-                            <div class="checkbox-item"><input type="radio" id="tipo_trabajador_transferido" name="tipo_trabajador"><label for="tipo_trabajador_transferido">Trabajador transferido</label></div>
-                            <div class="checkbox-item"><input type="radio" id="tipo_trabajador_actualizacion" name="tipo_trabajador"><label for="tipo_trabajador_actualizacion">Actualización</label></div>
-                        </div>
-                    </div>
-                    <div style="grid-column: span 12;">
-                        <label for="p_sig_1">Firma del participante:</label>
-                        <canvas id="p_sig_1" class="participant-signature-pad"></canvas>
-                    </div>
-                </div>
+                <label>PARTICIPANTE</label>
+                <table class="participants-table" id="participantesTable">
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>NOMBRE Y APELLIDO</th>
+                            <th>CARGO</th>
+                            <th>FIRMA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" id="p_rut_1" placeholder="12345678-9"></td>
+                            <td><input type="text" id="p_name_1"></td>
+                            <td><input type="text" id="p_cargo_1"></td>
+                            <td><canvas id="p_sig_1" class="participant-signature-pad"></canvas></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
         <div class="button-group">
             <button type="button" class="action-button clear-button" onclick="limpiarFormulario()">Limpiar</button>
             <button type="button" class="action-button download-button-png" onclick="descargarComoPng()">Descargar PNG</button>
@@ -210,211 +192,186 @@
 </div>
 
 <script>
-const riskData = [
-    { aplica: true, riesgo: "Caídas a nivel y distinto nivel. En trabajos de oficina.", consecuencias: "- Esguinces\n- Fracturas\n- Contusiones\n- Lesiones múltiples", medidas: "Al bajar por una escalera se deberá utilizar los respectivos pasamanos.\nCuando subas o bajes una escalera, no lo hagas corriendo, hablando por celular, ni con tazas con líquidos calientes.\nHazlo fijándote en cada peldaño para evitar caídas.\nUtilizar sistema de protección de caídas cuando se realicen trabajos sobre 1,8 mt." },
-    { aplica: true, riesgo: "Contacto con elementos cortante o punzantes. En trabajos de oficina.", consecuencias: "- Cortes", medidas: "El corta cartón es una herramienta de trabajo, que está definida para ciertas áreas de la empresa, tales como proyectos, logistica, quien tiene el entrenamiento y las medidas de control para evitar accidentes.\nUtilice tijeras y/o guillotina para cortar papeles." },
-    { aplica: true, riesgo: "Golpes y tropiezos. En trabajos de oficina.", consecuencias: "- Esguinces\n- Fracturas\n- Contusiones\n- Lesiones múltiples", medidas: "Cerrar los cajones de los archivos inmediatamente después de usar.\nNunca abrir un cajón por encima de la cabeza de alguien que está agachado.\nAbrir un solo cajón a la vez para evitar que el mueble se vuelque, especialmente los de arriba.\nMantenga de manera sistemática los estándares definidos en la Metodología 5S en sus áreas." },
-    { aplica: false, riesgo: "Trabajos de Digitación", consecuencias: "Contractura de músculos\nCirculatorias (dolor e inflamación de tendones y fibras musculares)", medidas: "Mantenga la mirada siempre hacia el frente, evitando la torsión del cuello.\nLa parte superior de la pantalla debe quedar a la altura de tu línea horizontal de visión.\nTu cadera mantenla a un ángulo de entre 90 a 100°, con los muslos paralelos al suelo.\nTus rodillas deben formar un ángulo mayor a 90°, evita flectar las piernas.\nCada 30 minutos de trabajo continuo descanse y realice ejercicios." },
-    { aplica: true, riesgo: "Colisión Choque y/o Volcamiento en Conducción de Vehiculos", consecuencias: "- Contusiones\n- Fracturas\n- Lesiones Múltiples\n- Muerte", medidas: "Cumpla con lo establecido en el Procedimiento de Uso, Conducción y Mantención de Vehículos que la Empresa mantiene vigente.\nRespete la ley de tránsito vigente N 18.290." },
-    { aplica: true, riesgo: "Manejo Manual de Carga. Ley 20.949.", consecuencias: "Lesiones por sobreesfuerzos físico\n- Atrapamiento\n- Contusiones", medidas: "Cuando el manejo o manipulación manual de carga sea inevitable y las ayudas mecánicas no puedan usarse, no se permitirá en el caso de los hombres que se opere con cargas superiores a 25 kg.\nEn el caso de menores de 18 años y de mujeres, la carga máxima de manejo o manipulación manual será de 20 kg.\nSe prohibe las operaciones de carga y descarga manual para las mujeres embarazadas." },
-    { aplica: true, riesgo: "Exposición a trastorno musculo esqueléticos TMERT (movimientos repetitivos).", consecuencias: "Trastornos musculo esqueléticos de Extremidad Superior.", medidas: "Identificar y evaluar los factores de riesgo biomecánicos (repetición, postura, fuerza) y tiempos de recuperación/descanso.\nEliminar o mitigar los riesgos detectados, según los resultados de la aplicación del protocolo." },
-    { aplica: true, riesgo: "Riesgo psicosocial en el trabajo. Protocolo de Vigilancia de Riesgos Psicosociales (MINSAL).", consecuencias: "Lesiones y/o enfermedades profesionales de origen mental.", medidas: "Aplicar cuestionario CEAL-SUSESO SM que es una encuesta anónima, cada persona evalúa 12 dimensiones presentes en su ambiente laboral, permitiendo conocer sus niveles de riesgo y de esta manera, actuar oportunamente." },
-    { aplica: true, riesgo: "Exposición a ruido. Protocolo de exposición a ruido PREXOR.", consecuencias: "Hipoacusia, sordera profesional", medidas: "Los empleadores deben contar con un programa de vigilancia, para trabajadores expuestos ocupacionalmente a ruido, con la finalidad de gestionar de manera adecuada el agente ruido y su exposición en los diferentes lugares de trabajo.\nPara ello deben contar con el apoyo del equipo multidisciplinario de los profesionales de los administradores del seguro Ley N°16.744." },
-    { aplica: true, riesgo: "Exposición a Silice", consecuencias: "Silicosis", medidas: "Aplicar protocolo PLANESI para contribuir a disminuir la incidencia y prevalencia de la silicosis, con la finalidad de aumentar la población bajo control, evitando el deterioro de la salud de los trabajadores." },
-    { aplica: true, riesgo: "Exposición a radiación Ultravioleta de Origen Solar", consecuencias: "- Quemaduras\n- Queratitis", medidas: "Aplicar protocolo de Radiación UV de Origen Solar.\nAlgunas de las medidas es uso de protector solar, ropa UV, Lentes de Sol y Alimentación abundante en vegetales.\nUtilizar protector solar, para las actividades que requieran estar al aire libre." },
-    { aplica: true, riesgo: "Hipobaria Intermitente Crónica (entre los 3.000 y los 5.500 msnm).", consecuencias: "Cambios fisiológicas, anatómicos y bioquímicos reversibles, por disminución de la presión Barométrica.", medidas: "Capacitación en Salud: que busca concientizar respecto a los riesgos implicados en esta exposición y las acciones tendientes a su prevención.\nEvaluaciones Ocupacionales: tienen por objeto detectar que las condiciones de salud del trabajador se mantengan dentro de parámetros compatibles con la exposición a altitud geográfica." },
-    { aplica: true, riesgo: "Riesgos en la Vía Pública: Accidentes del trabajo y Accidentes del Trayecto", consecuencias: "- Contusiones\n- Hematomas\n- Fracturas\n- Lesiones Múltiples\n- Muerte", medidas: "Cruzar la calzada sólo por el paso para peatones, nunca cruzar entre dos vehículos detenidos o en movimiento.\nAl conducir un vehículo o como acompañante, usar siempre el cinturón de seguridad, respetando la reglamentación del tránsito y aplicando técnicas de conducción defensiva.\nEstar atento a las condiciones del lugar donde transita, evitar caminar por zonas de riesgos." },
-    { aplica: true, riesgo: "Contacto con particulas incandescentes, Radiaciones Ionizantes, Humos metálicos", consecuencias: "- Cuerpos extraños\n- Conjuntivitis\n- Erosiones\n- Quemaduras", medidas: "Antes del comienzo de los trabajos, se delimitará la zona.\nPreviamente al comienzo de los mismos, se comprobará que no hay personas en el entorno.\nUtilizar en forma permanente equipos protectores visuales y faciales (gafas, caretas, protector facial, protección respiratoria, etc.)." },
-    { aplica: true, riesgo: "Exposición a Lana Mineral", consecuencias: "- Neumoconiosis", medidas: "En los trabajos que se esté expuesto al contacto con lana mineral, el trabajador deberá utilizar protección respiratoria y protección para la piel, tales como guantes, overol y traje de papel desechable." },
-    { aplica: true, riesgo: "Contacto con fuego u objetos calientes.", consecuencias: "- Quemaduras\n- Asfixias\n- Muerte", medidas: "Antes de intervenir equipos en instalaciones de clientes, asegurarse que el área de trabajo se encuentre libre de operaciones que pudiesen provocar un contacto con elementos calientes.\nAplique el Análisis de Seguridad de la Tarea (AST).\nAntes de intervenir un equipo, espere que este baje su temperatura a menos de 50°C." },
-    { aplica: true, riesgo: "Herramientas de Mano (utilizadas de trabajos en de mantención de equipos)", consecuencias: "- Contusiones\n- Cortes\n- Fracturas\n- Atrapamientos\n- Amputaciones", medidas: "Seleccionar la herramienta adecuada.\nUtilizar la herramienta sólo para lo que fue diseñada.\nUtilizar Equipos de Protección personal específico para esta actividad (Guante Hyflex o Nitrilo o Cabritilla o Multigrip o Dieléctricos)." },
-    { aplica: true, riesgo: "Caídas de un distinto nivel por trabajos en altura. -Techumbres - Escalas Móviles - Andamios - Escaleras", consecuencias: "- Fracturas\n- Esguinces\n- Contusiones\n- Lesiones traumáticas\n- Muerte", medidas: "Para trabajos sobre 1,8 mt. de altura, aplicar el Procedimiento Administrativo que la Empresa ha dispuesto para esta tarea.\nRecuerde utilizar arnés de seguridad con doble cola de seguridad.\nEl trabajador que se exponga al riesgo y realice trabajos en altura, deberá tener vigente un examen pre ocupacional.\nNo utilizar escalas metálicas en trabajos eléctricos." },
-    { aplica: true, riesgo: "Contacto con energia eléctrica", consecuencias: "- Asfixia por paro respiratorio.\n- Fibrilación ventricular.\n- Quemaduras internas y externas\n- Muerte", medidas: "Antes de intervenir un equipo, el equipo debe ser bloqueado eléctricamente.\nAplicar Procedimiento de Bloqueo de Equipos (Bolsa de Bloqueo, Candado de Bloqueo, Tarjeta Personal).\nNo intervenir en trabajos eléctricos sin contar con autorización ni herramientas adecuadas." },
-    { aplica: true, riesgo: "Atrapado por", consecuencias: "- Fracturas\n- Esguinces\n- Contusiones\n- Lesiones traumáticas\n- Muerte", medidas: "Aplicar Procedimiento de Bloqueo de Equipos.\nNo se deben realizar lubricaciones, reaprietes, limpiezas o ajustes con el equipo en movimiento.\nNo utilice joyas, pelo largo o ropa suelta cuando esté cerca de equipos con sistema motrices en movimiento." },
-    { aplica: true, riesgo: "Fuga de gas", consecuencias: "-Intoxicación\n- Explosión\n- Quemaduras\n- Emergencias.\n- Incendio\n- Muerte", medidas: "Aplicar Análisis de Seguridad de la Tarea (AST).\nSi hay síntomas de intoxicación (mareos, etc.) interrumpir trabajo y trasladarse al aire libre.\nSe prohíbe buscar fugas de gas con una llama; usar agua jabonosa o detector." },
-    { aplica: true, riesgo: "Golpeado y/o atrapado por carga suspendida", consecuencias: "-Fracturas\n- Esguinces\n- Contusiones\n- Lesiones traumáticas\n- Muerte", medidas: "Ninguna persona puede estar bajo carga suspendida.\nProhibir la manipulación de carga suspendida.\nSiempre se debe utilizar 'vientos' para dirigir la carga.\nCapacitar al personal en técnicas de izaje." },
-    { aplica: true, riesgo: "Contacto con agentes Biológicos (Contagios, infecciones, virus, bacterias, etc.).", consecuencias: "- Contagio por COVID-19.\n- Neumonías.\n- Enfermedades\n- Insuficiencia respiratoria.", medidas: "Utilizar casilleros individuales sin almacenar desperdicios.\nUtilizar elementos de protección especial (mascarillas, escudos faciales, etc.).\nRealizar lavado frecuente de manos." },
-    { aplica: true, riesgo: "Contacto con sustancias químicas", consecuencias: "- Irritación\n- Quemaduras\n- Dermatitis\n- Intoxicación", medidas: "Tomar las medidas de control, según las indicaciones de la Hoja de Datos de Seguridad del producto químico (HDS).\nUtilizar los elementos de protección personal dispuestos por la empresa.\nCumplir con los procedimientos de trabajo establecidos." },
-    { aplica: false, riesgo: "Inmersión", consecuencias: "- Hipotermia\n- Muerte", medidas: "Utilizar chaleco salvavidas cuando se traslade en botes o lanchas.\nConocer el Plan de Emergencia de embarcaciones mayores." },
-    { aplica: true, riesgo: "Ley Karin. Ley 21.643", consecuencias: "Lesión y/o enfermedad por origen mental.", medidas: "Difusión de Conceptos claves: Acoso Sexual, Acoso Laboral y Violencia en el trabajo.\nProtección a todos los trabajadores y trabajadoras.\nObligación de las empresas de tener un protocolo de prevención del acoso." }
-];
-
-function populateRiskTable() {
-    const tableBody = document.querySelector("#risk-table tbody");
-    tableBody.innerHTML = ''; // Limpiar tabla
-    riskData.forEach((data, index) => {
-        const row = tableBody.insertRow();
-        row.innerHTML = `
-            <td><input type="checkbox" id="risk_check_${index}" ${data.aplica ? 'checked' : ''}></td>
-            <td>${data.riesgo.replace(/\n/g, '<br>')}</td>
-            <td>${data.consecuencias.replace(/\n/g, '<br>')}</td>
-            <td>${data.medidas.replace(/\n/g, '<br>')}</td>
-        `;
-    });
-}
-
-
-// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS ---
+// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS (CORREGIDA) ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
     btn.classList.add('active');
     const contentArea = document.getElementById('tab-content-area');
+    const registroBox = document.getElementById('registro-actividad-box');
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
 
     try {
+        // Esta línea busca el archivo .html correspondiente en la carpeta 'capacitaciones'
         const response = await fetch(`capacitaciones/${tabName}.html`);
-        if (!response.ok) throw new Error(`Error al cargar el archivo: ${response.statusText}`);
+        
+        if (!response.ok) {
+            throw new Error(`Error al cargar el archivo: ${response.statusText}`);
+        }
+        
         contentArea.innerHTML = await response.text();
+        
+        // Lógica para auto-llenar el textarea de temas
+        const temasTextarea = document.getElementById('temasTratados');
+        const temasSource = contentArea.querySelector('.temas-para-registro');
+        if (temasSource && temasTextarea) {
+            temasTextarea.value = temasSource.textContent.trim();
+            localStorage.setItem('temasTratados', temasTextarea.value);
+        }
+
     } catch (error) {
         console.error('Error al cargar la pestaña:', error);
-        contentArea.innerHTML = `<p>El contenido para esta pestaña ('${tabName}') no está disponible. Puede completar el informe de riesgos a continuación.</p>`;
+        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b><br>Asegúrate de que el archivo 'capacitaciones/${tabName}.html' exista.</p>`;
     }
 }
+    // --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
+    async function descargarComoPdfNativo() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-// --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
-async function descargarComoPdfNativo() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        const margin = 15;
+        const docWidth = pdf.internal.pageSize.getWidth();
+        let y = 15; // Posición Y inicial
 
-    const margin = 10;
-    const docWidth = pdf.internal.pageSize.getWidth();
-    let y = 0; 
+        // --- 1. CABECERA ---
+        pdf.autoTable({
+            html: '#pdf-header-table',
+            startY: y,
+            theme: 'grid',
+            styles: {
+                fontSize: 8,
+                cellPadding: 1.5,
+                halign: 'center',
+                valign: 'middle'
+            },
+            headStyles: {
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold'
+            },
+            didParseCell: function(data) {
+                if (data.row.section === 'head' && data.column.index === 0) {
+                    data.cell.styles.halign = 'center';
+                    data.cell.styles.valign = 'middle';
+                    const img = document.getElementById('logo-for-pdf');
+                    data.cell.text = ''; 
+                    try {
+                        pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
+                    } catch(e) {
+                        console.error("Error al añadir el logo al PDF:", e);
+                    }
+                }
+            }
+        });
+        y = pdf.lastAutoTable.finalY + 10;
 
-    const addHeader = () => {
-        const logo = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAbFBMVEX////AAD/2tv/pKT5+fn/4+P/7u7/yMj/Kir/zMz8/Pz/8fH/gID/Xl7/S0v/dXX/paX/m5v/qan/vr7/tLT/h4f/bW3/j4//fX3/n5//BAT/Nzf/UFD/HR3/5ub/wMD/ysr/urr/YWH/jY3/LS02jC4RAAADv0lEQVR4nO2dC3KqQAxFQY3WBAZBkIgoKiL6/s85SCo2pzPT2p2k7r0zFfNDg2EYOIrFYrFYLBaLxWKxWCyWS/E4/T1Nl29Y+lG0z+P0y3Y9L9uFm9b5M+s+LduH3R1s2f45vLGYst0q/Lo7WEv2w/hjeGuxZftReGuxZftdeGNxZftLeGMxZbtr+G4xZ7tbeG8xZ7sreGKxZ7sreGOxZ7spvDHYs90U3hDs2W4Lbwh2bLeFNwQ7tluCm8Ad2y3BC8CO7ZbgBeCE7ZbgAeCg7ZbgAcAxaG8l7NhuD28Mdmy3BzeGO7ZbgrvAHdshwUnBgO2W4KDghG3H3lP9IeA3Afs5wUGALQC7CDgE2AJwQHDAsAPgXoA3BLsAuBXgDsEOgDsBzwh2CdwK8IJgh8ANAC8I9hC4DeA5wsOAwgM8JthGcBjgOcIOgYMAzxE2CDQNeIbwoEBHwI2EBoGbAW8SDgQaBDxN6BDQGvA0oUGgX8CTlAaBfgFvEmIEBoGvEjIECgU8SogQUAHgKUKCwA0APiXcCmgB8ClCRkCFgA8TEgQuBfgYUKCQIWAYwkFAgYCHiUUCNgKeJhQIGAJ4mFCgIB7gYUIEwUeAixEmChwC9iBMFDgE9AAYUnAQsAPQhGAgYAfABYQiAQEB9wBLEE4E7Aa8QJgQsAPgAsJAgLGANwgDAjYDbkAYELAD4B3CgIARgHcIAgLGAdwgDAjYAfAB4WDAFsA7hAEBIwB+IMwIWAPwAWFSwBKAbwiXAjYAvCEcCrgD8I5gIWAYwGuEQIGPAawhJAhYDXCNkCAgNeAggkFAnYBrCEUCNgIcIuwIGA1wAmEBoGGAU4QGgYaATxG6BDQAvAEoUHgZsALhAaB7gDvEBoELAbcIewQ0AJwA2GHgAKAewg7BOwB+IZwIeAGwHeEDgEdAG8QBgSsAfgGYSDAOsALhJkAIwB+INwJeAPgA8LlgC0AbwgXAy4BvCMcCdgCcI+wIeATgDWEAgEfAG4jZAgYDXCa0CEgBeBJSoOAcgEvElIEBoCvElIEHAF4lXAjIBDgo4QIAZkAfEpYErAE4GFCgkAlwMWEAgFTgI8SCgRMBNxLKBGwCvAwoUJARMDHCDMCbgH2IEwIWAYwhGAgYBPgBYQiAQEBnwEsQZgQsAXgBcKEgC0AbxAGBKyA9wgDAhYBfEA4ErAM4B3CQYCtAG8QBgScBPgAsJMwJeAJwDeEywGrAN4RHAzYAvAewkHAEYC/w8jAE4B/D0fAEYB/R/jwC8BfBfL/+K/y/wF8/k8F/gV8uVgsFovFYrFYLBaLxWKxXOX5BRLcR3y4wX85AAAAAElFTkSuQmCC';
-        pdf.addImage(logo, 'PNG', margin, 5, 40, 15);
+        // --- 2. TIPO DE ACTIVIDAD Y FECHAS ---
+        pdf.setFontSize(10);
+        const selectedActivities = [];
+        document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => {
+            selectedActivities.push(cb.dataset.label);
+        });
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+        y += 7;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('FECHA:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('fecha').value, margin + 18, y);
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA INICIO:', margin + 70, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA TÉRMINO:', margin + 125, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+        y += 10;
+        
+        // --- 3. TEMAS TRATADOS ---
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TEMAS TRATADOS', margin, y);
+        y += 5;
+        const temasText = document.getElementById('temasTratados').value;
+        const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
+        pdf.setDrawColor(0);
+        pdf.rect(margin, y, docWidth - margin * 2, 40); // Caja contenedora
+        pdf.setFont(undefined, 'normal');
+        pdf.text(textLines, margin + 2, y + 5);
+        y += 45;
+
+        // --- 4. RELATOR Y FIRMA ---
+        pdf.setFont(undefined, 'bold');
+        pdf.text('RELATOR/ENCARGADO:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+
+        const relatorSigImg = document.getElementById('relator-signature-img');
+        try {
+            pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
+        } catch(e) {
+            console.error("Error al añadir firma del relator:", e);
+        }
+        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
+        pdf.setFontSize(8);
+        pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+        y += 20;
+
+        // --- 5. TABLA DE PARTICIPANTES ---
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('PARTICIPANTES', margin, y);
+        y += 5;
+
+        const participantCanvas = document.getElementById('p_sig_1');
+        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
 
         pdf.autoTable({
-            startY: 5,
-            margin: { left: margin + 45 },
+            startY: y,
+            head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
+            body: [[
+                document.getElementById('p_rut_1').value,
+                document.getElementById('p_name_1').value,
+                document.getElementById('p_cargo_1').value,
+                ''
+            ]],
             theme: 'grid',
-            styles: { fontSize: 8, cellPadding: 1, halign: 'center' },
-            headStyles: { fillColor: [255,255,255], textColor: [0,0,0] },
-            columnStyles: { 0: { fontStyle: 'bold' } },
-            body: [
-                [{ content: 'INFORMACION DE RIESGOS LABORALES', colSpan: 2, styles: { fontStyle: 'bold', fontSize: 10, halign: 'center' } }],
-                ['AD&PE-HSE-FO-001', 'Rev.: 001']
-            ]
+            styles: { fontSize: 10, valign: 'middle' },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            didDrawCell: (data) => {
+                if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                     const sigImgData = participantCanvas.toDataURL('image/png');
+                     try {
+                        pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                     } catch(e) {
+                        console.error("Error al añadir firma de participante:", e);
+                     }
+                }
+            },
+            columnStyles: {
+                3: { minCellHeight: 15 }
+            }
         });
-    };
 
-    addHeader();
-    y = 25; 
-
-    // --- SECCIÓN 1 ---
-    pdf.setFontSize(10).setFont(undefined, 'bold');
-    pdf.text('1.- INFORMACIÓN DE LA ACTIVIDAD', margin, y);
-    y += 5;
-
-    pdf.setFontSize(8).setFont(undefined, 'normal');
-    const introText = 'De acuerdo con lo establecido en el D.S. N° 44, que aprueba el nuevo reglamento sobre gestión preventiva de los riesgos laborales para un entorno de trabajo seguro y saludable en su Título II, Párrafo 4, Art. 15, referido a "Información de los riesgos laborales", MAQUIPAN, en el momento de incorporarse la persona trabajadora individualizada emite el presente documento, con el objeto de cumplir en forma oportuna y adecuada la obligación de informar de los riesgos que entrañan sus labores, las consecuencias, las medidas preventivas y los métodos o procedimientos de trabajo correctos, determinados conforme a la matriz de riesgos y el programa de trabajo preventivo.';
-    const splitIntro = pdf.splitTextToSize(introText, docWidth - margin * 2);
-    pdf.text(splitIntro, margin, y);
-    y += pdf.getTextDimensions(splitIntro).h + 5;
-
-    const activityData = [
-        ['Nombre de la actividad:', document.getElementById('activity_name').value],
-        ['Fecha inicio y fin de la actividad:', `${document.getElementById('activity_start_date').value} / ${document.getElementById('activity_end_date').value}`],
-        ['N° de horas:', document.getElementById('activity_hours').value],
-        ['Modalidad:', (document.getElementById('modalidad_presencial').checked ? 'Presencial' : '') + (document.getElementById('modalidad_elearning').checked ? ' E-learning' : '')],
-        ['Tipo de actividad:', (document.getElementById('tipo_interna').checked ? 'Interna' : '') + (document.getElementById('tipo_externa').checked ? ' Externa' : '')],
-        ['Antecedentes del relator:', `${document.getElementById('relator_name').value} (${document.getElementById('relator_cargo').value})`]
-    ];
-    pdf.autoTable({
-        startY: y,
-        theme: 'plain',
-        styles: { fontSize: 8, cellPadding: 1 },
-        columnStyles: { 0: { fontStyle: 'bold' } },
-        body: activityData
-    });
-    y = pdf.lastAutoTable.finalY + 10;
-    
-    // --- SECCIÓN 3 ---
-    if (y > 250) { pdf.addPage(); addHeader(); y = 25; }
-    pdf.setFontSize(10).setFont(undefined, 'bold');
-    pdf.text('3.- INFORMACIÓN DE LOS RIESGOS', margin, y);
-    y += 8;
-
-    const tableBody = [];
-    const riskRows = document.querySelectorAll('#risk-table tbody tr');
-    riskRows.forEach((row, index) => {
-        const check = row.querySelector('input[type=checkbox]').checked;
-        const cells = row.querySelectorAll('td');
-        tableBody.push([
-            check ? 'X' : '',
-            cells[1].innerText,
-            cells[2].innerText,
-            cells[3].innerText
-        ]);
-    });
-
-    pdf.autoTable({
-        startY: y,
-        head: [['Aplica', 'Riesgos existentes', 'Consecuencias', 'Medidas Preventivas Generales']],
-        body: tableBody,
-        theme: 'grid',
-        styles: { fontSize: 7, valign: 'middle', cellPadding: 1 },
-        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: 'bold', halign: 'center' },
-        columnStyles: {
-            0: { halign: 'center', fontStyle: 'bold', cellWidth: 10 },
-            1: { cellWidth: 35 },
-            2: { cellWidth: 35 },
-            3: { cellWidth: 96 }
-        },
-        didDrawPage: (data) => {
-            addHeader();
-        }
-    });
-    y = pdf.lastAutoTable.finalY + 10;
-
-    // --- SECCIÓN 4 y 5 ---
-    if (y > 220) { pdf.addPage(); addHeader(); y = 25; }
-    pdf.setFontSize(10).setFont(undefined, 'bold');
-    pdf.text('4.- MATERIAL DE COMPLEMENTO', margin, y);
-    y+= 5;
-    pdf.setFontSize(8).setFont(undefined, 'normal');
-    pdf.text(`Material adjunto: ${document.getElementById('mat_nombre').value} (${document.getElementById('mat_ubicacion').value})`, margin, y);
-    y+= 10;
-
-    pdf.setFontSize(10).setFont(undefined, 'bold');
-    pdf.text('5.- INFORMACIÓN DEL PARTICIPANTE', margin, y);
-    y+= 5;
-
-    const participantData = [
-        [ 'Nombre del trabajador:', document.getElementById('p_name_1').value, 'RUT:', document.getElementById('p_rut_1').value ],
-        [ 'Cargo:', document.getElementById('p_cargo_1').value, 'Tipo:', document.querySelector('input[name="tipo_trabajador"]:checked').nextElementSibling.innerText ]
-    ];
-    pdf.autoTable({
-        startY: y,
-        theme: 'plain',
-        styles: { fontSize: 8, cellPadding: 1 },
-        columnStyles: { 0: { fontStyle: 'bold' }, 2: {fontStyle: 'bold'} },
-        body: participantData
-    });
-    y = pdf.lastAutoTable.finalY + 5;
-    
-    pdf.text('Firma del participante:', margin, y);
-    const participantCanvas = document.getElementById('p_sig_1');
-    const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
-    if (!isSignatureEmpty) {
-        const sigImgData = participantCanvas.toDataURL('image/png');
-        pdf.addImage(sigImgData, 'PNG', margin, y + 2, 60, 20);
+        // --- GUARDAR EL PDF ---
+        pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
     }
-    pdf.line(margin, y + 22, margin + 60, y + 22);
-
-    // --- GUARDAR EL PDF ---
-    pdf.save(`Informe_Riesgos_${document.getElementById('p_name_1').value.replace(/ /g, '_') || 'participante'}_${document.getElementById('form_date').value}.pdf`);
-}
     
     // --- FUNCIÓN DE DESCARGA PNG (Calidad Media) ---
     async function descargarComoPng() {
+        // Esta función ahora usa html2canvas en una versión simplificada
         const formElement = document.getElementById('registroActividadForm');
-        alert("Generando PNG... por favor espere. La imagen puede ser muy larga.");
+        alert("Generando PNG... por favor espere.");
         try {
             const canvas = await html2canvas(formElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
             const link = document.createElement('a');
-            link.download = `Informe_Riesgos_${new Date().toISOString().split('T')[0]}.png`;
+            link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
         } catch(e) {
@@ -459,66 +416,41 @@ async function descargarComoPdfNativo() {
         }
     }
     function limpiarFormulario() {
-        if (confirm('¿Estás seguro que quieres borrar todos los datos del formulario y la firma?')) {
-            document.getElementById('registroActividadForm').reset();
-            
-            // Limpiar inputs de texto y textareas
-            ['p_rut_1', 'p_name_1', 'p_cargo_1', 'activity_name', 'activity_hours', 'relator_name', 'relator_cargo', 'mat_nombre', 'mat_ubicacion'].forEach(id => {
+        if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
+            ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.value = ''; localStorage.removeItem(id); }
             });
-
-            // Limpiar checkboxes de riesgos
-            document.querySelectorAll('#risk-table input[type=checkbox]').forEach(cb => {
+            document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
                 cb.checked = false;
+                localStorage.removeItem(cb.id);
             });
-            
-            // Limpiar firma
             const canvas = document.getElementById('p_sig_1');
             if (canvas) {
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 localStorage.removeItem('p_sig_1');
             }
-            
-            // Resetear fechas a hoy
-            const today = new Date().toISOString().split('T')[0];
-            ['form_date', 'activity_start_date', 'activity_end_date'].forEach(id => {
-                document.getElementById(id).value = today;
-                localStorage.setItem(id, today);
-            });
-            alert('Formulario limpiado.');
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
-        populateRiskTable(); // Poblar la tabla de riesgos
-        const today = new Date().toISOString().split('T')[0];
-        const defaultValues = { 'form_date': today, 'activity_start_date': today, 'activity_end_date': today };
-        
+        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
         document.querySelectorAll('input, textarea').forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem(input.id);
-                if (saved !== null) {
-                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = (saved === 'true');
-                    } else {
-                        input.value = saved;
-                    }
-                } else if (defaultValues[input.id]) {
-                    input.value = defaultValues[input.id];
-                }
-                
-                input.addEventListener('input', () => {
-                    const valueToSave = (input.type === 'checkbox' || input.type === 'radio') ? input.checked : input.value;
-                    localStorage.setItem(input.id, valueToSave);
-                });
-                 input.addEventListener('change', () => { // for radio buttons
-                    if (input.type === 'radio' && input.checked) {
-                         document.getElementsByName(input.name).forEach(radio => {
-                             localStorage.setItem(radio.id, radio.checked);
-                         });
-                    }
-                });
+                if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
+                else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
+                input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
+            }
+        });
+
+        const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
+        participantInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                const val = localStorage.getItem(id);
+                if(val) el.value = val;
+                el.addEventListener('input', () => localStorage.setItem(id, el.value));
             }
         });
         
