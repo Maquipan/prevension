@@ -7,6 +7,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/jspdf-autotable"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,52 +42,6 @@
         h2, h3, h4, h5 { font-family: 'Montserrat', sans-serif; color: var(--primary-color); }
         h2 { font-size: 1.8em; border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; margin-bottom: 20px; }
         h2 .fas, h2 .fa-solid { margin-right: 15px; color: var(--secondary-color); }
-        h3 { font-size: 1.5em; margin-top: 30px; }
-        h4 { font-size: 1.2em; }
-        h5 { font-size: 1.1em; color: #555; }
-        ul, ol { padding-left: 25px; }
-        li { margin-bottom: 10px; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; }
-        .video-card {
-            background-color: #fcfcfc; border: 1px solid #e9e9e9; border-radius: 8px; padding: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .video-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
-        .video-title { font-family: 'Montserrat', sans-serif; font-size: 1.1em; font-weight: 500; margin-bottom: 15px; }
-        .video-responsive-wrapper { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; }
-        .video-responsive-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        .alert-image { max-width: 100%; border-radius: 8px; margin: 20px auto; display: block; }
-        .disclaimer { font-size: 0.85em; font-style: italic; color: #777; margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 15px; }
-        .tab-container { display: flex; border-bottom: 2px solid var(--secondary-color); margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-button {
-            padding: 12px 20px; cursor: pointer; border: none; background-color: transparent; font-family: 'Montserrat', sans-serif;
-            font-size: 1.1em; color: var(--secondary-color); border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -2px;
-        }
-        .tab-button:hover { background-color: var(--light-gray); }
-        .tab-button.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 700; }
-        #tab-content-area { min-height: 200px; }
-        
-        /* ESTILOS FORMULARIO IRL */
-        .form-irl-container { border: 1px solid #ccc; padding: 20px; font-family: Arial, sans-serif; color: #000; }
-        .form-irl-header, .form-irl-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .form-irl-header td, .form-irl-table td, .form-irl-table th { border: 1px solid #000; padding: 5px 8px; font-size: 11px; vertical-align: middle; }
-        .form-irl-header .logo-cell-irl { width: 150px; text-align: center; }
-        .form-irl-header .logo-cell-irl img { max-width: 120px; }
-        .form-irl-header .title-cell-irl { font-size: 14px; font-weight: bold; text-align: center; vertical-align: middle; }
-        .form-irl-section-title { background-color: #0070c0; color: white; font-weight: bold; padding: 8px; text-align: left; font-size: 12px; margin-top: 20px; margin-bottom: 10px; }
-        .form-irl-table th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
-        .form-irl-table .check-cell { text-align: center; font-weight: bold; font-size: 14px; }
-        .form-irl-input { width: 100%; border: none; border-bottom: 1px dotted #000; background-color: transparent; font-size: 11px; }
-        .form-irl-input:focus { outline: none; border-bottom: 1px solid #000; }
-        .form-irl-signature-pad { width: 100%; height: 80px; border: 1px solid #ccc; background-color: #fdfdfd; cursor: crosshair; }
-        .download-button-irl {
-            display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer;
-            font-family: 'Montserrat', sans-serif; font-weight: 700; color: white; transition: background-color 0.3s ease;
-        }
-        .download-buttons-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
-        
-        /* ESTILOS REGISTRO ACTIVIDAD */
-        #registroActividadForm { border: none; box-shadow: none; padding: 0; }
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .header-table td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; font-size: 11px; }
         .logo-cell { width: 30%; }
@@ -95,22 +50,15 @@
         .section { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; align-items: center; }
         label { font-weight: bold; font-family: 'Montserrat', sans-serif; font-size: 13px; color: #333; }
-        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 13px; font-family: 'Roboto', sans-serif; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 13px; font-family: 'Roboto', sans-serif; }
         textarea { resize: vertical; }
-        input:focus, textarea:focus { outline: none; border-color: var(--secondary-color); box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); }
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
         .checkbox-item { display: flex; align-items: center; gap: 5px; }
         .checkbox-item label { font-weight: normal; }
         .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .participants-table th, .participants-table td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 12px; vertical-align: middle; }
         .participants-table th { text-align: center; font-weight: bold; background-color: var(--light-gray); }
-        .signature-container { display: flex; flex-direction: column; align-items: flex-start; }
-        .signature-pad { border: 2px dashed #ccc; background-color: #fdfdfd; cursor: crosshair; width: 300px; height: 120px; border-radius: 8px; }
         .participant-signature-pad { width: 100%; height: 50px; background-color: #fdfdfd; border: 1px solid #e0e0e0; cursor: crosshair; border-radius: 5px; }
-        .signature-controls button { margin-top: 8px; padding: 5px 12px; font-size: 12px; border-radius: 5px; border: none; cursor: pointer; background-color: #6c757d; color: white; transition: background-color 0.3s ease; }
-        .signature-controls button:hover { background-color: #5a6268; }
-        
-        /* --- ESTILOS DE BOTONES --- */
         .button-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .action-button { 
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; 
@@ -124,54 +72,9 @@
         .download-button-pdf { background-color: var(--success-color); }
         .download-button-pdf:hover { background-color: #13653f; }
 
-        /* Clase para forzar la vista de escritorio durante la descarga */
-        .forzar-escritorio .button-group {
-            grid-template-columns: repeat(3, 1fr) !important;
-        }
-        .forzar-escritorio .participants-table thead {
-            display: table-header-group !important; /* Muestra el encabezado de la tabla */
-        }
-        .forzar-escritorio .participants-table,
-        .forzar-escritorio .participants-table tbody,
-        .forzar-escritorio .participants-table tr {
-            display: table-row !important; /* Devuelve el comportamiento de fila */
-            border: none !important;
-            padding: 0 !important;
-        }
-        .forzar-escritorio .participants-table td {
-            display: table-cell !important; /* Devuelve el comportamiento de celda */
-            width: auto !important;
-            text-align: left !important;
-            padding: 8px !important;
-            position: static !important;
-            border: 1px solid #ccc !important;
-        }
-        .forzar-escritorio .participants-table td:before {
-            display: none !important; /* Oculta las etiquetas de datos */
-        }
-
-        /* --- ESTILOS RESPONSIVOS PARA MÓVILES --- */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .main-title { font-size: 2em; }
-            .content-box { padding: 15px; }
-            .video-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
-            .download-buttons-container { grid-template-columns: 1fr; }
-            .participants-table thead { display: none; }
-            .participants-table, .participants-table tbody, .participants-table tr, .participants-table td { display: block; width: 100%; }
-            .participants-table tr { margin-bottom: 15px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; }
-            .participants-table td { text-align: right !important; padding-left: 50%; position: relative; border: none; }
-            .participants-table td:before { content: attr(data-label); position: absolute; left: 10px; width: calc(50% - 20px); text-align: left !important; font-weight: bold; }
             .button-group { grid-template-columns: 1fr; }
-        }
-        
-        /* ESTILOS PARA IMPRESIÓN Y PDF */
-        @media print {
-            body * { visibility: hidden; }
-            #form-irl-container, #form-irl-container * { visibility: visible; }
-            #form-irl-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; border: none; }
-            .download-buttons-container { display: none; }
         }
     </style>
 </head>
@@ -180,52 +83,44 @@
 <div class="container">
     <h1 class="main-title">Portal de Prevención MAQUIPAN</h1>
 
-    <div class="content-box">
-        <h2><i class="fa-solid fa-book-open"></i>Material de Capacitación</h2>
-        <div class="tab-container">
-            <button class="tab-button active" onclick="loadTabContent(this, 'junio')">Capacitación Junio</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'extintores')">Uso y Manejo de Extintores</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'protocolos-minsal')">Protocolos MINSAL</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'matriz-riesgo')">Matriz de Riesgos (IPER)</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'proteccion-personal')">Protección Personal (EPP)</button>
-            <button class="tab-button" onclick="loadTabContent(this, 'informe-riesgos')">Informe Riesgos Laborales</button>
-        </div>
-        <div id="tab-content-area"></div>
-    </div>
-
     <div class="content-box" id="registro-actividad-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
-            <table class="header-table">
+            <table class="header-table" id="pdf-header-table" style="display: none;">
+                <thead>
                   <tr>
-                      <td rowspan="2" class="logo-cell"><img src="https://i.imgur.com/qL3x0xG.png" alt="Logo de la Empresa"></td>
-                      <td rowspan="2" class="title">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</td>
-                      <td>Tipo: Formato</td>
+                      <th rowspan="2"><img id="logo-for-pdf" src="https://i.imgur.com/qL3x0xG.png" alt="Logo" style="width: 60px;"></th>
+                      <th rowspan="2">REGISTRO DE ACTIVIDAD<br>SEGURIDAD Y SALUD OCUPACIONAL</th>
+                      <th>Tipo: Formato</th>
                   </tr>
-                <tr><td>Rev.: 001</td></tr>
-                <tr>
-                    <td class="info"><strong>Gerencia:</strong> Servicio</td>
-                    <td class="info" colspan="2"><strong>Area:</strong> Servicio</td>
-                </tr>
-                <tr>
-                    <td class="info">Emitido por: Gerencia de Finanzas</td>
-                    <td class="info">Disposición: Uso Interno</td>
-                    <td class="info">Pág.: 1 de 1</td>
-                </tr>
-                <tr>
-                    <td class="info">Aprobado por: Gerente de Finanzas</td>
-                    <td></td>
-                    <td>Fecha: 02-07-2025</td>
-                </tr>
+                  <tr><th>Rev.: 001</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                      <td><strong>Gerencia:</strong> Servicio</td>
+                      <td colspan="2"><strong>Area:</strong> Servicio</td>
+                  </tr>
+                  <tr>
+                      <td>Emitido por: Gerencia de Finanzas</td>
+                      <td>Disposición: Uso Interno</td>
+                      <td>Pág.: 1 de 1</td>
+                  </tr>
+                  <tr>
+                      <td>Aprobado por: Gerente de Finanzas</td>
+                      <td></td>
+                      <td>Fecha: 02-07-2025</td>
+                  </tr>
+                </tbody>
             </table>
+            
             <div class="section">
-                <div class="checkbox-group">
-                    <div class="checkbox-item"><input type="checkbox" id="charla" name="tipoActividad"><label for="charla">Charla</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="reunion" name="tipoActividad"><label for="reunion">Reunión</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="inspeccion" name="tipoActividad"><label for="inspeccion">Inspección</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="induccion" name="tipoActividad"><label for="induccion">Inducción</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="capacitacion" name="tipoActividad"><label for="capacitacion">Capacitación</label></div>
-                    <div class="checkbox-item"><input type="checkbox" id="auditoria" name="tipoActividad"><label for="auditoria">Auditoría</label></div>
+                <div class="checkbox-group" id="activity-type-group">
+                    <div class="checkbox-item"><input type="checkbox" id="charla" name="tipoActividad" data-label="Charla"><label for="charla">Charla</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="reunion" name="tipoActividad" data-label="Reunión"><label for="reunion">Reunión</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="inspeccion" name="tipoActividad" data-label="Inspección"><label for="inspeccion">Inspección</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="induccion" name="tipoActividad" data-label="Inducción"><label for="induccion">Inducción</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="capacitacion" name="tipoActividad" data-label="Capacitación"><label for="capacitacion">Capacitación</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="auditoria" name="tipoActividad" data-label="Auditoría"><label for="auditoria">Auditoría</label></div>
                 </div>
             </div>
             <div class="form-grid">
@@ -238,10 +133,10 @@
             <div class="section" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 20px; border: none; padding: 0;">
                 <div style="flex: 1 1 300px;">
                     <label for="relatorEncargado">RELATOR/ENCARGADO</label>
-                    <input type="text" id="relatorEncargado" style="border-radius: 5px 5px 0 0;">
+                    <input type="text" id="relatorEncargado">
                 </div>
                 <div style="flex: 0 1 250px; text-align: center;">
-                    <img src="https://raw.githubusercontent.com/Maquipan/prevension/refs/heads/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; display: block; margin: 0 auto 5px auto;">
+                    <img id="relator-signature-img" src="https://raw.githubusercontent.com/Maquipan/prevension/refs/heads/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; display: block; margin: 0 auto 5px auto;">
                     <label style="display: block; border-top: 1px solid #333; padding-top: 5px; width: 100%; font-weight:normal;">Firma Relator</label>
                 </div>
             </div>
@@ -259,10 +154,10 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td data-label="RUT"><input type="text" id="p_rut_1"></td>
-                            <td data-label="NOMBRE Y APELLIDO"><input type="text" id="p_name_1"></td>
-                            <td data-label="CARGO"><input type="text" id="p_cargo_1"></td>
-                            <td data-label="FIRMA"><canvas id="p_sig_1" class="participant-signature-pad"></canvas></td>
+                            <td><input type="text" id="p_rut_1" placeholder="12345678-9"></td>
+                            <td><input type="text" id="p_name_1"></td>
+                            <td><input type="text" id="p_cargo_1"></td>
+                            <td><canvas id="p_sig_1" class="participant-signature-pad"></canvas></td>
                         </tr>
                     </tbody>
                 </table>
@@ -271,167 +166,156 @@
         <div class="button-group">
             <button type="button" class="action-button clear-button" onclick="limpiarFormulario()">Limpiar</button>
             <button type="button" class="action-button download-button-png" onclick="descargarComoPng()">Descargar PNG</button>
-            <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdf()">Descargar PDF</button>
+            <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdfNativo()">Descargar PDF</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS ---
-    async function loadTabContent(btn, tabName) {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        tabButtons.forEach(button => button.classList.remove('active'));
-        btn.classList.add('active');
-        const contentArea = document.getElementById('tab-content-area');
-        const registroBox = document.getElementById('registro-actividad-box');
-        contentArea.innerHTML = '<p>Cargando contenido...</p>';
-        try {
-            const response = await fetch(`capacitaciones/${tabName}.html`);
-            if (!response.ok) throw new Error(`Error al cargar`);
-            contentArea.innerHTML = await response.text();
-            
-            if (tabName === 'informe-riesgos') {
-                registroBox.style.display = 'none';
-                const firmaCanvas = document.getElementById('firma_trabajador_irl');
-                if (firmaCanvas) initializeSignaturePad(firmaCanvas);
-            } else {
-                registroBox.style.display = 'block';
-                const temasTextarea = document.getElementById('temasTratados');
-                const temasSource = contentArea.querySelector('.temas-para-registro');
-                if (temasSource && temasTextarea) {
-                    temasTextarea.value = temasSource.textContent.trim();
-                    localStorage.setItem('temasTratados', temasTextarea.value);
-                } else if(temasTextarea) {
-                    temasTextarea.value = 'Temas no especificados.';
-                    localStorage.setItem('temasTratados', temasTextarea.value);
-                }
-            }
-        } catch (error) {
-            console.error('Error al cargar la pestaña:', error);
-            contentArea.innerHTML = `<p style="color: red;">Error: No se encontró el material.</p>`;
-        }
-    }
-
-    // --- FUNCIONES LEGACY (NO USADAS POR REGISTRO DE ACTIVIDAD) ---
-    function descargarInformeComoPdf() {
-        alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
-        window.print();
-    }
-    function descargarInformeComoWord() {
-        // ... (código sin cambios)
-    }
-    async function descargarInformeRiesgos() {
-        // ... (código sin cambios)
-    }
-
-    // --- LÓGICA DE PREPARACIÓN Y FORZADO DE ESTILOS ---
-    function forzarEstilosEscritorio(formElementId) {
-        const formElement = document.getElementById(formElementId);
-        if (!formElement) return () => {}; // Devuelve una función vacía si no encuentra el form
-        
-        formElement.classList.add('forzar-escritorio');
-        
-        // Devuelve una función "cleanup" para revertir los cambios
-        return () => {
-            formElement.classList.remove('forzar-escritorio');
-        };
-    }
-
-    async function prepararFormularioParaCaptura(formElementId, textareaId) {
-        const formElement = document.getElementById(formElementId);
-        const textarea = document.getElementById(textareaId);
-        if (!formElement || !textarea) {
-            console.error("Elemento de formulario o textarea no encontrado.");
-            return { cleanup: () => {} };
-        }
-
-        const div = document.createElement('div');
-        const computedStyle = window.getComputedStyle(textarea);
-        const stylesToCopy = ['width', 'height', 'padding', 'border', 'fontFamily', 'fontSize', 'lineHeight', 'color', 'backgroundColor', 'boxSizing', 'borderRadius'];
-        stylesToCopy.forEach(prop => {
-            div.style[prop] = computedStyle[prop];
-        });
-        div.style.whiteSpace = 'pre-wrap';
-        div.style.wordWrap = 'break-word';
-        div.innerHTML = textarea.value.replace(/\n/g, '<br>');
-        textarea.style.display = 'none';
-        textarea.parentElement.appendChild(div);
-
-        await new Promise(r => setTimeout(r, 100));
-
-        // Devuelve una función para limpiar solo lo de este paso
-        return {
-            cleanup: () => {
-                if (textarea.parentElement.contains(div)) {
-                    textarea.parentElement.removeChild(div);
-                }
-                textarea.style.display = 'block';
-            }
-        };
-    }
-
-    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD (ACTUALIZADA) ---
-    async function descargarComoPng() {
-        const formId = 'registroActividadForm';
-        const formElement = document.getElementById(formId);
-        let preparacion, revertirEstilos;
-        
-        try {
-            // Aplica los cambios de estilo y prepara el textarea
-            revertirEstilos = forzarEstilosEscritorio(formId);
-            preparacion = await prepararFormularioParaCaptura(formId, 'temasTratados');
-            
-            // Captura el canvas
-            const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
-            const link = document.createElement('a');
-            link.download = 'Registro_Actividad.png';
-            link.href = canvas.toDataURL();
-            link.click();
-        } catch (error) {
-            console.error("Error al generar el PNG:", error);
-        } finally {
-            // Revierte SIEMPRE los cambios, incluso si hay un error
-            if (revertirEstilos) revertirEstilos();
-            if (preparacion) preparacion.cleanup();
-        }
-    }
-
-    // --- FUNCIÓN DE DESCARGA PDF PARA REGISTRO DE ACTIVIDAD (ACTUALIZADA) ---
-    async function descargarComoPdf() {
+    // --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
+    async function descargarComoPdfNativo() {
         const { jsPDF } = window.jspdf;
-        const formId = 'registroActividadForm';
-        const formElement = document.getElementById(formId);
-        let preparacion, revertirEstilos;
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+
+        const margin = 15;
+        const docWidth = pdf.internal.pageSize.getWidth();
+        let y = 15; // Posición Y inicial
+
+        // --- 1. CABECERA ---
+        // Usamos autoTable para dibujar la tabla de cabecera que preparamos en el HTML
+        pdf.autoTable({
+            html: '#pdf-header-table',
+            startY: y,
+            theme: 'grid',
+            styles: {
+                fontSize: 8,
+                cellPadding: 1.5,
+                halign: 'center',
+                valign: 'middle'
+            },
+            headStyles: {
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold'
+            },
+            didParseCell: function(data) {
+                // Centrar la imagen del logo en su celda
+                if (data.row.section === 'head' && data.column.index === 0) {
+                    data.cell.styles.halign = 'center';
+                    data.cell.styles.valign = 'middle';
+                    const img = document.getElementById('logo-for-pdf');
+                    // Dejamos un espacio para la imagen
+                    data.cell.text = ''; 
+                    pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
+                }
+            }
+        });
+        y = pdf.lastAutoTable.finalY + 10;
+
+        // --- 2. TIPO DE ACTIVIDAD Y FECHAS ---
+        pdf.setFontSize(10);
+        const selectedActivities = [];
+        document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => {
+            selectedActivities.push(cb.dataset.label);
+        });
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+        y += 7;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('FECHA:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('fecha').value, margin + 18, y);
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA INICIO:', margin + 70, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA TÉRMINO:', margin + 125, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+        y += 10;
         
+        // --- 3. TEMAS TRATADOS ---
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TEMAS TRATADOS', margin, y);
+        y += 5;
+        const temasText = document.getElementById('temasTratados').value;
+        const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
+        pdf.setDrawColor(0);
+        pdf.rect(margin, y, docWidth - margin * 2, 40); // Caja contenedora
+        pdf.setFont(undefined, 'normal');
+        pdf.text(textLines, margin + 2, y + 5);
+        y += 45; // Espacio después de la caja de temas
+
+        // --- 4. RELATOR Y FIRMA ---
+        pdf.setFont(undefined, 'bold');
+        pdf.text('RELATOR/ENCARGADO:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+
+        // Firma del relator
+        const relatorSigImg = document.getElementById('relator-signature-img');
+        pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
+        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12); // Línea de firma
+        pdf.setFontSize(8);
+        pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+        y += 20;
+
+        // --- 5. TABLA DE PARTICIPANTES ---
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('PARTICIPANTES', margin, y);
+        y += 5;
+
+        const participantCanvas = document.getElementById('p_sig_1');
+        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
+
+        pdf.autoTable({
+            startY: y,
+            head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
+            body: [[
+                document.getElementById('p_rut_1').value,
+                document.getElementById('p_name_1').value,
+                document.getElementById('p_cargo_1').value,
+                '' // Dejamos el espacio para la firma
+            ]],
+            theme: 'grid',
+            styles: { fontSize: 10, valign: 'middle' },
+            headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            didDrawCell: (data) => {
+                if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                     const sigImgData = participantCanvas.toDataURL('image/png');
+                     pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                }
+            },
+            columnStyles: {
+                3: { minCellHeight: 15 } // Aumentar altura de la celda de firma
+            }
+        });
+
+        // --- GUARDAR EL PDF ---
+        pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
+    }
+    
+    // --- FUNCIÓN DE DESCARGA PNG (Legado, Calidad Media) ---
+    async function descargarComoPng() {
+        const formElement = document.getElementById('registroActividadForm');
+        alert("Generando PNG... por favor espere.");
         try {
-            // Aplica los cambios de estilo y prepara el textarea
-            revertirEstilos = forzarEstilosEscritorio(formId);
-            preparacion = await prepararFormularioParaCaptura(formId, 'temasTratados');
-
-            // Captura el canvas
-            const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
-            
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfMargin = 10;
-            const usableWidth = pdfWidth - (pdfMargin * 2);
-            
-            const imgWidth = usableWidth;
-            const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-            
-            pdf.addImage(imgData, 'PNG', pdfMargin, pdfMargin, imgWidth, imgHeight);
-            pdf.save('Registro_Actividad.pdf');
-
-        } catch (error) {
-            console.error("Error al generar el PDF:", error);
-            alert("Hubo un error al generar el PDF. Revisa la consola para más detalles.");
-        } finally {
-            // Revierte SIEMPRE los cambios, incluso si hay un error
-            if (revertirEstilos) revertirEstilos();
-            if (preparacion) preparacion.cleanup();
+            const canvas = await html2canvas(formElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            const link = document.createElement('a');
+            link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch(e) {
+            console.error("Error al generar PNG:", e);
+            alert("Hubo un problema al generar la imagen PNG.");
         }
     }
 
@@ -470,17 +354,18 @@
             img.src = data;
         }
     }
-    function clearSignature(id) {
-        const c = document.getElementById(id); if(c) { c.getContext('2d').clearRect(0, 0, c.width, c.height); localStorage.removeItem(id); }
-    }
     function limpiarFormulario() {
         if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
             ['p_rut_1', 'p_name_1', 'p_cargo_1'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.value = '';
-                localStorage.removeItem(id);
+                if (el) { el.value = ''; localStorage.removeItem(id); }
             });
-            clearSignature('p_sig_1');
+            const canvas = document.getElementById('p_sig_1');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                localStorage.removeItem('p_sig_1');
+            }
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
@@ -488,7 +373,7 @@
         document.querySelectorAll('input, textarea').forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem(input.id);
-                if (saved) { input.type === 'checkbox' ? input.checked = saved === 'true' : input.value = saved; }
+                if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
                 else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
                 input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
             }
@@ -507,11 +392,6 @@
         const signatureCanvas = document.getElementById('p_sig_1');
         if(signatureCanvas) {
             initializeSignaturePad(signatureCanvas);
-        }
-
-        const firstTab = document.querySelector('.tab-button');
-        if (firstTab) {
-            firstTab.click();
         }
     });
 </script>
