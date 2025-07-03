@@ -208,10 +208,25 @@
                 </div>
             </div>
             
-            <div class="section"><label>PARTICIPANTES</label>
+            <div class="section">
+                <label>PARTICIPANTE</label>
                 <table class="participants-table" id="participantesTable">
-                    <thead><tr><th>N°</th><th>RUT</th><th>NOMBRE Y APELLIDO</th><th>CARGO</th><th>FIRMA</th></tr></thead>
-                    <tbody></tbody>
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>NOMBRE Y APELLIDO</th>
+                            <th>CARGO</th>
+                            <th>FIRMA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" id="p_rut_1"></td>
+                            <td><input type="text" id="p_name_1"></td>
+                            <td><input type="text" id="p_cargo_1"></td>
+                            <td><canvas id="p_sig_1" class="participant-signature-pad"></canvas></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -308,7 +323,7 @@
         });
     }
 
-    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD (CORREGIDA) ---
+    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD ---
     async function descargarComoPng() {
         const formElement = document.getElementById('registroActividadForm');
         const textarea = document.getElementById('temasTratados');
@@ -317,26 +332,19 @@
         const div = document.createElement('div');
         const computedStyle = window.getComputedStyle(textarea);
         
-        // Copiamos manualmente los estilos necesarios para evitar el error
-        div.style.width = computedStyle.width;
-        div.style.height = computedStyle.height;
-        div.style.padding = computedStyle.padding;
-        div.style.border = computedStyle.border;
-        div.style.fontFamily = computedStyle.fontFamily;
-        div.style.fontSize = computedStyle.fontSize;
-        div.style.lineHeight = computedStyle.lineHeight;
-        div.style.color = computedStyle.color;
-        div.style.backgroundColor = computedStyle.backgroundColor;
-        div.style.boxSizing = 'border-box';
+        const stylesToCopy = ['width', 'height', 'padding', 'border', 'fontFamily', 'fontSize', 'lineHeight', 'color', 'backgroundColor', 'boxSizing', 'borderRadius'];
+        stylesToCopy.forEach(prop => {
+            div.style[prop] = computedStyle[prop];
+        });
+        
         div.style.whiteSpace = 'pre-wrap';
         div.style.wordWrap = 'break-word';
         div.innerHTML = textarea.value.replace(/\n/g, '<br>');
 
-        // Reemplazamos temporalmente el textarea con el div
         textarea.style.display = 'none';
         textarea.parentElement.appendChild(div);
 
-        await new Promise(r => setTimeout(r, 100)); // Pequeña pausa para asegurar la renderización
+        await new Promise(r => setTimeout(r, 100));
 
         try {
             const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
@@ -346,15 +354,13 @@
             link.click();
         } catch (error) {
             console.error("Error al generar el PNG:", error);
-            alert("Ocurrió un error al generar la imagen.");
         } finally {
-            // Nos aseguramos de restaurar el textarea original, incluso si hay un error
             textarea.parentElement.removeChild(div);
             textarea.style.display = 'block';
         }
     }
 
-    // --- FUNCIONES DE FIRMA Y FORMULARIO (SIN CAMBIOS) ---
+    // --- FUNCIONES DE FIRMA Y FORMULARIO ---
     function initializeSignaturePad(canvasEl) {
         if (!canvasEl) return;
         const ctx = canvasEl.getContext('2d');
@@ -393,16 +399,13 @@
         const c = document.getElementById(id); if(c) { c.getContext('2d').clearRect(0, 0, c.width, c.height); localStorage.removeItem(id); }
     }
     function limpiarFormulario() {
-        if (confirm('¿Estás seguro? Esta acción no se puede deshacer.')) {
-            let keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('p_') || ['relatorSignaturePad', 'fecha', 'horaInicio', 'horaTermino', 'temasTratados', 'relatorEncargado', 'charla', 'reunion', 'inspeccion', 'induccion', 'capacitacion', 'auditoria'].includes(key)) {
-                    keysToRemove.push(key);
-                }
-            }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-            window.location.reload();
+        if (confirm('¿Estás seguro que quieres borrar los datos del participante?')) {
+            ['p_rut_1', 'p_name_1', 'p_cargo_1'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+                localStorage.removeItem(id);
+            });
+            clearSignature('p_sig_1');
         }
     }
     document.addEventListener('DOMContentLoaded', function() {
@@ -415,25 +418,28 @@
                 input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
             }
         });
-        const pTable = document.getElementById('participantesTable');
-        if (pTable) {
-            const tBody = pTable.getElementsByTagName('tbody')[0];
-            for (let i = 1; i <= 6; i++) {
-                const row = tBody.insertRow();
-                row.innerHTML = `<td data-label="N°">${i}</td><td data-label="RUT"><input type="text" id="p_rut_${i}"></td><td data-label="NOMBRE"><input type="text" id="p_name_${i}"></td><td data-label="CARGO"><input type="text" id="p_cargo_${i}"></td><td data-label="FIRMA"><canvas id="p_sig_${i}" class="participant-signature-pad"></canvas></td>`;
-                ['rut', 'name', 'cargo'].forEach(t => {
-                    const el = document.getElementById(`p_${t}_${i}`);
-                    const val = localStorage.getItem(el.id);
-                    if(val) el.value = val;
-                    el.addEventListener('input', () => localStorage.setItem(el.id, el.value));
-                });
+
+        // CÓDIGO JS MODIFICADO
+        // Configurar la tabla y la firma para un solo participante
+        const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
+        participantInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                const val = localStorage.getItem(id);
+                if(val) el.value = val;
+                el.addEventListener('input', () => localStorage.setItem(id, el.value));
             }
-        }
-        document.querySelectorAll('.participant-signature-pad').forEach(c => { 
-            if(c) initializeSignaturePad(c); 
         });
+        
+        const signatureCanvas = document.getElementById('p_sig_1');
+        if(signatureCanvas) {
+            initializeSignaturePad(signatureCanvas);
+        }
+
         const firstTab = document.querySelector('.tab-button');
-        if (firstTab) firstTab.click();
+        if (firstTab) {
+            firstTab.click();
+        }
     });
 </script>
 
