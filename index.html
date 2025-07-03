@@ -82,28 +82,7 @@
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
             .button-group { grid-template-columns: 1fr; }
-        }@media print {
-    /* Oculta todo en la página por defecto al imprimir */
-    body > * {
-        display: none !important;
-    }
-
-    /* Muestra únicamente el área que hemos marcado para imprimir */
-    .printable-area {
-        display: block !important;
-    }
-
-    /* Asegura que la cabecera oculta del formulario de registro se imprima */
-    .printable-area #pdf-header-table {
-        display: table !important;
-    }
-
-    /* Oculta los botones dentro del área que se va a imprimir */
-    .printable-area .button-group, 
-    .printable-area .download-button-irl-container {
-        display: none !important;
-    }
-}
+        }
     </style>
 </head>
 <body>
@@ -207,7 +186,7 @@
         <div class="button-group">
             <button type="button" class="action-button clear-button" onclick="limpiarFormulario()">Limpiar</button>
             <button type="button" class="action-button download-button-png" onclick="descargarComoPng()">Descargar PNG</button>
-            <button type="button" class="action-button download-button-pdf" onclick="imprimirComoPdf('registro-actividad-box', 'pdf-header-table')">Imprimir / Guardar PDF</button>
+            <button type="button" class="action-button download-button-pdf" onclick="imprimirComoPdf()">Imprimir / Guardar PDF</button>
         </div>
     </div>
 </div>
@@ -263,22 +242,52 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
 
-// --- NUEVA FUNCIÓN DE IMPRESIÓN (COMPATIBLE CON MÓVILES) ---
-function imprimirComoPdf(printableAreaId) {
-    const printableElement = document.getElementById(printableAreaId);
-    if (!printableElement) {
-        console.error('Elemento para imprimir no encontrado:', printableAreaId);
+// --- FUNCIÓN DE IMPRESIÓN PDF (MODIFICADA PARA MÁXIMA COMPATIBILIDAD) ---
+async function imprimirComoPdf() {
+    const { jsPDF } = window.jspdf;
+    const formElement = document.getElementById('registro-actividad-box');
+    const headerTable = document.getElementById('pdf-header-table');
+
+    if (!formElement || !headerTable) {
+        alert('Error: No se encontró el formulario para generar el PDF.');
         return;
     }
+    
+    alert("Generando PDF... por favor espere.");
 
-    // Añade una clase temporal para que el CSS @media print la detecte
-    printableElement.classList.add('printable-area');
-    
-    // Llama a la impresión del navegador
-    window.print();
-    
-    // Quita la clase después de que se envíe la orden de impresión
-    printableElement.classList.remove('printable-area');
+    // Muestra temporalmente la cabecera para que sea capturada
+    headerTable.style.display = 'table';
+
+    try {
+        const canvas = await html2canvas(formElement, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            // Ignora los botones en la captura de pantalla
+            ignoreElements: (element) => element.classList.contains('button-group')
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`Registro_Actividad_${document.getElementById('fecha').value || 'sin-fecha'}.pdf`);
+
+    } catch (e) {
+        console.error("Error al generar el PDF:", e);
+        alert("Hubo un problema al generar el archivo PDF.");
+    } finally {
+        // Vuelve a ocultar la cabecera después de la captura
+        headerTable.style.display = 'none';
+    }
 }
 
 
@@ -343,9 +352,10 @@ async function loadTabContent(btn, tabName) {
         if (tabName === 'informe-riesgos') {
             const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
             if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
-
+            
+            // Si el informe de riesgos también necesita imprimir, se puede llamar a una función similar
             const pdfBtn = document.getElementById('imprimirPdfIrlBtn');
-            if(pdfBtn) pdfBtn.onclick = () => imprimirComoPdf('tab-content-area');
+            if(pdfBtn) pdfBtn.onclick = () => alert('Funcionalidad de PDF para este informe no implementada en este ejemplo.');
             
             const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
             if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
