@@ -252,43 +252,121 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- FUNCIONES DE DESCARGA PARA EL INFORME DE RIESGOS (IRL) ---
-function descargarIrlComo(format) {
+// --- NUEVA FUNCIÓN OPTIMIZADA PARA DESCARGAR EL IRL COMO PDF ---
+function descargarIrlComoPdfOptimizado() {
+    alert("Generando PDF optimizado... por favor espere.");
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const margin = 15;
+    const docWidth = pdf.internal.pageSize.getWidth();
+    let y = 15; // Posición Y inicial
+
+    // 1. Encabezado del documento
+    pdf.autoTable({
+        html: '#form-irl-container .form-irl-header',
+        startY: y,
+        theme: 'grid',
+        styles: {
+            fontSize: 8,
+            cellPadding: 1.5,
+            lineColor: [0, 0, 0],
+            lineWidth: 0.1
+        },
+        didParseCell: function(data) {
+            if (data.cell.raw.querySelector('img')) {
+                data.cell.styles.halign = 'center';
+                data.cell.styles.valign = 'middle';
+            }
+        },
+        didDrawCell: function(data) {
+            if (data.cell.raw.querySelector('img')) {
+                const img = data.cell.raw.querySelector('img');
+                const dim = data.cell.height - data.cell.padding('vertical');
+                const x = data.cell.x + (data.cell.width - dim) / 2;
+                const y = data.cell.y + data.cell.padding('top');
+                pdf.addImage(img, 'JPEG', x, y, dim, dim);
+            }
+        }
+    });
+    y = pdf.lastAutoTable.finalY;
+
+    // 2. Título de la sección y párrafo de información
+    y += 10;
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('1.- INFORMACIÓN DE LA ACTIVIDAD', margin, y);
+    y += 7;
+    pdf.setFontSize(9);
+    pdf.setFont(undefined, 'normal');
+    const introText = document.querySelector('#form-irl-container p').textContent.trim();
+    const textLines = pdf.splitTextToSize(introText, docWidth - margin * 2);
+    pdf.text(textLines, margin, y);
+    y += (textLines.length * 4) + 5;
+
+    // 3. Tabla de información de la actividad y del relator
+    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(1)', startY: y, theme: 'grid' });
+    y = pdf.lastAutoTable.finalY + 5;
+    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(2)', startY: y, theme: 'grid' });
+    y = pdf.lastAutoTable.finalY;
+
+    // 4. Tabla de riesgos
+    y += 10;
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('3.- INFORMACIÓN DE LOS RIESGOS', margin, y);
+    y += 7;
+    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(3)', startY: y, theme: 'grid' });
+    y = pdf.lastAutoTable.finalY;
+
+    // 5. Tabla de información del participante (con firma)
+    y += 10;
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('5.- INFORMACIÓN DEL PARTICIPANTE', margin, y);
+    y += 7;
+    const nombre = document.getElementById('nombre_trabajador_irl').value;
+    const rut = document.getElementById('rut_trabajador_irl').value;
+
+    pdf.autoTable({
+        startY: y,
+        theme: 'grid',
+        body: [
+            [{ content: `Nombre del trabajador:\n${nombre}`, styles: { halign: 'left' } }, { content: `RUT:\n${rut}`, styles: { halign: 'left' } }],
+            [{ content: 'Cargo:\nTécnico de Servicios', styles: { halign: 'left' } }, { content: 'Tipo:\n☑ Actualización', styles: { halign: 'left' } }],
+            [{ content: 'Firma:', colSpan: 2, styles: { minCellHeight: 30 } }],
+        ],
+        didDrawCell: function(data) {
+            if (data.row.index === 2) { // Celda de la firma
+                const firmaCanvas = document.getElementById('firma_trabajador_irl');
+                const isSignatureEmpty = !firmaCanvas.getContext('2d').getImageData(0, 0, firmaCanvas.width, firmaCanvas.height).data.some(channel => channel !== 0);
+                if (!isSignatureEmpty) {
+                    const imgData = firmaCanvas.toDataURL('image/png');
+                    pdf.addImage(imgData, 'PNG', data.cell.x + 2, data.cell.y + 2, 60, 20);
+                }
+            }
+        }
+    });
+
+    pdf.save('Informe_Riesgos_Laborales_Optimizado.pdf');
+}
+
+
+// --- FUNCIÓN DE DESCARGA PNG (sin cambios) ---
+function descargarIrlComoPng() {
     const irlElement = document.getElementById('form-irl-container');
     if (!irlElement) {
         alert('Error: No se encontró el contenido del informe.');
         return;
     }
-    alert(`Generando ${format.toUpperCase()}... por favor espere.`);
+    alert(`Generando PNG... por favor espere.`);
     html2canvas(irlElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-        if (format === 'png') {
-            const link = document.createElement('a');
-            link.download = `Informe_Riesgos_Laborales.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } else if (format === 'pdf') {
-            const imgData = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            let heightLeft = pdfHeight;
-            let position = 0;
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
-            while (heightLeft > 0) {
-                position = heightLeft - pdfHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pdf.internal.pageSize.getHeight();
-            }
-            pdf.save('Informe_Riesgos_Laborales.pdf');
-        }
-    }).catch(e => {
-        console.error("Error al generar el archivo:", e);
-        alert("Hubo un problema al generar el archivo.");
+        const link = document.createElement('a');
+        link.download = `Informe_Riesgos_Laborales.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
     });
 }
+
 
 // --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (MODIFICADA) ---
 async function loadTabContent(btn, tabName) {
@@ -316,10 +394,10 @@ async function loadTabContent(btn, tabName) {
             if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
 
             const pngBtn = document.getElementById('descargarPngIrlBtn');
-            if(pngBtn) pngBtn.onclick = () => descargarIrlComo('png');
+            if(pngBtn) pngBtn.onclick = descargarIrlComoPng;
 
             const pdfBtn = document.getElementById('descargarPdfIrlBtn');
-            if(pdfBtn) pdfBtn.onclick = () => descargarIrlComo('pdf');
+            if(pdfBtn) pdfBtn.onclick = descargarIrlComoPdfOptimizado; // <--- Llamando a la nueva función optimizada
             
             const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
             if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
@@ -337,6 +415,7 @@ async function loadTabContent(btn, tabName) {
         contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b></p>`;
     }
 }
+
 
 // --- FUNCIONES ORIGINALES DEL FORMULARIO DE REGISTRO (COMPLETAS) ---
 async function descargarComoPdfNativo() {
