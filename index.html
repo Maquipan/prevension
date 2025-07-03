@@ -48,7 +48,7 @@
         }
         .tab-button:hover { background-color: var(--light-gray); }
         .tab-button.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 700; }
-        #tab-content-area { min-height: 200px; }
+        #tab-content-area { min-height: 50px; }
         .action-button { 
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; 
             font-family: 'Montserrat', sans-serif; font-weight: 700; color: white; transition: background-color 0.3s ease, transform 0.3s ease; text-align: center;
@@ -115,9 +115,9 @@
             <button class="tab-button" onclick="loadTabContent(this, 'proteccion-personal')">Protección Personal (EPP)</button>
             <button class="tab-button" onclick="loadTabContent(this, 'informe-riesgos')">Informe Riesgos Laborales</button>
         </div>
-        <div id="tab-content-area"></div>
+        <div id="tab-content-area">
+            </div>
     </div>
-
     <div class="content-box" id="registro-actividad-box" style="display: none;">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
@@ -201,7 +201,7 @@
             <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdfNativoRegistro()">Descargar PDF</button>
         </div>
     </div>
-</div>
+    </div>
 
 <script>
     // --- LÓGICA DE PESTAÑAS ---
@@ -243,24 +243,37 @@
         }
     }
 
-    // --- FUNCIONES DE DESCARGA PARA INFORME DE RIESGOS ---
+    // --- FUNCIONES DE DESCARGA PARA INFORME DE RIESGOS (IRL) ---
     async function descargarInformeRiesgos(format) {
         const formElement = document.getElementById('form-irl-container-capture');
         if (!formElement) return alert('Error: No se encontró el contenedor del formulario.');
         
-        // Clonar para no modificar el original visible
         const clone = formElement.cloneNode(true);
         document.body.appendChild(clone);
-        clone.style.position = 'absolute';
-        clone.style.left = '-9999px';
-        clone.style.width = '800px';
+        clone.style.cssText = 'position: absolute; left: -9999px; width: 800px; background-color: white; padding: 10px;';
 
-        clone.querySelectorAll('input[type="text"]').forEach(input => {
-            input.outerHTML = `<span class="temp-value">${input.value || ' '}</span>`;
+        const workerName = document.getElementById('irl_worker_name').value;
+        const workerRut = document.getElementById('irl_worker_rut').value;
+        const workerPosition = document.getElementById('irl_worker_position').value;
+        clone.querySelector('#irl_worker_name').outerHTML = `<span>${workerName}</span>`;
+        clone.querySelector('#irl_worker_rut').outerHTML = `<span>${workerRut}</span>`;
+        clone.querySelector('#irl_worker_position').outerHTML = `<span>${workerPosition}</span>`;
+
+        clone.querySelectorAll('input[type="checkbox"]').forEach((input, index) => {
+             const originalInput = formElement.querySelectorAll('input[type="checkbox"]')[index];
+             const label = originalInput.nextElementSibling ? originalInput.nextElementSibling.textContent : '';
+             input.outerHTML = `<span>${originalInput.checked ? '[X]' : '[ ]'} ${label}</span>`;
         });
-        clone.querySelectorAll('input[type="checkbox"]').forEach(input => {
-             input.outerHTML = `<span>${input.checked ? '[X]' : '[ ]'} ${input.nextElementSibling?.textContent || ''}</span>`;
-        });
+        
+        const originalCanvas = document.getElementById('firma_trabajador_irl');
+        const cloneCanvas = clone.querySelector('#firma_trabajador_irl');
+        const imgDataUrl = originalCanvas.toDataURL('image/png');
+        const img = document.createElement('img');
+        img.src = imgDataUrl;
+        img.style.height = '60px';
+        img.style.width = '200px';
+        cloneCanvas.parentNode.replaceChild(img, cloneCanvas);
+
 
         if (format === 'png' || format === 'pdf') {
              const canvas = await html2canvas(clone, { scale: 2, useCORS: true });
@@ -314,4 +327,148 @@
 
         pdf.setFontSize(10);
         const selectedActivities = Array.from(document.querySelectorAll('#activity-type-group-registro input:checked')).map(cb => cb.dataset.label);
-        pdf.
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TIPO DE ACTIVIDAD:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
+        y += 7;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('FECHA:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('fecha').value, margin + 18, y);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA INICIO:', margin + 70, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('HORA TÉRMINO:', margin + 125, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
+        y += 10;
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text('TEMAS TRATADOS', margin, y);
+        y += 5;
+        const temasText = document.getElementById('temasTratados').value;
+        const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
+        pdf.setDrawColor(0);
+        pdf.rect(margin, y, docWidth - margin * 2, 40);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(textLines, margin + 2, y + 5);
+        y += 45;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('RELATOR/ENCARGADO:', margin, y);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
+        const relatorSigImg = document.getElementById('relator-signature-img-registro');
+        pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
+        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
+        pdf.setFontSize(8);
+        pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
+        y += 20;
+
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('PARTICIPANTES', margin, y);
+        y += 5;
+
+        const participantCanvas = document.getElementById('p_sig_1');
+        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
+
+        pdf.autoTable({
+            startY: y, head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
+            body: [[ document.getElementById('p_rut_1').value, document.getElementById('p_name_1').value, document.getElementById('p_cargo_1').value, '' ]],
+            theme: 'grid', styles: { fontSize: 10, valign: 'middle' }, headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
+            didDrawCell: (data) => {
+                if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                     pdf.addImage(participantCanvas.toDataURL('image/png'), 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                }
+            },
+            columnStyles: { 3: { minCellHeight: 15 } }
+        });
+
+        pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
+    }
+
+    async function descargarComoPngRegistro() {
+        const formElement = document.getElementById('registroActividadForm');
+        const canvas = await html2canvas(formElement, { scale: 2, useCORS: true });
+        const link = document.createElement('a');
+        link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    function limpiarFormularioRegistro() {
+        if (confirm('¿Estás seguro? Se borrarán los datos y la firma del participante.')) {
+            ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.value = ''; localStorage.removeItem(id); }
+            });
+            const canvas = document.getElementById('p_sig_1');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                localStorage.removeItem('p_sig_1');
+            }
+        }
+    }
+
+    // --- FUNCIONES DE FIRMA Y DE INICIALIZACIÓN ---
+    function initializeSignaturePad(canvasEl) {
+        if (!canvasEl) return;
+        const ctx = canvasEl.getContext('2d');
+        let drawing = false;
+        const resizeCanvas = () => {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const rect = canvasEl.getBoundingClientRect();
+            canvasEl.width = rect.width * ratio; canvasEl.height = rect.height * ratio;
+            canvasEl.getContext('2d').scale(ratio, ratio);
+        };
+        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        const getPos = (e) => {
+            const r = canvasEl.getBoundingClientRect();
+            const cX = e.touches ? e.touches[0].clientX : e.clientX;
+            const cY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: cX - r.left, y: cY - r.top };
+        };
+        const start = (e) => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+        const end = () => { drawing = false; ctx.beginPath(); };
+        const draw = (e) => {
+            if (!drawing) return;
+            e.preventDefault();
+            const p = getPos(e);
+            ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333';
+            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        };
+        canvasEl.addEventListener('mousedown', start);
+        canvasEl.addEventListener('mouseup', end);
+        canvasEl.addEventListener('mousemove', draw);
+        canvasEl.addEventListener('touchstart', start, { passive: false });
+        canvasEl.addEventListener('touchend', end, { passive: false });
+        canvasEl.addEventListener('touchmove', draw, { passive: false });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
+        document.querySelectorAll('#registro-actividad-box input, #registro-actividad-box textarea').forEach(input => {
+            if (input.id) {
+                const saved = localStorage.getItem(input.id);
+                if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
+                else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
+                input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
+            }
+        });
+        
+        const signatureCanvas = document.getElementById('p_sig_1');
+        if(signatureCanvas) initializeSignaturePad(signatureCanvas);
+        
+        const firstTab = document.querySelector('.tab-button');
+        if (firstTab) firstTab.click();
+    });
+</script>
+
+</body>
+</html>
