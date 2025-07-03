@@ -93,7 +93,7 @@
         .form-irl-table th { background-color: #f2f2f2; }
         .form-irl-input { width: 95%; border: none; border-bottom: 1px dotted #000; background: transparent; font-size: 11px; }
         .form-irl-signature-pad { width: 100%; height: 80px; border: 1px solid #ccc; background-color: #fdfdfd; cursor: crosshair; }
-        .download-buttons-container-irl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .download-buttons-container-irl { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 20px; }
         
         @media (max-width: 768px) {
             #registro-actividad-box .form-grid, #registro-actividad-box .button-group, .download-buttons-container-irl { grid-template-columns: 1fr; }
@@ -115,9 +115,9 @@
             <button class="tab-button" onclick="loadTabContent(this, 'proteccion-personal')">Protección Personal (EPP)</button>
             <button class="tab-button" onclick="loadTabContent(this, 'informe-riesgos')">Informe Riesgos Laborales</button>
         </div>
-        <div id="tab-content-area">
-            </div>
+        <div id="tab-content-area"></div>
     </div>
+
     <div class="content-box" id="registro-actividad-box" style="display: none;">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
         <div id="registroActividadForm">
@@ -131,20 +131,9 @@
                   <tr><th>Rev.: 001</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                      <td><strong>Gerencia:</strong> Servicio</td>
-                      <td colspan="2"><strong>Area:</strong> Servicio</td>
-                  </tr>
-                  <tr>
-                      <td>Emitido por: Gerencia de Finanzas</td>
-                      <td>Disposición: Uso Interno</td>
-                      <td>Pág.: 1 de 1</td>
-                  </tr>
-                  <tr>
-                      <td>Aprobado por: Gerente de Finanzas</td>
-                      <td></td>
-                      <td>Fecha: 02-07-2025</td>
-                  </tr>
+                  <tr><td><strong>Gerencia:</strong> Servicio</td><td colspan="2"><strong>Area:</strong> Servicio</td></tr>
+                  <tr><td>Emitido por: Gerencia de Finanzas</td><td>Disposición: Uso Interno</td><td>Pág.: 1 de 1</td></tr>
+                  <tr><td>Aprobado por: Gerente de Finanzas</td><td></td><td>Fecha: 02-07-2025</td></tr>
                 </tbody>
             </table>
             <div class="section">
@@ -201,7 +190,7 @@
             <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdfNativoRegistro()">Descargar PDF</button>
         </div>
     </div>
-    </div>
+</div>
 
 <script>
     // --- LÓGICA DE PESTAÑAS ---
@@ -243,71 +232,61 @@
         }
     }
 
-    // --- FUNCIONES DE DESCARGA PARA INFORME DE RIESGOS (IRL) ---
-    async function descargarInformeRiesgos(format) {
-        const formElement = document.getElementById('form-irl-container-capture');
-        if (!formElement) return alert('Error: No se encontró el contenedor del formulario.');
+    // --- FUNCIÓN DE DESCARGA NATIVA PARA INFORME DE RIESGOS (IRL) ---
+    async function descargarInformeRiesgosNativo() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const margin = 10;
+        let y = 15;
+
+        // Función para añadir tablas con manejo de errores
+        const addTable = (elementId, startY, options = {}) => {
+            try {
+                pdf.autoTable({ ...options, html: elementId, startY: startY, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, ...options.styles }, headStyles: { fillColor: [220, 220, 220], textColor: 40, ...options.headStyles }});
+                return pdf.lastAutoTable.finalY;
+            } catch (e) {
+                console.error(`Error al generar tabla para ${elementId}:`, e);
+                return startY;
+            }
+        };
+
+        y = addTable('#irl_header_table', y);
         
-        const clone = formElement.cloneNode(true);
-        document.body.appendChild(clone);
-        clone.style.cssText = 'position: absolute; left: -9999px; width: 800px; background-color: white; padding: 10px;';
-
-        const workerName = document.getElementById('irl_worker_name').value;
-        const workerRut = document.getElementById('irl_worker_rut').value;
-        const workerPosition = document.getElementById('irl_worker_position').value;
-        clone.querySelector('#irl_worker_name').outerHTML = `<span>${workerName}</span>`;
-        clone.querySelector('#irl_worker_rut').outerHTML = `<span>${workerRut}</span>`;
-        clone.querySelector('#irl_worker_position').outerHTML = `<span>${workerPosition}</span>`;
-
-        clone.querySelectorAll('input[type="checkbox"]').forEach((input, index) => {
-             const originalInput = formElement.querySelectorAll('input[type="checkbox"]')[index];
-             const label = originalInput.nextElementSibling ? originalInput.nextElementSibling.textContent : '';
-             input.outerHTML = `<span>${originalInput.checked ? '[X]' : '[ ]'} ${label}</span>`;
+        pdf.setFontSize(8);
+        const introText = document.querySelector('.intro-text-irl')?.textContent || '';
+        const introLines = pdf.splitTextToSize(introText, pdf.internal.pageSize.getWidth() - margin * 2);
+        pdf.text(introLines, margin, y + 5);
+        y = pdf.lastAutoTable.finalY + introLines.length * 3 + 10;
+        
+        y = addTable('#irl_activity_table', y);
+        y = addTable('#irl_risk_table', y + 5);
+        
+        const participantCanvas = document.getElementById('firma_trabajador_irl');
+        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
+        
+        pdf.autoTable({
+            html: '#irl_participant_table',
+            startY: y + 5,
+            theme: 'grid',
+            styles: { fontSize: 8, cellPadding: 1.5, valign: 'middle' },
+            didParseCell: (data) => {
+                const input = data.cell.element.querySelector('input');
+                if (input) {
+                    data.cell.text = input.value;
+                }
+            },
+            didDrawCell: (data) => {
+                if (data.row.index === 0 && data.column.index === 2 && !isSignatureEmpty) {
+                    const sigImgData = participantCanvas.toDataURL('image/png');
+                    pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 40, 15);
+                }
+            }
         });
-        
-        const originalCanvas = document.getElementById('firma_trabajador_irl');
-        const cloneCanvas = clone.querySelector('#firma_trabajador_irl');
-        const imgDataUrl = originalCanvas.toDataURL('image/png');
-        const img = document.createElement('img');
-        img.src = imgDataUrl;
-        img.style.height = '60px';
-        img.style.width = '200px';
-        cloneCanvas.parentNode.replaceChild(img, cloneCanvas);
 
-
-        if (format === 'png' || format === 'pdf') {
-             const canvas = await html2canvas(clone, { scale: 2, useCORS: true });
-             const imgData = canvas.toDataURL('image/png');
-             if(format === 'png'){
-                const link = document.createElement('a');
-                link.download = 'Informe_Riesgos_Laborales.png';
-                link.href = imgData;
-                link.click();
-             } else {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const imgProps = pdf.getImageProperties(imgData);
-                const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-                pdf.save('Informe_Riesgos_Laborales.pdf');
-             }
-        } else if (format === 'word') {
-             const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export HTML to Word</title></head><body>";
-             const footer = "</body></html>";
-             const sourceHTML = header + clone.innerHTML + footer;
-             const source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-             const fileDownload = document.createElement("a");
-             document.body.appendChild(fileDownload);
-             fileDownload.href = source;
-             fileDownload.download = 'Informe_Riesgos_Editable.doc';
-             fileDownload.click();
-             document.body.removeChild(fileDownload);
-        }
-        document.body.removeChild(clone);
+        pdf.save('Informe_Riesgos_Laborales_Nativo.pdf');
     }
-    
-    // --- FUNCIONES DE DESCARGA PARA REGISTRO DE ACTIVIDAD ---
+
+    // --- FUNCIONES DE DESCARGA PARA REGISTRO DE ACTIVIDAD (RESTAURADAS) ---
     async function descargarComoPdfNativoRegistro() {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -375,14 +354,14 @@
         y += 5;
 
         const participantCanvas = document.getElementById('p_sig_1');
-        const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
+        const isPartSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(c => c !== 0);
 
         pdf.autoTable({
             startY: y, head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
             body: [[ document.getElementById('p_rut_1').value, document.getElementById('p_name_1').value, document.getElementById('p_cargo_1').value, '' ]],
             theme: 'grid', styles: { fontSize: 10, valign: 'middle' }, headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
             didDrawCell: (data) => {
-                if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
+                if (data.section === 'body' && data.column.index === 3 && !isPartSignatureEmpty) {
                      pdf.addImage(participantCanvas.toDataURL('image/png'), 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
                 }
             },
@@ -416,6 +395,7 @@
         }
     }
 
+
     // --- FUNCIONES DE FIRMA Y DE INICIALIZACIÓN ---
     function initializeSignaturePad(canvasEl) {
         if (!canvasEl) return;
@@ -424,10 +404,12 @@
         const resizeCanvas = () => {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             const rect = canvasEl.getBoundingClientRect();
-            canvasEl.width = rect.width * ratio; canvasEl.height = rect.height * ratio;
+            canvasEl.width = rect.width * ratio;
+            canvasEl.height = rect.height * ratio;
             canvasEl.getContext('2d').scale(ratio, ratio);
         };
-        window.addEventListener('resize', resizeCanvas); resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
         const getPos = (e) => {
             const r = canvasEl.getBoundingClientRect();
             const cX = e.touches ? e.touches[0].clientX : e.clientX;
