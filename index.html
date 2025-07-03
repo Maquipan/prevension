@@ -69,7 +69,7 @@
         .header-table .title { font-size: 15px; font-weight: bold; color: var(--primary-color); }
         .section { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
         .form-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 15px; align-items: center; }
-        label { font-weight: bold; font-family: 'Montserrat', sans-serif; }
+        label { font-weight: bold; font-family: 'Montserrat', sans-serif; display: block; margin-bottom: 5px; }
         input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
         .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .participants-table th, .participants-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
@@ -82,22 +82,21 @@
 
         /* ESTILOS PARA IMPRESIÓN (PDF) */
         @media print {
-            body > .container > * { display: none; }
-            .printable-area, .printable-area * {
-                visibility: visible;
+            body > .container, body > .container > .no-print {
+                display: none !important;
             }
             .printable-area {
                 display: block !important;
+                visibility: visible !important;
                 position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                margin: 0;
-                padding: 10px;
-                border: none;
-                box-shadow: none;
+                left: 20px;
+                top: 20px;
+                width: calc(100% - 40px);
             }
-            .no-print-in-form {
+            .printable-area, .printable-area * {
+                visibility: visible;
+            }
+             .printable-area .no-print-in-form {
                 display: none !important;
             }
         }
@@ -147,14 +146,21 @@
                     <td>Fecha: 02-07-2025</td>
                 </tr>
             </table>
-            
+
+            <div class="form-grid">
+                <div style="grid-column: span 4;"><label for="fecha">Fecha:</label><input type="date" id="fecha"></div>
+                <div style="grid-column: span 4;"><label for="horaInicio">Hora de Inicio:</label><input type="time" id="horaInicio"></div>
+                <div style="grid-column: span 4;"><label for="horaTermino">Hora de Término:</label><input type="time" id="horaTermino"></div>
+            </div>
+
             <div class="section">
                 <label for="relatorEncargado">RELATOR/ENCARGADO</label>
                 <input type="text" id="relatorEncargado" readonly>
-                 <div style="margin-top: 10px;">
-                    <label>Firma Relator:</label><br>
-                    <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-width: 200px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
-                </div>
+            </div>
+            
+            <div class="section">
+                <label>Firma Relator:</label>
+                <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 5px;">
             </div>
 
             <div class="section">
@@ -164,7 +170,7 @@
             
             <div class="section">
                 <label>PARTICIPANTE</label>
-                <table class="participants-table" id="participantesTable">
+                <table class="participants-table">
                     <thead><tr><th>RUT</th><th>NOMBRE Y APELLIDO</th><th>CARGO</th><th>FIRMA</th></tr></thead>
                     <tbody>
                         <tr>
@@ -188,18 +194,41 @@
 
 <script>
     function prepareForPrinting(elementId) {
-        document.querySelectorAll('.printable-area').forEach(el => el.classList.remove('printable-area'));
-        const elementToPrint = document.getElementById(elementId);
+        // Oculta la parte superior que no se imprime
+        document.querySelector('.no-print').style.display = 'none';
+        // Selecciona el contenedor del formulario que se quiere imprimir
+        const elementToPrint = document.getElementById(elementId).closest('.content-box');
+        
+        // Oculta todos los .content-box
+        document.querySelectorAll('.content-box').forEach(box => box.style.display = 'none');
+        
+        // Muestra solo el que queremos imprimir y le añade la clase
         if (elementToPrint) {
-            // Buscamos el ancestro .content-box para hacerlo imprimible
-            const parentBox = elementToPrint.closest('.content-box');
-            if (parentBox) {
-                parentBox.classList.add('printable-area');
-            } else {
-                elementToPrint.classList.add('printable-area');
-            }
+            elementToPrint.style.display = 'block';
+            elementToPrint.classList.add('printable-area');
         }
     }
+
+    function afterPrint() {
+        // Restaura la visibilidad de todos los elementos
+        document.querySelector('.no-print').style.display = 'block';
+        document.querySelectorAll('.content-box').forEach(box => box.style.display = 'block');
+        const printedElement = document.querySelector('.printable-area');
+        if (printedElement) {
+            printedElement.classList.remove('printable-area');
+        }
+        // Vuelve a gestionar la visibilidad del registro de actividad
+        const activeTab = document.querySelector('.tab-button.active');
+        if (activeTab && activeTab.getAttribute('onclick').includes('informe-riesgos')) {
+             document.getElementById('registro-actividad-box').style.display = 'none';
+        } else {
+             document.getElementById('registro-actividad-box').style.display = 'block';
+        }
+    }
+    
+    // Escucha los eventos de impresión del navegador
+    window.onbeforeprint = prepareForPrinting;
+    window.onafterprint = afterPrint;
 
     async function loadTabContent(btn, tabName) {
         document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -232,18 +261,16 @@
     function descargarRegistroComoPdf() {
         prepareForPrinting('registroActividadForm');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
-        window.print();
+        setTimeout(() => window.print(), 50); // Pequeña pausa para asegurar que los estilos se apliquen
     }
     
     function descargarInformeComoPdf() {
-        // Esta función es para el otro formulario y usa la misma técnica
-        prepareForPrinting('form-irl-container');
+        prepareForPrinting('tab-content-area');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
-        window.print();
+        setTimeout(() => window.print(), 50);
     }
-
+    
     async function descargarComoPng() {
-        prepareForPrinting('registroActividadForm');
         const form = document.getElementById('registroActividadForm');
         if (!form) return;
         html2canvas(form, { scale: 2, useCORS: true }).then(canvas => {
@@ -312,9 +339,9 @@
         }
     });
 
-    // Dummy functions for the other form to prevent errors if called
-    function descargarInformeRiesgos() { alert('Función no aplicable en esta vista.'); }
-    function descargarInformeComoWord() { alert('Función no aplicable en esta vista.'); }
+    // Dummy functions para evitar errores si se llama a las funciones del otro formulario
+    function descargarInformeRiesgos() { alert('Esta función no está disponible en esta vista.'); }
+    function descargarInformeComoWord() { alert('Esta función no está disponible en esta vista.'); }
 </script>
 
 </body>
