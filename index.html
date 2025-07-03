@@ -79,31 +79,86 @@
         .download-button-pdf { background-color: var(--success-color); }
         .download-button-pdf:hover { background-color: #13653f; }
 
+        /* Estilos específicos para impresión */
+        @media print {
+            /* Ocultar todo por defecto */
+            body > * {
+                display: none !important;
+            }
+            
+            /* Mostrar solo el contenido que queremos imprimir */
+            body.printing-mode .printable-content {
+                display: block !important;
+            }
+            
+            /* Configuración general para impresión */
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            
+            body.printing-mode {
+                margin: 0;
+                padding: 0;
+                background: white !important;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            
+            /* Asegurar que las tablas se vean bien */
+            .printable-content table {
+                border-collapse: collapse;
+                width: 100%;
+                page-break-inside: avoid;
+            }
+            
+            .printable-content td, .printable-content th {
+                border: 1px solid #000 !important;
+                padding: 5px !important;
+                font-size: 10px !important;
+            }
+            
+            /* Ocultar botones y elementos interactivos */
+            .button-group,
+            .action-button,
+            .tab-container,
+            .download-button-irl-container {
+                display: none !important;
+            }
+            
+            /* Mejorar la visualización de firmas */
+            .participant-signature-pad {
+                border: 1px solid #000 !important;
+                background: white !important;
+                min-height: 40px !important;
+            }
+            
+            /* Asegurar que las imágenes se vean bien */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+        }
+
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
             .button-group { grid-template-columns: 1fr; }
-        }@media print {
-    /* Oculta todo en la página por defecto al imprimir */
-    body > * {
-        display: none !important;
-    }
-
-    /* Muestra únicamente el área que hemos marcado para imprimir */
-    .printable-area {
-        display: block !important;
-    }
-
-    /* Asegura que la cabecera oculta del formulario de registro se imprima */
-    .printable-area #pdf-header-table {
-        display: table !important;
-    }
-
-    /* Oculta los botones dentro del área que se va a imprimir */
-    .printable-area .button-group, 
-    .printable-area .download-button-irl-container {
-        display: none !important;
-    }
-}
+            
+            /* Mejorar la experiencia en móviles */
+            .main-title {
+                font-size: 1.8em;
+            }
+            
+            .content-box {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .tab-button {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -207,7 +262,7 @@
         <div class="button-group">
             <button type="button" class="action-button clear-button" onclick="limpiarFormulario()">Limpiar</button>
             <button type="button" class="action-button download-button-png" onclick="descargarComoPng()">Descargar PNG</button>
-            <button type="button" class="action-button download-button-pdf" onclick="imprimirComoPdf('registro-actividad-box', 'pdf-header-table')">Imprimir / Guardar PDF</button>
+            <button type="button" class="action-button download-button-pdf" onclick="imprimirFormulario()">Imprimir / Guardar PDF</button>
         </div>
     </div>
 </div>
@@ -263,24 +318,85 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
 
-// --- NUEVA FUNCIÓN DE IMPRESIÓN (COMPATIBLE CON MÓVILES) ---
-function imprimirComoPdf(printableAreaId) {
-    const printableElement = document.getElementById(printableAreaId);
-    if (!printableElement) {
-        console.error('Elemento para imprimir no encontrado:', printableAreaId);
-        return;
-    }
-
-    // Añade una clase temporal para que el CSS @media print la detecte
-    printableElement.classList.add('printable-area');
+// --- FUNCIÓN MEJORADA DE IMPRESIÓN (COMPATIBLE CON MÓVILES) ---
+function imprimirFormulario() {
+    // Preparar el contenido para impresión
+    prepararContenidoParaImpresion();
     
-    // Llama a la impresión del navegador
-    window.print();
-    
-    // Quita la clase después de que se envíe la orden de impresión
-    printableElement.classList.remove('printable-area');
+    // Usar timeout para asegurar que el DOM se actualice
+    setTimeout(() => {
+        // Añadir clase para modo impresión
+        document.body.classList.add('printing-mode');
+        
+        // Llamar a la función de impresión del navegador
+        window.print();
+        
+        // Limpiar después de la impresión
+        setTimeout(() => {
+            document.body.classList.remove('printing-mode');
+            limpiarContenidoDeImpresion();
+        }, 1000);
+    }, 100);
 }
 
+function prepararContenidoParaImpresion() {
+    // Mostrar la cabecera
+    const headerTable = document.getElementById('pdf-header-table');
+    if (headerTable) {
+        headerTable.style.display = 'table';
+    }
+    
+    // Crear el contenido completo para impresión
+    const formContent = document.getElementById('registroActividadForm');
+    if (formContent) {
+        formContent.classList.add('printable-content');
+        
+        // Convertir los canvas de firmas a imágenes para mejor compatibilidad
+        const signatureCanvas = document.getElementById('p_sig_1');
+        if (signatureCanvas) {
+            try {
+                const imgData = signatureCanvas.toDataURL('image/png');
+                const img = document.createElement('img');
+                img.src = imgData;
+                img.style.width = '100%';
+                img.style.height = '50px';
+                img.style.border = '1px solid #000';
+                img.style.display = 'block';
+                img.id = 'signature-print-img';
+                
+                // Reemplazar temporalmente el canvas con la imagen
+                const parent = signatureCanvas.parentNode;
+                parent.insertBefore(img, signatureCanvas);
+                signatureCanvas.style.display = 'none';
+            } catch (e) {
+                console.log('Error al convertir firma:', e);
+            }
+        }
+    }
+}
+
+function limpiarContenidoDeImpresion() {
+    // Ocultar la cabecera
+    const headerTable = document.getElementById('pdf-header-table');
+    if (headerTable) {
+        headerTable.style.display = 'none';
+    }
+    
+    // Restaurar el canvas de firma
+    const signatureCanvas = document.getElementById('p_sig_1');
+    const printImg = document.getElementById('signature-print-img');
+    
+    if (signatureCanvas && printImg) {
+        signatureCanvas.style.display = 'block';
+        printImg.remove();
+    }
+    
+    // Remover clase de contenido imprimible
+    const formContent = document.getElementById('registroActividadForm');
+    if (formContent) {
+        formContent.classList.remove('printable-content');
+    }
+}
 
 // --- FUNCIÓN PARA LIMPIAR LA FIRMA DEL INFORME DE RIESGOS ---
 function limpiarFirmaIrl() {
@@ -292,32 +408,55 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- FUNCIÓN DE DESCARGA PNG (SOLO PARA EL REGISTRO DE ACTIVIDAD) ---
+// --- FUNCIÓN DE DESCARGA PNG (MEJORADA PARA MÓVILES) ---
 async function descargarComoPng() {
+    // Verificar si html2canvas está disponible
+    if (typeof html2canvas === 'undefined') {
+        alert('La descarga de PNG no está disponible en este momento. Use la opción de imprimir.');
+        return;
+    }
+    
     const formElement = document.getElementById('registro-actividad-box'); 
     const headerTable = document.getElementById('pdf-header-table');
-    if (!formElement || !headerTable) { alert('Error: No se encontró el formulario para descargar.'); return; }
+    if (!formElement || !headerTable) { 
+        alert('Error: No se encontró el formulario para descargar.'); 
+        return; 
+    }
+    
+    // Verificar si estamos en móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        alert('En dispositivos móviles, recomendamos usar la opción "Imprimir / Guardar PDF" para mejores resultados.');
+        return;
+    }
     
     alert("Generando PNG... por favor espere.");
     headerTable.style.display = 'table';
 
     try {
         const canvas = await html2canvas(formElement, { 
-            scale: 2, useCORS: true, backgroundColor: '#ffffff',
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: '#ffffff',
+            allowTaint: true,
+            foreignObjectRendering: true,
             ignoreElements: (element) => element.classList.contains('button-group')
         });
+        
         const link = document.createElement('a');
-        link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
+        link.download = `Registro_Actividad_${document.getElementById('fecha').value || 'sin_fecha'}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+        
+        alert('PNG generado exitosamente.');
     } catch(e) {
         console.error("Error al generar PNG:", e);
-        alert("Hubo un problema al generar la imagen PNG.");
+        alert("Hubo un problema al generar la imagen PNG. Intente con la opción de imprimir.");
     } finally {
         headerTable.style.display = 'none';
     }
 }
-
 
 // --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (AJUSTADA) ---
 async function loadTabContent(btn, tabName) {
@@ -344,8 +483,21 @@ async function loadTabContent(btn, tabName) {
             const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
             if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
 
+            // Usar la nueva función de impresión mejorada
             const pdfBtn = document.getElementById('imprimirPdfIrlBtn');
-            if(pdfBtn) pdfBtn.onclick = () => imprimirComoPdf('tab-content-area');
+            if(pdfBtn) pdfBtn.onclick = () => {
+                // Aplicar la misma lógica de impresión para el informe de riesgos
+                const irlContent = document.getElementById('tab-content-area');
+                if (irlContent) {
+                    irlContent.classList.add('printable-content');
+                    document.body.classList.add('printing-mode');
+                    window.print();
+                    setTimeout(() => {
+                        document.body.classList.remove('printing-mode');
+                        irlContent.classList.remove('printable-content');
+                    }, 1000);
+                }
+            };
             
             const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
             if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
@@ -365,14 +517,29 @@ async function loadTabContent(btn, tabName) {
 }
 
 // --- FUNCIONES PARA GUARDAR/CARGAR/LIMPIAR FORMULARIOS ---
-function saveSignature(id, data) { localStorage.setItem(id, data); }
+function saveSignature(id, data) { 
+    try {
+        localStorage.setItem(id, data); 
+    } catch (e) {
+        console.log('Error al guardar firma:', e);
+    }
+}
+
 function loadSignature(id) {
-    const data = localStorage.getItem(id);
-    const canvas = document.getElementById(id);
-    if (data && canvas) {
-        const img = new Image();
-        img.onload = () => { canvas.getContext('2d').drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height); };
-        img.src = data;
+    try {
+        const data = localStorage.getItem(id);
+        const canvas = document.getElementById(id);
+        if (data && canvas) {
+            const img = new Image();
+            img.onload = () => { 
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height); 
+            };
+            img.src = data;
+        }
+    } catch (e) {
+        console.log('Error al cargar firma:', e);
     }
 }
 
@@ -380,30 +547,67 @@ function limpiarFormulario() {
     if (confirm('¿Estás seguro de que quieres borrar todos los datos del formulario?')) {
         ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) { el.value = ''; localStorage.removeItem(id); }
+            if (el) { 
+                el.value = ''; 
+                try {
+                    localStorage.removeItem(id);
+                } catch (e) {
+                    console.log('Error al limpiar localStorage:', e);
+                }
+            }
         });
         document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
             cb.checked = false;
-            localStorage.removeItem(cb.id);
+            try {
+                localStorage.removeItem(cb.id);
+            } catch (e) {
+                console.log('Error al limpiar localStorage:', e);
+            }
         });
         const canvas = document.getElementById('p_sig_1');
         if (canvas) {
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            localStorage.removeItem('p_sig_1');
+            try {
+                localStorage.removeItem('p_sig_1');
+            } catch (e) {
+                console.log('Error al limpiar localStorage:', e);
+            }
         }
+        alert('Formulario limpiado exitosamente.');
     }
 }
 
 // --- CÓDIGO QUE SE EJECUTA AL CARGAR LA PÁGINA PRINCIPAL ---
 document.addEventListener('DOMContentLoaded', function() {
-    const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo / Encargado HSE' };
+    const defaultValues = { 
+        'fecha': new Date().toISOString().split('T')[0], 
+        'capacitacion': true, 
+        'horaInicio': '09:00', 
+        'horaTermino': '10:00', 
+        'relatorEncargado': 'Oscar Cayuqueo / Encargado HSE' 
+    };
+    
     document.querySelectorAll('input, textarea').forEach(input => {
         if (input.id) {
-            const saved = localStorage.getItem(input.id);
-            if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
-            else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
-            input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
+            try {
+                const saved = localStorage.getItem(input.id);
+                if (saved) { 
+                    input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; 
+                } else if (defaultValues[input.id]) { 
+                    input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; 
+                }
+                
+                input.addEventListener('input', () => { 
+                    try {
+                        localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); 
+                    } catch (e) {
+                        console.log('Error al guardar en localStorage:', e);
+                    }
+                });
+            } catch (e) {
+                console.log('Error al manejar localStorage:', e);
+            }
         }
     });
     
@@ -411,18 +615,70 @@ document.addEventListener('DOMContentLoaded', function() {
     participantInputs.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
-            const val = localStorage.getItem(id);
-            if(val) el.value = val;
-            el.addEventListener('input', () => localStorage.setItem(id, el.value));
+            try {
+                const val = localStorage.getItem(id);
+                if(val) el.value = val;
+                el.addEventListener('input', () => {
+                    try {
+                        localStorage.setItem(id, el.value);
+                    } catch (e) {
+                        console.log('Error al guardar en localStorage:', e);
+                    }
+                });
+            } catch (e) {
+                console.log('Error al manejar localStorage:', e);
+            }
         }
     });
     
     const signatureCanvas = document.getElementById('p_sig_1');
-    if(signatureCanvas) initializeSignaturePad(signatureCanvas);
+    if(signatureCanvas) {
+        initializeSignaturePad(signatureCanvas);
+        // Cargar firma guardada si existe
+        setTimeout(() => loadSignature('p_sig_1'), 100);
+    }
     
     const firstTab = document.querySelector('.tab-button');
     if (firstTab) firstTab.click();
+    
+    // Detectar cuando el usuario va a imprimir
+    window.addEventListener('beforeprint', function() {
+        prepararContenidoParaImpresion();
+    });
+    
+    window.addEventListener('afterprint', function() {
+        limpiarContenidoDeImpresion();
+    });
+    
+    // Mensaje de bienvenida para usuarios móviles
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        console.log('Dispositivo móvil detectado - Funciones de impresión optimizadas');
+    }
 });
-</script>
-</body>
-</html>
+
+// --- FUNCIÓN ADICIONAL PARA DETECTAR PROBLEMAS DE IMPRESIÓN ---
+function verificarCompatibilidad() {
+    const userAgent = navigator.userAgent;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    
+    if (isMobile) {
+        console.log('Dispositivo móvil detectado:', userAgent);
+        if (isIOS) {
+            console.log('Dispositivo iOS - Se recomienda usar Safari para mejores resultados de impresión');
+        }
+    }
+    
+    // Verificar si el navegador soporta las funciones necesarias
+    if (typeof window.print !== 'function') {
+        console.warn('La función de impresión no está disponible en este navegador');
+        return false;
+    }
+    
+    return true;
+}
+
+// Ejecutar verificación al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    verificarCompatibilidad();
+});
