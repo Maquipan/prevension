@@ -83,6 +83,25 @@
             .form-grid { grid-template-columns: 1fr; }
             .button-group { grid-template-columns: 1fr; }
         }
+        @media print {
+    body > *:not(.printable-area) {
+        display: none;
+    }
+    body {
+        margin: 0;
+    }
+    .printable-area {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+    /* Oculta los grupos de botones al imprimir */
+    .printable-area .button-group, .printable-area .download-button-irl {
+        display: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -186,7 +205,7 @@
         <div class="button-group">
             <button type="button" class="action-button clear-button" onclick="limpiarFormulario()">Limpiar</button>
             <button type="button" class="action-button download-button-png" onclick="descargarComoPng()">Descargar PNG</button>
-            <button type="button" class="action-button download-button-pdf" onclick="descargarComoPdfNativo()">Descargar PDF</button>
+            <button type="button" class="action-button download-button-pdf" onclick="imprimirComoPdf('registro-actividad-box', 'pdf-header-table')">Imprimir / Guardar PDF</button>
         </div>
     </div>
 </div>
