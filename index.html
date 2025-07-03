@@ -261,6 +261,33 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
 
+// --- NUEVA FUNCIÓN UNIVERSAL PARA IMPRIMIR Y GUARDAR COMO PDF ---
+function imprimirComoPdf(printableAreaId, headerId = null) {
+    const printableElement = document.getElementById(printableAreaId);
+    if (!printableElement) {
+        console.error('Elemento para imprimir no encontrado:', printableAreaId);
+        return;
+    }
+
+    const headerElement = headerId ? document.getElementById(headerId) : null;
+    if (headerElement) {
+        headerElement.style.display = 'table'; // Muestra la cabecera oculta
+    }
+
+    // Añade una clase al área que queremos imprimir para que los estilos @media print funcionen
+    printableElement.classList.add('printable-area');
+    
+    // Llama a la función de impresión del navegador
+    window.print();
+    
+    // Limpia las clases y estilos después de que se cierra el diálogo de impresión
+    printableElement.classList.remove('printable-area');
+    if (headerElement) {
+        headerElement.style.display = 'none'; // Vuelve a ocultar la cabecera
+    }
+}
+
+
 // --- FUNCIÓN PARA LIMPIAR LA FIRMA DEL INFORME DE RIESGOS ---
 function limpiarFirmaIrl() {
     const canvas = document.getElementById('firma_trabajador_irl');
@@ -271,187 +298,15 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- NUEVA FUNCIÓN OPTIMIZADA Y COMPLETA PARA DESCARGAR EL IRL COMO PDF ---
-function descargarIrlComoPdfOptimizado() {
-    const irlElement = document.getElementById('form-irl-container');
-    if (!irlElement) {
-        alert('Error: No se encontró el contenido del informe.');
-        return;
-    }
-    alert(`Generando PDF completo y liviano... por favor espere.`);
-    
-    html2canvas(irlElement, {
-        scale: 2, // Buena calidad de imagen
-        useCORS: true,
-        backgroundColor: '#ffffff'
-    }).then(canvas => {
-        // Usamos JPEG con compresión para un archivo liviano
-        const imgData = canvas.toDataURL('image/jpeg', 0.8); 
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'mm',
-            format: 'a4'
-        });
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        let heightLeft = pdfHeight;
-        let position = 0;
-
-        // Añade la primera página
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
-
-        // Añade páginas adicionales si el contenido es muy largo
-        while (heightLeft > 0) {
-            position = heightLeft - pdfHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
-        }
-        
-        pdf.save('Informe_Riesgos_Laborales_Completo.pdf');
-
-    }).catch(e => {
-        console.error("Error al generar el PDF del informe:", e);
-        alert("Hubo un problema al generar el PDF.");
-    });
-}
-
-// --- FUNCIÓN DE DESCARGA PNG (sin cambios) ---
-function descargarIrlComoPng() {
-    const irlElement = document.getElementById('form-irl-container');
-    if (!irlElement) { alert('Error: No se encontró el contenido del informe.'); return; }
-    alert(`Generando PNG... por favor espere.`);
-    html2canvas(irlElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `Informe_Riesgos_Laborales.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-    });
-}
-
-// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS ---
-async function loadTabContent(btn, tabName) {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => button.classList.remove('active'));
-    btn.classList.add('active');
-    const contentArea = document.getElementById('tab-content-area');
-    const registroBox = document.getElementById('registro-actividad-box');
-    contentArea.innerHTML = '<p>Cargando contenido...</p>';
-    if (tabName === 'informe-riesgos') {
-        registroBox.style.display = 'none';
-    } else {
-        registroBox.style.display = 'block';
-    }
-    try {
-        const response = await fetch(`capacitaciones/${tabName}.html`);
-        if (!response.ok) throw new Error(`Error al cargar: ${response.statusText}`);
-        contentArea.innerHTML = await response.text();
-        if (tabName === 'informe-riesgos') {
-            const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
-            if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
-            const pngBtn = document.getElementById('descargarPngIrlBtn');
-            if(pngBtn) pngBtn.onclick = descargarIrlComoPng;
-            const pdfBtn = document.getElementById('descargarPdfIrlBtn');
-            if(pdfBtn) pdfBtn.onclick = descargarIrlComoPdfOptimizado;
-            const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
-            if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
-        } else {
-            const temasTextarea = document.getElementById('temasTratados');
-            const temasSource = contentArea.querySelector('.temas-para-registro');
-            if (temasSource && temasTextarea) {
-                temasTextarea.value = temasSource.textContent.trim();
-                localStorage.setItem('temasTratados', temasTextarea.value);
-            }
-        }
-    } catch (error) {
-        console.error('Error al cargar la pestaña:', error);
-        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b></p>`;
-    }
-}
-
-// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIÓN DE PESO) ---
-async function descargarComoPdfNativo() {
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    const margin = 15;
-    const docWidth = pdf.internal.pageSize.getWidth();
-    let y = 15;
-    pdf.autoTable({
-        html: '#pdf-header-table', startY: y, theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 1.5, halign: 'center', valign: 'middle' },
-        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: 'bold' },
-        didParseCell: function(data) {
-            if (data.row.section === 'head' && data.column.index === 0) {
-                const img = document.getElementById('logo-for-pdf');
-                try { pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
-                catch(e) { console.error("Error al añadir el logo al PDF:", e); }
-            }
-        }
-    });
-    y = pdf.lastAutoTable.finalY + 10;
-    pdf.setFontSize(10);
-    const selectedActivities = [];
-    document.querySelectorAll('#activity-type-group input[type=checkbox]:checked').forEach(cb => selectedActivities.push(cb.dataset.label));
-    pdf.setFont(undefined, 'bold'); pdf.text('TIPO DE ACTIVIDAD:', margin, y);
-    pdf.setFont(undefined, 'normal'); pdf.text(selectedActivities.join(', ') || 'No seleccionada', margin + 45, y);
-    y += 7;
-    pdf.setFont(undefined, 'bold'); pdf.text('FECHA:', margin, y);
-    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('fecha').value, margin + 18, y);
-    pdf.setFont(undefined, 'bold'); pdf.text('HORA INICIO:', margin + 70, y);
-    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('horaInicio').value, margin + 95, y);
-    pdf.setFont(undefined, 'bold'); pdf.text('HORA TÉRMINO:', margin + 125, y);
-    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('horaTermino').value, margin + 155, y);
-    y += 10;
-    pdf.setFont(undefined, 'bold'); pdf.text('TEMAS TRATADOS', margin, y);
-    y += 5;
-    const temasText = document.getElementById('temasTratados').value;
-    const textLines = pdf.splitTextToSize(temasText, docWidth - margin * 2 - 4);
-    pdf.setDrawColor(0); pdf.rect(margin, y, docWidth - margin * 2, 40);
-    pdf.setFont(undefined, 'normal'); pdf.text(textLines, margin + 2, y + 5);
-    y += 45;
-    pdf.setFont(undefined, 'bold'); pdf.text('RELATOR/ENCARGADO:', margin, y);
-    pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
-    const relatorSigImg = document.getElementById('relator-signature-img');
-    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); }
-    catch(e) { console.error("Error al añadir firma del relator:", e); }
-    pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
-    pdf.setFontSize(8); pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
-    y += 20;
-    pdf.setFontSize(10); pdf.setFont(undefined, 'bold'); pdf.text('PARTICIPANTES', margin, y);
-    y += 5;
-    const participantCanvas = document.getElementById('p_sig_1');
-    const isSignatureEmpty = !participantCanvas.getContext('2d').getImageData(0, 0, participantCanvas.width, participantCanvas.height).data.some(channel => channel !== 0);
-    pdf.autoTable({
-        startY: y,
-        head: [['RUT', 'NOMBRE Y APELLIDO', 'CARGO', 'FIRMA']],
-        body: [[ document.getElementById('p_rut_1').value, document.getElementById('p_name_1').value, document.getElementById('p_cargo_1').value, '' ]],
-        theme: 'grid', styles: { fontSize: 10, valign: 'middle' },
-        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        didDrawCell: (data) => {
-            if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                const sigImgData = participantCanvas.toDataURL('image/jpeg', 0.5);
-                try { 
-                    pdf.addImage(sigImgData, 'JPEG', data.cell.x + 5, data.cell.y + 2, 35, 12); 
-                } catch(e) { 
-                    console.error("Error al añadir firma de participante:", e); 
-                }
-            }
-        },
-        columnStyles: { 3: { minCellHeight: 15 } }
-    });
-    pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
-}
-
+// --- FUNCIÓN DE DESCARGA PNG PARA EL REGISTRO DE ACTIVIDAD ---
 async function descargarComoPng() {
     const formElement = document.getElementById('registro-actividad-box'); 
     const headerTable = document.getElementById('pdf-header-table');
     if (!formElement || !headerTable) { alert('Error: No se encontró el formulario para descargar.'); return; }
+    
     alert("Generando PNG... por favor espere.");
     headerTable.style.display = 'table';
+
     try {
         const canvas = await html2canvas(formElement, { 
             scale: 2, useCORS: true, backgroundColor: '#ffffff',
@@ -469,6 +324,56 @@ async function descargarComoPng() {
     }
 }
 
+
+// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (SIMPLIFICADA) ---
+async function loadTabContent(btn, tabName) {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    btn.classList.add('active');
+    const contentArea = document.getElementById('tab-content-area');
+    const registroBox = document.getElementById('registro-actividad-box');
+    contentArea.innerHTML = '<p>Cargando contenido...</p>';
+
+    // Oculta/muestra el formulario de registro según la pestaña
+    if (tabName === 'informe-riesgos') {
+        registroBox.style.display = 'none';
+    } else {
+        registroBox.style.display = 'block';
+    }
+
+    try {
+        const response = await fetch(`capacitaciones/${tabName}.html`);
+        if (!response.ok) throw new Error(`Error al cargar: ${response.statusText}`);
+        
+        contentArea.innerHTML = await response.text();
+        
+        // Activa la funcionalidad específica de la pestaña cargada
+        if (tabName === 'informe-riesgos') {
+            const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
+            if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
+
+            const pdfBtn = document.getElementById('imprimirPdfIrlBtn');
+            if(pdfBtn) pdfBtn.onclick = () => imprimirComoPdf('tab-content-area');
+            
+            const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
+            if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
+
+        } else {
+            // Lógica para las otras pestañas
+            const temasTextarea = document.getElementById('temasTratados');
+            const temasSource = contentArea.querySelector('.temas-para-registro');
+            if (temasSource && temasTextarea) {
+                temasTextarea.value = temasSource.textContent.trim();
+                localStorage.setItem('temasTratados', temasTextarea.value);
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar la pestaña:', error);
+        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b></p>`;
+    }
+}
+
+// --- FUNCIONES PARA GUARDAR/CARGAR/LIMPIAR FORMULARIOS ---
 function saveSignature(id, data) { localStorage.setItem(id, data); }
 function loadSignature(id) {
     const data = localStorage.getItem(id);
