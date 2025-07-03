@@ -192,49 +192,33 @@
 </div>
 
 <script>
-// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS ---
+// --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS (CORREGIDA) ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
     btn.classList.add('active');
-    
     const contentArea = document.getElementById('tab-content-area');
-    const registroForm = document.getElementById('registroActividadForm');
-    const registroTitle = document.getElementById('registro-actividad-title');
-    const pngButton = document.querySelector('.download-button-png');
-    const pdfButton = document.querySelector('.download-button-pdf');
-    const clearButton = document.querySelector('.clear-button');
-
+    const registroBox = document.getElementById('registro-actividad-box');
     contentArea.innerHTML = '<p>Cargando contenido...</p>';
 
-    if (tabName === 'informe-riesgos') {
-        registroForm.style.display = 'none';
-        registroTitle.style.display = 'none';
-        clearButton.style.display = 'none';
-        
-        pngButton.setAttribute('onclick', 'descargarTabComoPng()');
-        pdfButton.setAttribute('onclick', 'descargarTabComoPdf()');
-    } else {
-        registroForm.style.display = 'block';
-        registroTitle.style.display = 'block';
-        clearButton.style.display = 'block';
-
-        pngButton.setAttribute('onclick', 'descargarComoPng()');
-        pdfButton.setAttribute('onclick', 'descargarComoPdfNativo()');
-    }
-
     try {
+        // Esta línea busca el archivo .html correspondiente en la carpeta 'capacitaciones'
         const response = await fetch(`capacitaciones/${tabName}.html`);
+        
         if (!response.ok) {
             throw new Error(`Error al cargar el archivo: ${response.statusText}`);
         }
+        
         contentArea.innerHTML = await response.text();
+        
+        // Lógica para auto-llenar el textarea de temas
         const temasTextarea = document.getElementById('temasTratados');
         const temasSource = contentArea.querySelector('.temas-para-registro');
         if (temasSource && temasTextarea) {
             temasTextarea.value = temasSource.textContent.trim();
             localStorage.setItem('temasTratados', temasTextarea.value);
         }
+
     } catch (error) {
         console.error('Error al cargar la pestaña:', error);
         contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b><br>Asegúrate de que el archivo 'capacitaciones/${tabName}.html' exista.</p>`;
