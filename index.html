@@ -252,72 +252,56 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- FUNCIONES DE DESCARGA PARA EL INFORME DE RIESGOS (IRL) ---
+// --- NUEVA FUNCIÓN OPTIMIZADA Y COMPLETA PARA DESCARGAR EL IRL COMO PDF ---
 function descargarIrlComoPdfOptimizado() {
-    alert("Generando PDF optimizado... por favor espere.");
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    const margin = 15;
-    const docWidth = pdf.internal.pageSize.getWidth();
-    let y = 15;
-    pdf.autoTable({
-        html: '#form-irl-container .form-irl-header',
-        startY: y, theme: 'grid', styles: { fontSize: 8, cellPadding: 1.5, lineColor: [0, 0, 0], lineWidth: 0.1 },
-        didParseCell: function(data) { if (data.cell.raw.querySelector('img')) { data.cell.styles.halign = 'center'; data.cell.styles.valign = 'middle'; } },
-        didDrawCell: function(data) {
-            if (data.cell.raw.querySelector('img')) {
-                const img = data.cell.raw.querySelector('img');
-                const dim = data.cell.height - data.cell.padding('vertical');
-                const x = data.cell.x + (data.cell.width - dim) / 2;
-                const y = data.cell.y + data.cell.padding('top');
-                pdf.addImage(img, 'JPEG', x, y, dim, dim);
-            }
+    const irlElement = document.getElementById('form-irl-container');
+    if (!irlElement) {
+        alert('Error: No se encontró el contenido del informe.');
+        return;
+    }
+    alert(`Generando PDF completo y liviano... por favor espere.`);
+    
+    html2canvas(irlElement, {
+        scale: 2, // Buena calidad de imagen
+        useCORS: true,
+        backgroundColor: '#ffffff'
+    }).then(canvas => {
+        // Usamos JPEG con compresión para un archivo liviano
+        const imgData = canvas.toDataURL('image/jpeg', 0.8); 
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        let heightLeft = pdfHeight;
+        let position = 0;
+
+        // Añade la primera página
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pdf.internal.pageSize.getHeight();
+
+        // Añade páginas adicionales si el contenido es muy largo
+        while (heightLeft > 0) {
+            position = heightLeft - pdfHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+            heightLeft -= pdf.internal.pageSize.getHeight();
         }
+        
+        pdf.save('Informe_Riesgos_Laborales_Completo.pdf');
+
+    }).catch(e => {
+        console.error("Error al generar el PDF del informe:", e);
+        alert("Hubo un problema al generar el PDF.");
     });
-    y = pdf.lastAutoTable.finalY;
-    y += 10;
-    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('1.- INFORMACIÓN DE LA ACTIVIDAD', margin, y);
-    y += 7;
-    pdf.setFontSize(9); pdf.setFont(undefined, 'normal');
-    const introText = document.querySelector('#form-irl-container p').textContent.trim();
-    const textLines = pdf.splitTextToSize(introText, docWidth - margin * 2);
-    pdf.text(textLines, margin, y);
-    y += (textLines.length * 4) + 5;
-    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(1)', startY: y, theme: 'grid' });
-    y = pdf.lastAutoTable.finalY + 5;
-    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(2)', startY: y, theme: 'grid' });
-    y = pdf.lastAutoTable.finalY;
-    y += 10;
-    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('3.- INFORMACIÓN DE LOS RIESGOS', margin, y);
-    y += 7;
-    pdf.autoTable({ html: '#form-irl-container .form-irl-table:nth-of-type(3)', startY: y, theme: 'grid' });
-    y = pdf.lastAutoTable.finalY;
-    y += 10;
-    pdf.setFontSize(12); pdf.setFont(undefined, 'bold'); pdf.text('5.- INFORMACIÓN DEL PARTICIPANTE', margin, y);
-    y += 7;
-    const nombre = document.getElementById('nombre_trabajador_irl').value;
-    const rut = document.getElementById('rut_trabajador_irl').value;
-    pdf.autoTable({
-        startY: y, theme: 'grid',
-        body: [
-            [{ content: `Nombre del trabajador:\n${nombre}`, styles: { halign: 'left' } }, { content: `RUT:\n${rut}`, styles: { halign: 'left' } }],
-            [{ content: 'Cargo:\nTécnico de Servicios', styles: { halign: 'left' } }, { content: 'Tipo:\n☑ Actualización', styles: { halign: 'left' } }],
-            [{ content: 'Firma:', colSpan: 2, styles: { minCellHeight: 30 } }],
-        ],
-        didDrawCell: function(data) {
-            if (data.row.index === 2) {
-                const firmaCanvas = document.getElementById('firma_trabajador_irl');
-                const isSignatureEmpty = !firmaCanvas.getContext('2d').getImageData(0, 0, firmaCanvas.width, firmaCanvas.height).data.some(channel => channel !== 0);
-                if (!isSignatureEmpty) {
-                    const imgData = firmaCanvas.toDataURL('image/png'); 
-                    pdf.addImage(imgData, 'PNG', data.cell.x + 2, data.cell.y + 2, 60, 20);
-                }
-            }
-        }
-    });
-    pdf.save('Informe_Riesgos_Laborales_Optimizado.pdf');
 }
 
+// --- FUNCIÓN DE DESCARGA PNG (sin cambios) ---
 function descargarIrlComoPng() {
     const irlElement = document.getElementById('form-irl-container');
     if (!irlElement) { alert('Error: No se encontró el contenido del informe.'); return; }
@@ -370,9 +354,7 @@ async function loadTabContent(btn, tabName) {
     }
 }
 
-// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIONES) ---
-
-// --- CORRECCIÓN 1: Descarga de PDF del Registro de Actividad ---
+// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIÓN DE PESO) ---
 async function descargarComoPdfNativo() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -432,8 +414,6 @@ async function descargarComoPdfNativo() {
         headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
         didDrawCell: (data) => {
             if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                // Forzamos la compresión de la firma a JPEG con calidad media (0.5)
-                // Esto reducirá drásticamente el tamaño del archivo.
                 const sigImgData = participantCanvas.toDataURL('image/jpeg', 0.5);
                 try { 
                     pdf.addImage(sigImgData, 'JPEG', data.cell.x + 5, data.cell.y + 2, 35, 12); 
@@ -447,27 +427,15 @@ async function descargarComoPdfNativo() {
     pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
 }
 
-// --- CORRECCIÓN 2: Descarga de PNG del Registro de Actividad ---
 async function descargarComoPng() {
-    // Se captura el contenedor principal para incluir la cabecera
     const formElement = document.getElementById('registro-actividad-box'); 
     const headerTable = document.getElementById('pdf-header-table');
-    if (!formElement || !headerTable) {
-        alert('Error: No se encontró el formulario para descargar.');
-        return;
-    }
-    
+    if (!formElement || !headerTable) { alert('Error: No se encontró el formulario para descargar.'); return; }
     alert("Generando PNG... por favor espere.");
-    
-    // Hacemos la cabecera visible temporalmente para la captura
     headerTable.style.display = 'table';
-
     try {
         const canvas = await html2canvas(formElement, { 
-            scale: 2, 
-            useCORS: true, 
-            backgroundColor: '#ffffff',
-            // Se elimina el área de los botones de la captura
+            scale: 2, useCORS: true, backgroundColor: '#ffffff',
             ignoreElements: (element) => element.classList.contains('button-group')
         });
         const link = document.createElement('a');
@@ -478,7 +446,6 @@ async function descargarComoPng() {
         console.error("Error al generar PNG:", e);
         alert("Hubo un problema al generar la imagen PNG.");
     } finally {
-        // Volvemos a ocultar la cabecera para mantener el diseño original de la página
         headerTable.style.display = 'none';
     }
 }
