@@ -370,7 +370,9 @@ async function loadTabContent(btn, tabName) {
     }
 }
 
-// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIÓN DE PESO) ---
+// --- FUNCIONES DEL FORMULARIO DE REGISTRO (CON CORRECCIONES) ---
+
+// --- CORRECCIÓN 1: Descarga de PDF del Registro de Actividad ---
 async function descargarComoPdfNativo() {
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
@@ -384,7 +386,7 @@ async function descargarComoPdfNativo() {
         didParseCell: function(data) {
             if (data.row.section === 'head' && data.column.index === 0) {
                 const img = document.getElementById('logo-for-pdf');
-                try { pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); } // Revertido a PNG por calidad
+                try { pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
                 catch(e) { console.error("Error al añadir el logo al PDF:", e); }
             }
         }
@@ -413,7 +415,7 @@ async function descargarComoPdfNativo() {
     pdf.setFont(undefined, 'bold'); pdf.text('RELATOR/ENCARGADO:', margin, y);
     pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
     const relatorSigImg = document.getElementById('relator-signature-img');
-    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); } // Revertido a PNG por calidad
+    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); }
     catch(e) { console.error("Error al añadir firma del relator:", e); }
     pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
     pdf.setFontSize(8); pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
@@ -430,21 +432,11 @@ async function descargarComoPdfNativo() {
         headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
         didDrawCell: (data) => {
             if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                // --- SOLUCIÓN DEFINITIVA PARA EL TAMAÑO DE LA FIRMA ---
-                // 1. Crear un canvas temporal con tamaño fijo y optimizado
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = 280; // Ancho fijo para la imagen de la firma (en píxeles)
-                tempCanvas.height = 96;
-                const tempCtx = tempCanvas.getContext('2d');
-
-                // 2. Dibujar la firma del canvas original (de alta resolución) en el canvas temporal (tamaño optimizado)
-                tempCtx.drawImage(participantCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
-                
-                // 3. Obtener la imagen del canvas temporal. ¡Esta imagen será mucho más liviana!
-                const sigImgData = tempCanvas.toDataURL('image/png');
-                
+                // Forzamos la compresión de la firma a JPEG con calidad media (0.5)
+                // Esto reducirá drásticamente el tamaño del archivo.
+                const sigImgData = participantCanvas.toDataURL('image/jpeg', 0.5);
                 try { 
-                    pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12); 
+                    pdf.addImage(sigImgData, 'JPEG', data.cell.x + 5, data.cell.y + 2, 35, 12); 
                 } catch(e) { 
                     console.error("Error al añadir firma de participante:", e); 
                 }
@@ -455,11 +447,29 @@ async function descargarComoPdfNativo() {
     pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
 }
 
+// --- CORRECCIÓN 2: Descarga de PNG del Registro de Actividad ---
 async function descargarComoPng() {
-    const formElement = document.getElementById('registroActividadForm');
+    // Se captura el contenedor principal para incluir la cabecera
+    const formElement = document.getElementById('registro-actividad-box'); 
+    const headerTable = document.getElementById('pdf-header-table');
+    if (!formElement || !headerTable) {
+        alert('Error: No se encontró el formulario para descargar.');
+        return;
+    }
+    
     alert("Generando PNG... por favor espere.");
+    
+    // Hacemos la cabecera visible temporalmente para la captura
+    headerTable.style.display = 'table';
+
     try {
-        const canvas = await html2canvas(formElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+        const canvas = await html2canvas(formElement, { 
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: '#ffffff',
+            // Se elimina el área de los botones de la captura
+            ignoreElements: (element) => element.classList.contains('button-group')
+        });
         const link = document.createElement('a');
         link.download = `Registro_Actividad_${document.getElementById('fecha').value}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -467,6 +477,9 @@ async function descargarComoPng() {
     } catch(e) {
         console.error("Error al generar PNG:", e);
         alert("Hubo un problema al generar la imagen PNG.");
+    } finally {
+        // Volvemos a ocultar la cabecera para mantener el diseño original de la página
+        headerTable.style.display = 'none';
     }
 }
 
@@ -529,6 +542,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstTab) firstTab.click();
 });
 </script>
+
 
 
 </body>
