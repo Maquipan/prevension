@@ -399,85 +399,130 @@ async function descargarComoPng() {
     }
 }
 
-// --- FUNCIONES DE FIRMA Y FORMULARIO ---
+<script>
+// --- FUNCIÓN PARA INICIALIZAR PADS DE FIRMA (AHORA EN LA PÁGINA PRINCIPAL) ---
 function initializeSignaturePad(canvasEl) {
     if (!canvasEl) return;
     const ctx = canvasEl.getContext('2d');
     let drawing = false;
+
     function resizeCanvas() {
         const ratio = Math.max(window.devicePixelRatio || 1, 1);
         const rect = canvasEl.getBoundingClientRect();
-        canvasEl.width = rect.width * ratio; canvasEl.height = rect.height * ratio;
+        canvasEl.width = rect.width * ratio;
+        canvasEl.height = rect.height * ratio;
         canvasEl.getContext('2d').scale(ratio, ratio);
-        loadSignature(canvasEl.id);
     }
-    window.addEventListener('resize', resizeCanvas); resizeCanvas();
-    function getPos(e) {
-        const r = canvasEl.getBoundingClientRect();
-        const cX = e.touches ? e.touches[0].clientX : e.clientX;
-        const cY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: cX - r.left, y: cY - r.top };
-    }
-    function start(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-    function end(e) { if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath(); saveSignature(canvasEl.id, canvasEl.toDataURL()); }
-    function draw(e) { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#333'; ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
-    canvasEl.addEventListener('mousedown', start); canvasEl.addEventListener('mouseup', end); canvasEl.addEventListener('mousemove', draw);
-    canvasEl.addEventListener('touchstart', start, { passive: false }); canvasEl.addEventListener('touchend', end, { passive: false }); canvasEl.addEventListener('touchmove', draw, { passive: false });
-}
-function saveSignature(id, data) { localStorage.setItem(id, data); }
-function loadSignature(id) {
-    const data = localStorage.getItem(id);
-    const canvas = document.getElementById(id);
-    if (data && canvas) {
-        const img = new Image();
-        img.onload = () => { canvas.getContext('2d').drawImage(img, 0, 0, canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height); };
-        img.src = data;
-    }
-}
-function limpiarFormulario() {
-    if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
-        ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) { el.value = ''; localStorage.removeItem(id); }
-        });
-        document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
-            cb.checked = false;
-            localStorage.removeItem(cb.id);
-        });
-        const canvas = document.getElementById('p_sig_1');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            localStorage.removeItem('p_sig_1');
-        }
-    }
-}
-document.addEventListener('DOMContentLoaded', function() {
-    const defaultValues = { 'fecha': new Date().toISOString().split('T')[0], 'capacitacion': true, 'horaInicio': '09:00', 'horaTermino': '10:00', 'relatorEncargado': 'Oscar Cayuqueo' };
-    document.querySelectorAll('input, textarea').forEach(input => {
-        if (input.id) {
-            const saved = localStorage.getItem(input.id);
-            if (saved) { input.type === 'checkbox' ? input.checked = (saved === 'true') : input.value = saved; }
-            else if (defaultValues[input.id]) { input.type === 'checkbox' ? input.checked = defaultValues[input.id] : input.value = defaultValues[input.id]; }
-            input.addEventListener('input', () => { localStorage.setItem(input.id, input.type === 'checkbox' ? input.checked : input.value); });
-        }
-    });
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    const participantInputs = ['p_rut_1', 'p_name_1', 'p_cargo_1'];
-    participantInputs.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) {
-            const val = localStorage.getItem(id);
-            if(val) el.value = val;
-            el.addEventListener('input', () => localStorage.setItem(id, el.value));
-        }
-    });
-    
-    const signatureCanvas = document.getElementById('p_sig_1');
-    if(signatureCanvas) {
-        initializeSignaturePad(signatureCanvas);
+    function getPos(e) {
+        const rect = canvasEl.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
     }
-    
+
+    function startDrawing(e) {
+        e.preventDefault(); drawing = true; const pos = getPos(e); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+    }
+    function stopDrawing(e) {
+        if (!drawing) return; e.preventDefault(); drawing = false; ctx.beginPath();
+    }
+    function draw(e) {
+        if (!drawing) return;
+        e.preventDefault();
+        const pos = getPos(e);
+        ctx.lineWidth = 2.0; ctx.lineCap = 'round'; ctx.strokeStyle = '#000000';
+        ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+    }
+
+    canvasEl.addEventListener('mousedown', startDrawing);
+    canvasEl.addEventListener('mouseup', stopDrawing);
+    canvasEl.addEventListener('mouseleave', stopDrawing);
+    canvasEl.addEventListener('mousemove', draw);
+    canvasEl.addEventListener('touchstart', startDrawing, { passive: false });
+    canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
+    canvasEl.addEventListener('touchmove', draw, { passive: false });
+}
+
+// --- FUNCIONES DE DESCARGA PARA EL INFORME DE RIESGOS (IRL) ---
+function descargarIrlComo(format) {
+    const irlElement = document.getElementById('form-irl-container');
+    if (!irlElement) {
+        alert('Error: No se encontró el contenido del informe.');
+        return;
+    }
+    alert(`Generando ${format.toUpperCase()}... por favor espere.`);
+    html2canvas(irlElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+        if (format === 'png') {
+            const link = document.createElement('a');
+            link.download = `Informe_Riesgos_Laborales.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } else if (format === 'pdf') {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('Informe_Riesgos_Laborales.pdf');
+        }
+    }).catch(e => {
+        console.error("Error al generar el archivo:", e);
+        alert("Hubo un problema al generar el archivo.");
+    });
+}
+
+
+// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (MODIFICADA) ---
+async function loadTabContent(btn, tabName) {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => button.classList.remove('active'));
+    btn.classList.add('active');
+    const contentArea = document.getElementById('tab-content-area');
+    const registroBox = document.getElementById('registro-actividad-box');
+    contentArea.innerHTML = '<p>Cargando contenido...</p>';
+
+    // Mostrar u ocultar el formulario de registro general
+    if (tabName === 'informe-riesgos') {
+        registroBox.style.display = 'none';
+    } else {
+        registroBox.style.display = 'block';
+    }
+
+    try {
+        const response = await fetch(`capacitaciones/${tabName}.html`);
+        if (!response.ok) {
+            throw new Error(`Error al cargar: ${response.statusText}`);
+        }
+        contentArea.innerHTML = await response.text();
+        
+        // --- LÓGICA DE ACTIVACIÓN POST-CARGA ---
+        // Si se cargó la pestaña de informe de riesgos, activamos su firma y botones
+        if (tabName === 'informe-riesgos') {
+            const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
+            if (irlSignatureCanvas) {
+                initializeSignaturePad(irlSignatureCanvas);
+            }
+
+            const pngBtn = document.getElementById('descargarPngIrlBtn');
+            if(pngBtn) pngBtn.onclick = () => descargarIrlComo('png');
+
+            const pdfBtn = document.getElementById('descargarPdfIrlBtn');
+            if(pdfBtn) pdfBtn.onclick = () => descargarIrlComo('pdf');
+        }
+
+    } catch (error) {
+        console.error('Error al cargar la pestaña:', error);
+        contentArea.innerHTML = `<p style="color: red;"><b>Error: No se encontró el material.</b></p>`;
+    }
+}
+
+
+// --- INICIALIZACIÓN GENERAL DE LA PÁGINA ---
+document.addEventListener('DOMContentLoaded', function() {
     // Carga la primera pestaña por defecto
     const firstTab = document.querySelector('.tab-button');
     if (firstTab) {
