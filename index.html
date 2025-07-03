@@ -85,7 +85,6 @@
         }
         .download-buttons-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
         
-        
         /* ESTILOS REGISTRO ACTIVIDAD */
         #registroActividadForm { border: none; box-shadow: none; padding: 0; }
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
@@ -111,7 +110,7 @@
         .signature-controls button { margin-top: 8px; padding: 5px 12px; font-size: 12px; border-radius: 5px; border: none; cursor: pointer; background-color: #6c757d; color: white; transition: background-color 0.3s ease; }
         .signature-controls button:hover { background-color: #5a6268; }
         
-        /* --- ESTILOS DE BOTONES MODIFICADOS --- */
+        /* --- ESTILOS DE BOTONES --- */
         .button-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
         .action-button { 
             display: block; width: 100%; padding: 12px; font-size: 16px; border-radius: 8px; border: none; cursor: pointer; 
@@ -125,7 +124,33 @@
         .download-button-pdf { background-color: var(--success-color); }
         .download-button-pdf:hover { background-color: #13653f; }
 
+        /* Clase para forzar la vista de escritorio durante la descarga */
+        .forzar-escritorio .button-group {
+            grid-template-columns: repeat(3, 1fr) !important;
+        }
+        .forzar-escritorio .participants-table thead {
+            display: table-header-group !important; /* Muestra el encabezado de la tabla */
+        }
+        .forzar-escritorio .participants-table,
+        .forzar-escritorio .participants-table tbody,
+        .forzar-escritorio .participants-table tr {
+            display: table-row !important; /* Devuelve el comportamiento de fila */
+            border: none !important;
+            padding: 0 !important;
+        }
+        .forzar-escritorio .participants-table td {
+            display: table-cell !important; /* Devuelve el comportamiento de celda */
+            width: auto !important;
+            text-align: left !important;
+            padding: 8px !important;
+            position: static !important;
+            border: 1px solid #ccc !important;
+        }
+        .forzar-escritorio .participants-table td:before {
+            display: none !important; /* Oculta las etiquetas de datos */
+        }
 
+        /* --- ESTILOS RESPONSIVOS PARA MÓVILES --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .main-title { font-size: 2em; }
@@ -287,23 +312,31 @@
         }
     }
 
-    // --- FUNCIÓN DE DESCARGA PDF (MÉTODO DE IMPRESIÓN) ---
+    // --- FUNCIONES LEGACY (NO USADAS POR REGISTRO DE ACTIVIDAD) ---
     function descargarInformeComoPdf() {
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
-
-    // --- FUNCIÓN DE DESCARGA WORD (MÉTODO DIRECTO) ---
     function descargarInformeComoWord() {
         // ... (código sin cambios)
     }
-    
-    // --- FUNCIÓN DE DESCARGA PNG (PARA INFORME DE RIESGOS) ---
     async function descargarInformeRiesgos() {
         // ... (código sin cambios)
     }
 
-    // --- LÓGICA DE PREPARACIÓN DEL FORMULARIO PARA CAPTURA ---
+    // --- LÓGICA DE PREPARACIÓN Y FORZADO DE ESTILOS ---
+    function forzarEstilosEscritorio(formElementId) {
+        const formElement = document.getElementById(formElementId);
+        if (!formElement) return () => {}; // Devuelve una función vacía si no encuentra el form
+        
+        formElement.classList.add('forzar-escritorio');
+        
+        // Devuelve una función "cleanup" para revertir los cambios
+        return () => {
+            formElement.classList.remove('forzar-escritorio');
+        };
+    }
+
     async function prepararFormularioParaCaptura(formElementId, textareaId) {
         const formElement = document.getElementById(formElementId);
         const textarea = document.getElementById(textareaId);
@@ -326,6 +359,7 @@
 
         await new Promise(r => setTimeout(r, 100));
 
+        // Devuelve una función para limpiar solo lo de este paso
         return {
             cleanup: () => {
                 if (textarea.parentElement.contains(div)) {
@@ -336,12 +370,18 @@
         };
     }
 
-    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD ---
+    // --- FUNCIÓN DE DESCARGA PNG PARA REGISTRO DE ACTIVIDAD (ACTUALIZADA) ---
     async function descargarComoPng() {
-        const formElement = document.getElementById('registroActividadForm');
-        let preparacion;
+        const formId = 'registroActividadForm';
+        const formElement = document.getElementById(formId);
+        let preparacion, revertirEstilos;
+        
         try {
-            preparacion = await prepararFormularioParaCaptura('registroActividadForm', 'temasTratados');
+            // Aplica los cambios de estilo y prepara el textarea
+            revertirEstilos = forzarEstilosEscritorio(formId);
+            preparacion = await prepararFormularioParaCaptura(formId, 'temasTratados');
+            
+            // Captura el canvas
             const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
             const link = document.createElement('a');
             link.download = 'Registro_Actividad.png';
@@ -350,17 +390,25 @@
         } catch (error) {
             console.error("Error al generar el PNG:", error);
         } finally {
+            // Revierte SIEMPRE los cambios, incluso si hay un error
+            if (revertirEstilos) revertirEstilos();
             if (preparacion) preparacion.cleanup();
         }
     }
 
-    // --- NUEVA FUNCIÓN DE DESCARGA PDF PARA REGISTRO DE ACTIVIDAD ---
+    // --- FUNCIÓN DE DESCARGA PDF PARA REGISTRO DE ACTIVIDAD (ACTUALIZADA) ---
     async function descargarComoPdf() {
         const { jsPDF } = window.jspdf;
-        const formElement = document.getElementById('registroActividadForm');
-        let preparacion;
+        const formId = 'registroActividadForm';
+        const formElement = document.getElementById(formId);
+        let preparacion, revertirEstilos;
+        
         try {
-            preparacion = await prepararFormularioParaCaptura('registroActividadForm', 'temasTratados');
+            // Aplica los cambios de estilo y prepara el textarea
+            revertirEstilos = forzarEstilosEscritorio(formId);
+            preparacion = await prepararFormularioParaCaptura(formId, 'temasTratados');
+
+            // Captura el canvas
             const canvas = await html2canvas(formElement, { scale: 2, backgroundColor: '#fff', useCORS: true });
             
             const imgData = canvas.toDataURL('image/png');
@@ -381,6 +429,8 @@
             console.error("Error al generar el PDF:", error);
             alert("Hubo un error al generar el PDF. Revisa la consola para más detalles.");
         } finally {
+            // Revierte SIEMPRE los cambios, incluso si hay un error
+            if (revertirEstilos) revertirEstilos();
             if (preparacion) preparacion.cleanup();
         }
     }
