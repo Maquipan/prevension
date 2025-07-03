@@ -42,9 +42,16 @@
         h2, h3, h4, h5 { font-family: 'Montserrat', sans-serif; color: var(--primary-color); }
         h2 { font-size: 1.8em; border-bottom: 2px solid var(--secondary-color); padding-bottom: 10px; margin-bottom: 20px; }
         h2 .fas, h2 .fa-solid { margin-right: 15px; color: var(--secondary-color); }
+        .tab-container { display: flex; border-bottom: 2px solid var(--secondary-color); margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-button {
+            padding: 12px 20px; cursor: pointer; border: none; background-color: transparent; font-family: 'Montserrat', sans-serif;
+            font-size: 1.1em; color: var(--secondary-color); border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -2px;
+        }
+        .tab-button:hover { background-color: var(--light-gray); }
+        .tab-button.active { color: var(--primary-color); border-bottom: 3px solid var(--accent-color); font-weight: 700; }
+        #tab-content-area { min-height: 200px; }
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
         .header-table td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; font-size: 11px; }
-        .logo-cell { width: 30%; }
         .logo-cell img { max-width: 100%; max-height: 60px; display: block; margin: auto; }
         .header-table .title { font-size: 15px; font-weight: bold; color: var(--primary-color); }
         .section { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
@@ -82,6 +89,19 @@
 
 <div class="container">
     <h1 class="main-title">Portal de Prevención MAQUIPAN</h1>
+    
+    <div class="content-box">
+        <h2><i class="fa-solid fa-book-open"></i>Material de Capacitación</h2>
+        <div class="tab-container">
+            <button class="tab-button active" onclick="loadTabContent(this, 'junio')">Capacitación Junio</button>
+            <button class="tab-button" onclick="loadTabContent(this, 'extintores')">Uso y Manejo de Extintores</button>
+            <button class="tab-button" onclick="loadTabContent(this, 'protocolos-minsal')">Protocolos MINSAL</button>
+            <button class="tab-button" onclick="loadTabContent(this, 'matriz-riesgo')">Matriz de Riesgos (IPER)</button>
+            <button class="tab-button" onclick="loadTabContent(this, 'proteccion-personal')">Protección Personal (EPP)</button>
+            <button class="tab-button" onclick="loadTabContent(this, 'informe-riesgos')">Informe Riesgos Laborales</button>
+        </div>
+        <div id="tab-content-area"></div>
+    </div>
 
     <div class="content-box" id="registro-actividad-box">
         <h2><i class="fa-solid fa-clipboard-check"></i>Registro de Actividad</h2>
@@ -172,6 +192,32 @@
 </div>
 
 <script>
+    // --- FUNCIÓN PARA CARGAR CONTENIDO DE PESTAÑAS ---
+    async function loadTabContent(btn, tabName) {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => button.classList.remove('active'));
+        btn.classList.add('active');
+        const contentArea = document.getElementById('tab-content-area');
+        contentArea.innerHTML = '<p>Cargando...</p>';
+        try {
+            // Simulación de carga, ya que no tenemos los archivos .html
+            // En un caso real, la URL sería `capacitaciones/${tabName}.html`
+            await new Promise(r => setTimeout(r, 200)); 
+            contentArea.innerHTML = `<p>Contenido para <strong>${btn.textContent}</strong> cargado.</p><div class="temas-para-registro" style="display:none;">Temas de ${btn.textContent}</div>`;
+            
+            // Lógica para auto-llenar el textarea de temas
+            const temasTextarea = document.getElementById('temasTratados');
+            const temasSource = contentArea.querySelector('.temas-para-registro');
+            if (temasSource && temasTextarea) {
+                temasTextarea.value = temasSource.textContent.trim();
+                localStorage.setItem('temasTratados', temasTextarea.value);
+            }
+        } catch (error) {
+            console.error('Error al cargar la pestaña:', error);
+            contentArea.innerHTML = `<p style="color: red;">Error: No se encontró el material.</p>`;
+        }
+    }
+
     // --- FUNCIÓN DE DESCARGA PDF NATIVO (ALTA CALIDAD) ---
     async function descargarComoPdfNativo() {
         const { jsPDF } = window.jspdf;
@@ -182,7 +228,6 @@
         let y = 15; // Posición Y inicial
 
         // --- 1. CABECERA ---
-        // Usamos autoTable para dibujar la tabla de cabecera que preparamos en el HTML
         pdf.autoTable({
             html: '#pdf-header-table',
             startY: y,
@@ -199,14 +244,16 @@
                 fontStyle: 'bold'
             },
             didParseCell: function(data) {
-                // Centrar la imagen del logo en su celda
                 if (data.row.section === 'head' && data.column.index === 0) {
                     data.cell.styles.halign = 'center';
                     data.cell.styles.valign = 'middle';
                     const img = document.getElementById('logo-for-pdf');
-                    // Dejamos un espacio para la imagen
                     data.cell.text = ''; 
-                    pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
+                    try {
+                        pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12);
+                    } catch(e) {
+                        console.error("Error al añadir el logo al PDF:", e);
+                    }
                 }
             }
         });
@@ -251,7 +298,7 @@
         pdf.rect(margin, y, docWidth - margin * 2, 40); // Caja contenedora
         pdf.setFont(undefined, 'normal');
         pdf.text(textLines, margin + 2, y + 5);
-        y += 45; // Espacio después de la caja de temas
+        y += 45;
 
         // --- 4. RELATOR Y FIRMA ---
         pdf.setFont(undefined, 'bold');
@@ -259,10 +306,13 @@
         pdf.setFont(undefined, 'normal');
         pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
 
-        // Firma del relator
         const relatorSigImg = document.getElementById('relator-signature-img');
-        pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
-        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12); // Línea de firma
+        try {
+            pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15);
+        } catch(e) {
+            console.error("Error al añadir firma del relator:", e);
+        }
+        pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
         pdf.setFontSize(8);
         pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
         y += 20;
@@ -283,7 +333,7 @@
                 document.getElementById('p_rut_1').value,
                 document.getElementById('p_name_1').value,
                 document.getElementById('p_cargo_1').value,
-                '' // Dejamos el espacio para la firma
+                ''
             ]],
             theme: 'grid',
             styles: { fontSize: 10, valign: 'middle' },
@@ -291,11 +341,15 @@
             didDrawCell: (data) => {
                 if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
                      const sigImgData = participantCanvas.toDataURL('image/png');
-                     pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                     try {
+                        pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12);
+                     } catch(e) {
+                        console.error("Error al añadir firma de participante:", e);
+                     }
                 }
             },
             columnStyles: {
-                3: { minCellHeight: 15 } // Aumentar altura de la celda de firma
+                3: { minCellHeight: 15 }
             }
         });
 
@@ -303,8 +357,9 @@
         pdf.save(`Registro_Actividad_${document.getElementById('fecha').value}.pdf`);
     }
     
-    // --- FUNCIÓN DE DESCARGA PNG (Legado, Calidad Media) ---
+    // --- FUNCIÓN DE DESCARGA PNG (Calidad Media) ---
     async function descargarComoPng() {
+        // Esta función ahora usa html2canvas en una versión simplificada
         const formElement = document.getElementById('registroActividadForm');
         alert("Generando PNG... por favor espere.");
         try {
@@ -356,9 +411,13 @@
     }
     function limpiarFormulario() {
         if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
-            ['p_rut_1', 'p_name_1', 'p_cargo_1'].forEach(id => {
+            ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) { el.value = ''; localStorage.removeItem(id); }
+            });
+            document.querySelectorAll('#activity-type-group input[type=checkbox]').forEach(cb => {
+                cb.checked = false;
+                localStorage.removeItem(cb.id);
             });
             const canvas = document.getElementById('p_sig_1');
             if (canvas) {
@@ -392,6 +451,12 @@
         const signatureCanvas = document.getElementById('p_sig_1');
         if(signatureCanvas) {
             initializeSignaturePad(signatureCanvas);
+        }
+        
+        // Carga la primera pestaña por defecto
+        const firstTab = document.querySelector('.tab-button');
+        if (firstTab) {
+            firstTab.click();
         }
     });
 </script>
