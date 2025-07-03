@@ -82,23 +82,25 @@
         @media (max-width: 768px) {
             .form-grid { grid-template-columns: 1fr; }
             .button-group { grid-template-columns: 1fr; }
-        }
-        @media print {
-    body > *:not(.printable-area) {
-        display: none;
+        }@media print {
+    /* Oculta todo en la página por defecto al imprimir */
+    body > * {
+        display: none !important;
     }
-    body {
-        margin: 0;
-    }
+
+    /* Muestra únicamente el área que hemos marcado para imprimir */
     .printable-area {
         display: block !important;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
     }
-    /* Oculta los grupos de botones al imprimir */
-    .printable-area .button-group, .printable-area .download-button-irl {
+
+    /* Asegura que la cabecera oculta del formulario de registro se imprima */
+    .printable-area #pdf-header-table {
+        display: table !important;
+    }
+
+    /* Oculta los botones dentro del área que se va a imprimir */
+    .printable-area .button-group, 
+    .printable-area .download-button-irl-container {
         display: none !important;
     }
 }
@@ -261,38 +263,22 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
 
-// --- NUEVA FUNCIÓN UNIVERSAL PARA IMPRIMIR Y GUARDAR COMO PDF ---
-function imprimirComoPdf(printableAreaId, headerId = null) {
+// --- NUEVA FUNCIÓN DE IMPRESIÓN (COMPATIBLE CON MÓVILES) ---
+function imprimirComoPdf(printableAreaId) {
     const printableElement = document.getElementById(printableAreaId);
     if (!printableElement) {
         console.error('Elemento para imprimir no encontrado:', printableAreaId);
         return;
     }
 
-    // Ocultar todos los elementos del cuerpo excepto el contenedor principal
-    const allBodyChildren = document.body.children;
-    for (let i = 0; i < allBodyChildren.length; i++) {
-        allBodyChildren[i].style.display = 'none';
-    }
-
-    // Clonar el elemento a imprimir y hacerlo visible
-    const printableClone = printableElement.cloneNode(true);
-    document.body.appendChild(printableClone);
-    printableClone.style.display = 'block';
-
-    const headerElement = headerId ? printableClone.querySelector(`#${headerId}`) : null;
-    if (headerElement) {
-        headerElement.style.display = 'table';
-    }
-
-    // Llama a la función de impresión del navegador
+    // Añade una clase temporal para que el CSS @media print la detecte
+    printableElement.classList.add('printable-area');
+    
+    // Llama a la impresión del navegador
     window.print();
-
-    // Eliminar el clon y restaurar la visibilidad de los elementos originales
-    document.body.removeChild(printableClone);
-    for (let i = 0; i < allBodyChildren.length; i++) {
-        allBodyChildren[i].style.display = '';
-    }
+    
+    // Quita la clase después de que se envíe la orden de impresión
+    printableElement.classList.remove('printable-area');
 }
 
 
@@ -306,7 +292,7 @@ function limpiarFirmaIrl() {
     }
 }
 
-// --- FUNCIÓN DE DESCARGA PNG PARA EL REGISTRO DE ACTIVIDAD ---
+// --- FUNCIÓN DE DESCARGA PNG (SOLO PARA EL REGISTRO DE ACTIVIDAD) ---
 async function descargarComoPng() {
     const formElement = document.getElementById('registro-actividad-box'); 
     const headerTable = document.getElementById('pdf-header-table');
@@ -333,7 +319,7 @@ async function descargarComoPng() {
 }
 
 
-// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (REESTRUCTURADA) ---
+// --- FUNCIÓN PRINCIPAL PARA CARGAR PESTAÑAS (AJUSTADA) ---
 async function loadTabContent(btn, tabName) {
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => button.classList.remove('active'));
@@ -354,14 +340,12 @@ async function loadTabContent(btn, tabName) {
         
         contentArea.innerHTML = await response.text();
         
-        // Activa la funcionalidad específica de la pestaña cargada
         if (tabName === 'informe-riesgos') {
             const irlSignatureCanvas = document.getElementById('firma_trabajador_irl');
             if (irlSignatureCanvas) initializeSignaturePad(irlSignatureCanvas);
 
             const pdfBtn = document.getElementById('imprimirPdfIrlBtn');
-            // Usamos el ID del contenedor del contenido cargado
-            if(pdfBtn) pdfBtn.onclick = () => imprimirComoPdf('tab-content-area'); 
+            if(pdfBtn) pdfBtn.onclick = () => imprimirComoPdf('tab-content-area');
             
             const clearBtn = document.getElementById('limpiarFirmaIrlBtn');
             if(clearBtn) clearBtn.onclick = limpiarFirmaIrl;
