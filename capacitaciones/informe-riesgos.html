@@ -59,6 +59,7 @@
         width: 100%;
         height: 80px;
         background-color: #fdfdfd;
+        cursor: crosshair; /* Cambia el cursor para indicar que se puede dibujar */
     }
     .download-button-irl {
         display: block;
@@ -216,7 +217,7 @@
             <tr><td class="check-cell-irl">X</td><td>Contacto con agentes Biológicos (Contagios, infecciones, virus, bacterias, etc.). - Contagio por COVID-19.</td><td>- Enfermedades<br>- Insuficiencia respiratoria.<br>- Neumonías. etc.</td><td>Utilizar los casilleros individuales para los fines exclusivos para los que fueron destinados, prohibiéndose almacenar en ellos desperdicios, restos de comida, trapos impregnados de grasa o aceite y otros, debiendo, además, mantenerlos permanentemente aseados.<br>Utilizar elementos de protección especial dispuestos por la empresa (mascarillas desechables o reutilizables, escudos faciales, buzos desechables, guantes quirúrgicos, cotonas desechables, cofias, alcohol gel, desinfectantes, etc.).<br>Realizar lavado frecuente de manos, utilizando agua y jabón, o alcohol gel (frotar por 30 segundos las manos con el jabón o alcohol).</td></tr>
             <tr><td class="check-cell-irl">X</td><td>Contacto con sustancias químicas</td><td>- Irritación<br>- Quemaduras<br>- Dermatitis<br>- Intoxicación</td><td>Tomar las medidas de control, según las indicaciones de la Hoja de Datos de Seguridad del producto químico (HDS).<br>Utilizar los elementos de protección personal dispuestos por la empresa (lentes de seguridad, guantes de nitrilo, ropa de trabajo, cotona, overol, protección respiratoria).<br>Cumplir con los procedimientos de trabajo establecidos para cada actividad.</td></tr>
             <tr><td class="check-cell-irl">X</td><td>Inmersión</td><td>- Hipotermia<br>- Muerte</td><td>Conocer el Plan de Emergencia de embarcaciones mayores.<br>Utilizar chaleco salvavidas cuando se traslade en botes o lanchas.</td></tr>
-            <tr><td class="check-cell-irl">X</td><td>Ley Karin. Ley 21.643</td><td>- Lesión y/o enfermedad por origen mental.</td><td>✔ Difusión de Conceptos claves de la ley Karin: Acoso Sexual, Acoso Laboral y Violencia en el trabajo.<br>✔ Protección a todos los trabajadores y trabajadoras de chile, a quienes se encuentran con contrato a plazo fijo, indefinido, por obra o faena y los independientes que presten servicio en forma habitual en mismo lugar de trabajo.<br>✔ Su objetivo es crear un entorno laboral seguro y respetuoso, promoviendo la igualdad de género y previniendo conductas de acoso y violencia.<br>✔ Medidas establecidas: Se incorpora nuevas definiciones legales y perfecciona las existentes. Se refuerza el rol de la dirección del trabajo (DT) y de la controlaría general de al republica.<br>✔ Establece como obligación de las empresas y de los órganos del estado un protocolo de prevención del acoso laboral y/o sexual y la violencia en el trabajo.<br>✔ Establece nuevos estándares e incorpora modificaciones en los procesos de denuncia, investigación y sanción.</td></tr>
+            <tr><td class="check-cell-irl">X</td><td>Ley Karin. Ley 21.643</td><td>- Lesión y/o enfermedad por origen mental.</td><td>✔ Difusión de Conceptos claves de la ley Karin: Acoso Sexual, Acoso Laboral y Violencia en el trabajo.<br>✔ Protección a todos los trabajadores y trabajadoras de chile.<br>✔ Su objetivo es crear un entorno laboral seguro y respetuoso.<br>✔ Establece como obligación de las empresas un protocolo de prevención.<br>✔ Establece nuevos estándares en los procesos de denuncia, investigación y sanción.</td></tr>
         </tbody>
     </table>
 
@@ -265,4 +266,87 @@
         </tr>
     </table>
     
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px;">
+        <button class="download-button-irl" style="background-color: var(--accent-color);" onclick="descargarInformeRiesgos()">Descargar PNG</button>
+        <button class="download-button-irl" style="background-color: var(--primary-color);" onclick="descargarInformeComoWord()">Descargar Word</button>
+        <button class="download-button-irl" style="background-color: var(--danger-color);" onclick="descargarInformeComoPdf()">Descargar PDF</button>
+    </div>
 </div>
+
+<script>
+    (function() {
+        // Esta función encapsula todo para evitar conflictos con otras variables
+        function initializeSignaturePad(canvasEl) {
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+            let drawing = false;
+
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                const rect = canvasEl.getBoundingClientRect();
+                canvasEl.width = rect.width * ratio;
+                canvasEl.height = rect.height * ratio;
+                canvasEl.getContext('2d').scale(ratio, ratio);
+            }
+
+            // Ajustar el tamaño al cargar y si cambia el tamaño de la ventana
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function getPos(e) {
+                const rect = canvasEl.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function startDrawing(e) {
+                e.preventDefault();
+                drawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function stopDrawing(e) {
+                if (!drawing) return;
+                e.preventDefault();
+                drawing = false;
+                ctx.beginPath(); // Finaliza la línea actual
+            }
+
+            function draw(e) {
+                if (!drawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.lineWidth = 2.5;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#000000';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            // Eventos para el mouse
+            canvasEl.addEventListener('mousedown', startDrawing);
+            canvasEl.addEventListener('mouseup', stopDrawing);
+            canvasEl.addEventListener('mouseleave', stopDrawing); // Detiene el dibujo si el mouse sale del cuadro
+            canvasEl.addEventListener('mousemove', draw);
+
+            // Eventos para pantallas táctiles
+            canvasEl.addEventListener('touchstart', startDrawing, { passive: false });
+            canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
+            canvasEl.addEventListener('touchmove', draw, { passive: false });
+        }
+
+        // Activar el pad de firma en el canvas correcto
+        const signatureCanvas = document.getElementById('firma_trabajador_irl');
+        if (signatureCanvas) {
+            initializeSignaturePad(signatureCanvas);
+        }
+    })();
+</script>
