@@ -81,22 +81,23 @@
 
         /* ESTILOS PARA IMPRESIÓN (PDF) */
         @media print {
-            body > .container, body > .container > .no-print {
+            body > .container {
                 display: none !important;
+            }
+            .printable-area {
+                display: block !important;
+                visibility: visible !important;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0 !important;
+                padding: 10px !important;
             }
             .printable-area, .printable-area * {
                 visibility: visible !important;
             }
-            .printable-area {
-                display: block !important;
-                position: absolute;
-                left: 20px;
-                top: 20px;
-                width: calc(100% - 40px);
-                box-shadow: none !important;
-                border: none !important;
-            }
-            .printable-area .no-print-in-form {
+             .printable-area .no-print-in-form {
                 display: none !important;
             }
         }
@@ -154,16 +155,13 @@
             </div>
 
             <div class="section">
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;">
-                    <div style="flex-grow: 1;">
-                        <label for="relatorEncargado">RELATOR/ENCARGADO</label>
-                        <input type="text" id="relatorEncargado" readonly>
-                    </div>
-                    <div>
-                        <label>Firma Relator:</label>
-                        <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-height: 50px; border-bottom: 1px solid #ccc;">
-                    </div>
-                </div>
+                <label for="relatorEncargado">RELATOR/ENCARGADO</label>
+                <input type="text" id="relatorEncargado" readonly>
+            </div>
+            
+            <div class="section">
+                <label>Firma Relator:</label>
+                <img src="https://raw.githubusercontent.com/Maquipan/prevension/main/Firma.png" alt="Firma del Relator" style="max-width: 250px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 5px;">
             </div>
 
             <div class="section">
@@ -198,32 +196,18 @@
 <script>
     function prepareForPrinting(elementId) {
         document.querySelectorAll('.printable-area').forEach(el => el.classList.remove('printable-area'));
-        const elementToPrint = document.getElementById(elementId);
+        const elementToPrint = document.getElementById(elementId).closest('.content-box');
         if (elementToPrint) {
-            const parentBox = elementToPrint.closest('.content-box');
-            if (parentBox) {
-                parentBox.classList.add('printable-area');
-            } else {
-                elementToPrint.classList.add('printable-area');
-            }
+            elementToPrint.classList.add('printable-area');
         }
     }
 
-    function afterPrint() {
-        document.querySelector('.no-print')?.style.setProperty('display', 'block', 'important');
-        document.querySelectorAll('.content-box').forEach(box => box.style.display = 'block');
+    window.addEventListener('afterprint', () => {
         const printedElement = document.querySelector('.printable-area');
         if (printedElement) {
             printedElement.classList.remove('printable-area');
         }
-        const activeTab = document.querySelector('.tab-button.active');
-        if (activeTab && activeTab.getAttribute('onclick').includes('informe-riesgos')) {
-             document.getElementById('registro-actividad-box').style.display = 'none';
-        }
-    }
-    
-    window.addEventListener('beforeprint', () => prepareForPrinting(window.currentPrintingArea));
-    window.addEventListener('afterprint', afterPrint);
+    });
 
     async function loadTabContent(btn, tabName) {
         document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
@@ -254,13 +238,13 @@
     }
 
     function descargarRegistroComoPdf() {
-        window.currentPrintingArea = 'registro-actividad-box';
+        prepareForPrinting('registroActividadForm');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
     
     function descargarInformeComoPdf() {
-        window.currentPrintingArea = 'tab-content-area';
+        prepareForPrinting('tab-content-area');
         alert("Se abrirá el diálogo de impresión. Por favor, selecciona 'Guardar como PDF' como destino.");
         window.print();
     }
@@ -268,7 +252,7 @@
     async function descargarComoPng() {
         const form = document.getElementById('registroActividadForm');
         if (!form) return;
-        html2canvas(form, { scale: 2, useCORS: true }).then(canvas => {
+        html2canvas(form.closest('.content-box'), { scale: 2, useCORS: true }).then(canvas => {
             const link = document.createElement('a');
             link.download = 'Registro_Actividad.png';
             link.href = canvas.toDataURL();
@@ -322,6 +306,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('relatorEncargado').value = "Oscar Cayuqueo";
         
+        // Inicializar firma del único participante
         const firmaParticipante = document.getElementById('p_sig_1');
         if (firmaParticipante) {
             initializeSignaturePad(firmaParticipante);
@@ -334,8 +319,8 @@
     });
 
     // Dummy functions para evitar errores si se llama a las funciones del otro formulario
-    function descargarInformeRiesgos() { alert('Esta función no está disponible en esta vista.'); }
-    function descargarInformeComoWord() { alert('Esta función no está disponible en esta vista.'); }
+    function descargarInformeRiesgos() { alert('Función no aplicable en esta vista.'); }
+    function descargarInformeComoWord() { alert('Función no aplicable en esta vista.'); }
 </script>
 
 </body>
