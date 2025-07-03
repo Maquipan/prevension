@@ -247,6 +247,16 @@ function initializeSignaturePad(canvasEl) {
     canvasEl.addEventListener('touchend', stopDrawing, { passive: false });
     canvasEl.addEventListener('touchmove', draw, { passive: false });
 }
+    // --- NUEVA FUNCIÓN PARA LIMPIAR LA FIRMA DEL INFORME DE RIESGOS ---
+function limpiarFirmaIrl() {
+    const canvas = document.getElementById('firma_trabajador_irl');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // También la elimina del almacenamiento local para que no reaparezca
+        localStorage.removeItem('firma_trabajador_irl');
+    }
+}
 
 // --- FUNCIONES DE DESCARGA PARA EL INFORME DE RIESGOS (IRL) ---
 function descargarIrlComo(format) {
@@ -388,7 +398,7 @@ function loadSignature(id) {
     }
 }
 function limpiarFormulario() {
-    if (confirm('¿Estás seguro que quieres borrar los datos del participante y su firma?')) {
+    if (confirm('¿Estás seguro de que quieres borrar todos los datos del formulario?')) {
         ['p_rut_1', 'p_name_1', 'p_cargo_1', 'temasTratados'].forEach(id => {
             const el = document.getElementById(id);
             if (el) { el.value = ''; localStorage.removeItem(id); }
