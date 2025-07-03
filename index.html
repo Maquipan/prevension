@@ -309,8 +309,8 @@ function descargarIrlComoPdfOptimizado() {
                 const firmaCanvas = document.getElementById('firma_trabajador_irl');
                 const isSignatureEmpty = !firmaCanvas.getContext('2d').getImageData(0, 0, firmaCanvas.width, firmaCanvas.height).data.some(channel => channel !== 0);
                 if (!isSignatureEmpty) {
-                    const imgData = firmaCanvas.toDataURL('image/jpeg', 0.7); // Comprimir firma
-                    pdf.addImage(imgData, 'JPEG', data.cell.x + 2, data.cell.y + 2, 60, 20);
+                    const imgData = firmaCanvas.toDataURL('image/png'); 
+                    pdf.addImage(imgData, 'PNG', data.cell.x + 2, data.cell.y + 2, 60, 20);
                 }
             }
         }
@@ -384,7 +384,7 @@ async function descargarComoPdfNativo() {
         didParseCell: function(data) {
             if (data.row.section === 'head' && data.column.index === 0) {
                 const img = document.getElementById('logo-for-pdf');
-                try { pdf.addImage(img, 'JPEG', data.cell.x + 5, data.cell.y + 2, 15, 12); }
+                try { pdf.addImage(img, 'PNG', data.cell.x + 5, data.cell.y + 2, 15, 12); } // Revertido a PNG por calidad
                 catch(e) { console.error("Error al añadir el logo al PDF:", e); }
             }
         }
@@ -413,7 +413,7 @@ async function descargarComoPdfNativo() {
     pdf.setFont(undefined, 'bold'); pdf.text('RELATOR/ENCARGADO:', margin, y);
     pdf.setFont(undefined, 'normal'); pdf.text(document.getElementById('relatorEncargado').value, margin + 50, y);
     const relatorSigImg = document.getElementById('relator-signature-img');
-    try { pdf.addImage(relatorSigImg, 'JPEG', docWidth - margin - 60, y - 5, 50, 15); }
+    try { pdf.addImage(relatorSigImg, 'PNG', docWidth - margin - 60, y - 5, 50, 15); } // Revertido a PNG por calidad
     catch(e) { console.error("Error al añadir firma del relator:", e); }
     pdf.line(docWidth - margin - 60, y + 12, docWidth - margin - 10, y + 12);
     pdf.setFontSize(8); pdf.text('Firma Relator', docWidth - margin - 48, y + 15);
@@ -430,10 +430,24 @@ async function descargarComoPdfNativo() {
         headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
         didDrawCell: (data) => {
             if (data.section === 'body' && data.column.index === 3 && !isSignatureEmpty) {
-                 // --- CAMBIO CLAVE: Comprimir firma a JPEG ---
-                 const sigImgData = participantCanvas.toDataURL('image/jpeg', 0.7);
-                 try { pdf.addImage(sigImgData, 'JPEG', data.cell.x + 5, data.cell.y + 2, 35, 12); }
-                 catch(e) { console.error("Error al añadir firma de participante:", e); }
+                // --- SOLUCIÓN DEFINITIVA PARA EL TAMAÑO DE LA FIRMA ---
+                // 1. Crear un canvas temporal con tamaño fijo y optimizado
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 280; // Ancho fijo para la imagen de la firma (en píxeles)
+                tempCanvas.height = 96;
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // 2. Dibujar la firma del canvas original (de alta resolución) en el canvas temporal (tamaño optimizado)
+                tempCtx.drawImage(participantCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // 3. Obtener la imagen del canvas temporal. ¡Esta imagen será mucho más liviana!
+                const sigImgData = tempCanvas.toDataURL('image/png');
+                
+                try { 
+                    pdf.addImage(sigImgData, 'PNG', data.cell.x + 5, data.cell.y + 2, 35, 12); 
+                } catch(e) { 
+                    console.error("Error al añadir firma de participante:", e); 
+                }
             }
         },
         columnStyles: { 3: { minCellHeight: 15 } }
@@ -515,6 +529,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (firstTab) firstTab.click();
 });
 </script>
+
 
 </body>
 </html>
